@@ -23,4 +23,9 @@ public class PlayerController {
     public ResponseEntity<PlayerDTO> findById(@PathVariable("personId") Long id) {
         return ResponseEntity.ok(this.playerService.findById(id));
     }
+
+    @PostMapping
+    public ResponseEntity<PlayerDTO> save(@RequestBody PlayerDTO playerDTO) {
+        return ResponseEntity.ok(this.playerService.save(playerDTO));
+    }
 }
