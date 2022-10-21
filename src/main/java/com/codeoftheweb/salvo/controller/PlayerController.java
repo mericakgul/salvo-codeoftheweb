@@ -1,12 +1,13 @@
 package com.codeoftheweb.salvo.controller;
 
-import com.codeoftheweb.salvo.model.dto.PlayerDTO;
+import com.codeoftheweb.salvo.model.dto.PlayerDto;
 import com.codeoftheweb.salvo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/player")
@@ -15,17 +16,30 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @GetMapping
-    public ResponseEntity<List<PlayerDTO>> findAll() {
+    public ResponseEntity<List<PlayerDto>> findAll() {
         return ResponseEntity.ok(this.playerService.findAll());
     }
 
-    @GetMapping("/{personId}")
-    public ResponseEntity<PlayerDTO> findById(@PathVariable("personId") Long id) {
-        return ResponseEntity.ok(this.playerService.findById(id));
+    @GetMapping("/{playerId}")
+    public ResponseEntity<PlayerDto> findById(@PathVariable("playerId") UUID uuid) {
+        return ResponseEntity.ok(this.playerService.findById(uuid));
     }
 
     @PostMapping
-    public ResponseEntity<PlayerDTO> save(@RequestBody PlayerDTO playerDTO) {
+    public ResponseEntity<PlayerDto> save(@RequestBody PlayerDto playerDTO) {
         return ResponseEntity.ok(this.playerService.save(playerDTO));
     }
+
+//    @PutMapping
+//    public ResponseEntity<PlayerDto> updateById(@RequestBody PlayerDto playerDto,
+//                                            @RequestParam UUID uuid){
+//        return ResponseEntity.ok(this.playerService.updateById(playerDto, uuid));
+//    }
+
+    @DeleteMapping("/{playerId}")
+    public ResponseEntity<Void> deleteById(@PathVariable("playerId") UUID uuid){
+        this.playerService.deleteById(uuid);
+        return ResponseEntity.ok().build();
+    }
+
 }

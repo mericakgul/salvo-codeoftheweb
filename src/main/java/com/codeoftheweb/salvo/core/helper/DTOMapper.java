@@ -1,11 +1,8 @@
-package com.codeoftheweb.salvo.helper;
+package com.codeoftheweb.salvo.core.helper;
 
 import lombok.RequiredArgsConstructor;
 //import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

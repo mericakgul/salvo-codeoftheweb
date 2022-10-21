@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
-public class PlayerDTO {
-    private Long id;
+public class PlayerDto {
+    private UUID uuid;
     private String userName;
-    public PlayerDTO(Player player){
-        this.id = player.getId();
+    public PlayerDto(Player player){
+        this.uuid = player.getUuid();
         this.userName = player.getUserName();
     }
 }
