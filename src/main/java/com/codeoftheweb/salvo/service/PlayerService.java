@@ -71,8 +71,15 @@ public class PlayerService {
         }
     }
 
-    // TODO
-//    public PlayerDto updateById(PlayerDto playerDto, UUID uuid) {
-//
-//    }
+    public PlayerDto updateUserNameById(PlayerDto playerDto, UUID uuid) {
+        Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
+        if(playerOptional.isPresent()){
+            Player player = playerOptional.get();
+            player.setUserName(playerDto.getUserName());
+            Player playerUpdated = this.playerRepository.save(player);
+            return new PlayerDto(playerUpdated);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no Player with this id to be updated.");
+        }
+    }
 }

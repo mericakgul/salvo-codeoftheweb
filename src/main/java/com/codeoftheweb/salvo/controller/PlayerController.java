@@ -30,11 +30,11 @@ public class PlayerController {
         return ResponseEntity.ok(this.playerService.save(playerDTO));
     }
 
-//    @PutMapping
-//    public ResponseEntity<PlayerDto> updateById(@RequestBody PlayerDto playerDto,
-//                                            @RequestParam UUID uuid){
-//        return ResponseEntity.ok(this.playerService.updateById(playerDto, uuid));
-//    }
+    @PutMapping
+    public ResponseEntity<PlayerDto> updateUserNameById(@RequestBody PlayerDto playerDto,
+                                            @RequestParam UUID uuid){
+        return ResponseEntity.ok(this.playerService.updateUserNameById(playerDto, uuid));
+    }
 
     @DeleteMapping("/{playerId}")
     public ResponseEntity<Void> deleteById(@PathVariable("playerId") UUID uuid){
