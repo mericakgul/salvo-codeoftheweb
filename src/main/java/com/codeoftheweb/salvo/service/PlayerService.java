@@ -24,7 +24,7 @@ public class PlayerService {
 
     public List<PlayerDto> findAll() {
         List<Player> playerList = this.playerRepository.findAll();
-        if(playerList.isEmpty()){
+        if (playerList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is not any Player yet.");
         } else {
             return playerList.stream()
@@ -36,7 +36,7 @@ public class PlayerService {
 
     public PlayerDto findById(UUID uuid) {
         Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
-        if(playerOptional.isPresent()){
+        if (playerOptional.isPresent()) {
             Player player = playerOptional.get();
             return new PlayerDto(player);
 //            return this.dtoMapper.mapModel(player, PlayerDTO.class);
@@ -46,23 +46,29 @@ public class PlayerService {
     }
 
     public PlayerDto save(PlayerDto playerDTO) {
-        Optional<Player> player = this.playerRepository.findByUserName(playerDTO.getUserName());
-        if(player.isPresent()){
+        Optional<Player> playerOptional = this.playerRepository.findByUserName(playerDTO.getUserName());
+        if (playerOptional.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a player with this username.");
         } else {
-            try {
-                Player newPlayer = new Player(playerDTO);
-                Player savedPlayer = this.playerRepository.save(newPlayer);
-                return new PlayerDto(savedPlayer);
-            } catch (TransactionSystemException exception) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is a problem in the request. There might be a property with null value or wrong property name.");
-            }
+            Player newPlayer = new Player(playerDTO);
+            return trySavingPlayer(newPlayer);
+        }
+    }
+
+    public PlayerDto updateUserNameById(PlayerDto playerDto, UUID uuid) {
+        Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
+        if (playerOptional.isPresent()) {
+            Player playerToBeUpdated = playerOptional.get();
+            playerToBeUpdated.setUserName(playerDto.getUserName());
+            return trySavingPlayer(playerToBeUpdated);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no Player with this id to be updated.");
         }
     }
 
     public void deleteById(UUID uuid) {
         Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
-        if(playerOptional.isPresent()){
+        if (playerOptional.isPresent()) {
             Player player = playerOptional.get();
             player.setDeletedDate(new Date());
             this.playerRepository.save(player);
@@ -71,15 +77,12 @@ public class PlayerService {
         }
     }
 
-    public PlayerDto updateUserNameById(PlayerDto playerDto, UUID uuid) {
-        Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
-        if(playerOptional.isPresent()){
-            Player player = playerOptional.get();
-            player.setUserName(playerDto.getUserName());
-            Player playerUpdated = this.playerRepository.save(player);
-            return new PlayerDto(playerUpdated);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no Player with this id to be updated.");
+    private PlayerDto trySavingPlayer(Player player) {
+        try {
+            Player playerSaved = this.playerRepository.save(player);
+            return new PlayerDto(playerSaved);
+        } catch (TransactionSystemException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is a problem in the request. There might be a property with null or invalid value or wrong property name.");
         }
     }
 }
