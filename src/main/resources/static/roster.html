@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salvo App</title>
+</head>
+<body>
+    <h1>Player Roster</h1>
+    <ul id="playerList"></ul>
+    <script type="module">
+        const fetchJson = url =>
+            fetch(url).then((response) => {
+                console.log('response', response);
+                if(response.ok){
+                    console.log('lalalala',response.json);
+                    return response.json;
+                } else {
+                    throw new Error('dfgdfgdf' + response.statusText);
+                }
+            });
+
+        fetchJson('/player').then(json => {
+            json.forEach(player => {
+                const listItem = document.createElement('li');
+                const listItemText = document.createTextNode(player['userName'])
+                listItem.appendChild(listItemText);
+                document.getElementById('playerList').appendChild(listItem);
+            })
+        }).catch(error => {
+            console.log('error', error);
+        });
+    </script>
+</body>
+</html>
