@@ -6,7 +6,6 @@ import com.codeoftheweb.salvo.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
@@ -51,7 +50,8 @@ public class PlayerService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a player with this username.");
         } else {
             Player newPlayer = new Player(playerDTO);
-            return trySavingPlayer(newPlayer);
+            Player playerSaved = this.playerRepository.save(newPlayer);
+            return new PlayerDto(playerSaved);
         }
     }
 
@@ -60,7 +60,8 @@ public class PlayerService {
         if (playerOptional.isPresent()) {
             Player playerToBeUpdated = playerOptional.get();
             playerToBeUpdated.setUserName(playerDto.getUserName());
-            return trySavingPlayer(playerToBeUpdated);
+            Player playerSaved = this.playerRepository.save(playerToBeUpdated);
+            return new PlayerDto(playerSaved);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no Player with this id to be updated.");
         }
@@ -74,15 +75,6 @@ public class PlayerService {
             this.playerRepository.save(player);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is not a player to delete with this id yet.");
-        }
-    }
-
-    private PlayerDto trySavingPlayer(Player player) {
-        try {
-            Player playerSaved = this.playerRepository.save(player);
-            return new PlayerDto(playerSaved);
-        } catch (TransactionSystemException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is a problem in the request. There might be a property with null or invalid value or wrong property name.");
         }
     }
 }

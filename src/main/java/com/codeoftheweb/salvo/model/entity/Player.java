@@ -9,9 +9,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,12 +20,10 @@ import java.util.UUID;
 public class Player {
 
     @Id
+    @GeneratedValue
     @Type(type = "uuid-char")
     private UUID uuid = UUID.randomUUID();
     @Column(unique = true)
-    @NotNull
-    @NotEmpty
-    @Email
     private String userName;
 
     @Column(name = "deleted_date")

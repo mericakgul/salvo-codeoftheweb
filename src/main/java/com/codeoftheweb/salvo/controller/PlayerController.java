@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,12 +27,12 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<PlayerDto> save(@RequestBody PlayerDto playerDTO) {
+    public ResponseEntity<PlayerDto> save(@Valid @RequestBody PlayerDto playerDTO) {
         return ResponseEntity.ok(this.playerService.save(playerDTO));
     }
 
     @PutMapping
-    public ResponseEntity<PlayerDto> updateUserNameById(@RequestBody PlayerDto playerDto,
+    public ResponseEntity<PlayerDto> updateUserNameById(@Valid @RequestBody PlayerDto playerDto,
                                             @RequestParam UUID uuid){
         return ResponseEntity.ok(this.playerService.updateUserNameById(playerDto, uuid));
     }
