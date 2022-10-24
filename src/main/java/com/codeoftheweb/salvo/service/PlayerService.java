@@ -6,6 +6,7 @@ import com.codeoftheweb.salvo.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
@@ -44,29 +45,27 @@ public class PlayerService {
         }
     }
 
-    public PlayerDto save(PlayerDto playerDTO) {
-        Optional<Player> playerOptional = this.playerRepository.findByUserName(playerDTO.getUserName());
-        if (playerOptional.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a player with this username.");
-        } else {
-            Player newPlayer = new Player(playerDTO);
-            Player playerSaved = this.playerRepository.save(newPlayer);
-            return new PlayerDto(playerSaved);
-        }
+    @Transactional
+    public PlayerDto save(PlayerDto playerDto) {
+        Optional<Player> playerOptional = this.playerRepository.findByUserName(playerDto.getUserName());
+        Player newPlayer = new Player(playerDto);
+        return trySavingPlayer(playerOptional, newPlayer);
     }
 
+    @Transactional
     public PlayerDto updateUserNameById(PlayerDto playerDto, UUID uuid) {
-        Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
-        if (playerOptional.isPresent()) {
-            Player playerToBeUpdated = playerOptional.get();
+        Optional<Player> playerToBeUpdatedOptional = this.playerRepository.findByUuid(uuid);
+        Optional<Player> playerPotentiallyExistWithSameUserName = this.playerRepository.findByUserName(playerDto.getUserName());
+        if (playerToBeUpdatedOptional.isPresent()) {
+            Player playerToBeUpdated = playerToBeUpdatedOptional.get();
             playerToBeUpdated.setUserName(playerDto.getUserName());
-            Player playerSaved = this.playerRepository.save(playerToBeUpdated);
-            return new PlayerDto(playerSaved);
+            return trySavingPlayer(playerPotentiallyExistWithSameUserName, playerToBeUpdated);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no Player with this id to be updated.");
         }
     }
 
+    @Transactional
     public void deleteById(UUID uuid) {
         Optional<Player> playerOptional = this.playerRepository.findByUuid(uuid);
         if (playerOptional.isPresent()) {
@@ -75,6 +74,15 @@ public class PlayerService {
             this.playerRepository.save(player);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is not a player to delete with this id yet.");
+        }
+    }
+
+    private PlayerDto trySavingPlayer(Optional<Player> playerOptional, Player playerToBeSaved) {
+        if (playerOptional.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a player with this username.");
+        } else {
+            Player playerSaved = this.playerRepository.save(playerToBeSaved);
+            return new PlayerDto(playerSaved);
         }
     }
 }
