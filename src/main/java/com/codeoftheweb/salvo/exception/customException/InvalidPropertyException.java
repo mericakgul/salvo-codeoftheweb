@@ -1,4 +1,4 @@
-//package com.codeoftheweb.salvo.customException;
+//package com.codeoftheweb.salvo.exception.customException;
 //
 //import org.springframework.http.HttpStatus;
 //import org.springframework.web.bind.annotation.ResponseStatus;
