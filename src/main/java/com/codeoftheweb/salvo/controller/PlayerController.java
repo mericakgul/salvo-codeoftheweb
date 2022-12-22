@@ -38,8 +38,9 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{playerId}")
-    public void deleteById(@PathVariable("playerId") UUID uuid){
+    public ResponseEntity<String> deleteById(@PathVariable("playerId") UUID uuid){
         this.playerService.deleteById(uuid);
+        return ResponseEntity.ok().body("The player with this id has been deleted: " + uuid);
     }
 
 }

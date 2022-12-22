@@ -47,7 +47,7 @@ public class PlayerService {
 
     @Transactional
     public PlayerDto save(PlayerDto playerDto) {
-        Optional<Player> playerOptional = this.playerRepository.findByUserName(playerDto.getUserName());
+        Optional<Player> playerOptional = this.playerRepository.findByUserName(playerDto.getUserName()); //TODO orElseThrow can be added here instead of using Optional
         if(playerOptional.isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a player with this username.");
         } else {
