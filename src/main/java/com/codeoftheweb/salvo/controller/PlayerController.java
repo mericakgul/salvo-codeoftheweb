@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:63342/", maxAge = 3600)
 @RestController
-@RequestMapping("/player")
+@RequestMapping("/api/player")
 @RequiredArgsConstructor
 public class PlayerController {
     private final PlayerService playerService;
@@ -22,8 +22,8 @@ public class PlayerController {
     }
 
     @GetMapping("/{playerId}")
-    public PlayerDto findById(@PathVariable("playerId") UUID uuid) {
-        return this.playerService.findById(uuid);
+    public PlayerDto findById(@PathVariable("playerId") Long id) {
+        return this.playerService.findById(id);
     }
 
     @PostMapping
@@ -32,15 +32,15 @@ public class PlayerController {
     }
 
     @PutMapping
-    public PlayerDto updateUserNameById(@Valid @RequestBody PlayerDto playerDto,
-                                            @RequestParam UUID uuid){
-        return this.playerService.updateUserNameById(playerDto, uuid);
+    public PlayerDto updateUsernameById(@Valid @RequestBody PlayerDto playerDto,
+                                            @RequestParam Long id){
+        return this.playerService.updateUsernameById(playerDto, id);
     }
 
     @DeleteMapping("/{playerId}")
-    public ResponseEntity<String> deleteById(@PathVariable("playerId") UUID uuid){
-        this.playerService.deleteById(uuid);
-        return ResponseEntity.ok().body("The player with this id has been deleted: " + uuid);
+    public ResponseEntity<String> deleteById(@PathVariable("playerId") Long id){
+        this.playerService.deleteById(id);
+        return ResponseEntity.ok().body("The player with this id has been deleted: " + id);
     }
 
 }

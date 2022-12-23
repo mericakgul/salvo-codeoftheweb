@@ -8,19 +8,18 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class PlayerDto {
-    private UUID uuid;
+    private Long id;
     @NotNull
     @NotEmpty
     @Email
-    private String userName;
+    private String username;
     public PlayerDto(Player player){
-        this.uuid = player.getUuid();
-        this.userName = player.getUserName();
+        this.id = player.getId();
+        this.username = player.getUsername();
     }
 }
