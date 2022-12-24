@@ -1,6 +1,5 @@
 package com.codeoftheweb.salvo;
 
-import com.codeoftheweb.salvo.model.dto.PlayerDto;
 import com.codeoftheweb.salvo.model.entity.Game;
 import com.codeoftheweb.salvo.model.entity.Player;
 import com.codeoftheweb.salvo.repository.GameRepository;

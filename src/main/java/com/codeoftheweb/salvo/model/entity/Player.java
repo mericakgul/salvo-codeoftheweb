@@ -1,7 +1,6 @@
 package com.codeoftheweb.salvo.model.entity;
 
 import com.codeoftheweb.salvo.core.util.DeletedDateUtil;
-import com.codeoftheweb.salvo.model.dto.PlayerDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,9 +25,9 @@ public class Player {
     @Column(name = "deleted_date")
     private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
 
-    public Player(PlayerDto playerDTO) {
-        this.username = playerDTO.getUsername();
-    }
+//    public Player(PlayerDto playerDTO) {
+//        this.username = playerDTO.getUsername();
+//    }
 
     public Player(String username){
         this.username = username;

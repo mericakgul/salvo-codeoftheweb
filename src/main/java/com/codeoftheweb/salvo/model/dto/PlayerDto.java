@@ -18,8 +18,4 @@ public class PlayerDto {
     @NotEmpty
     @Email
     private String username;
-    public PlayerDto(Player player){
-        this.id = player.getId();
-        this.username = player.getUsername();
-    }
 }
