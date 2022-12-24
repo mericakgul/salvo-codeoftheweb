@@ -1,19 +1,16 @@
 package com.codeoftheweb.salvo.model.entity;
 
-import com.codeoftheweb.salvo.core.util.DeletedDateUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Where(clause = "DELETED_DATE = '1970-01-01 00:00:00.000'") // For Soft deleting
+//@Where(clause = "DELETED_DATE = '1970-01-01 00:00:00.000'") // For Soft deleting
 public class Player {
 
     @Id
@@ -22,8 +19,8 @@ public class Player {
     @Column(unique = true)
     private String username;
 
-    @Column(name = "deleted_date")
-    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
+//    @Column(name = "deleted_date")
+//    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
 
     public Player(String username){
         this.username = username;
