@@ -25,12 +25,14 @@ public class Player {
     @Column(name = "deleted_date")
     private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
 
+    public Player(String username){
+        this.username = username;
+    }
+
+
 //    public Player(PlayerDto playerDTO) {
 //        this.username = playerDTO.getUsername();
 //    }
 
-    public Player(String username){
-        this.username = username;
-    }
 
 }
