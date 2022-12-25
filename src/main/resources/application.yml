@@ -14,3 +14,9 @@ spring:
     jpa:
         hibernate:
             ddl-auto: create
+    data:
+        rest:
+            base-path: /rest
+    jackson:
+        serialization:
+            INDENT_OUTPUT: true

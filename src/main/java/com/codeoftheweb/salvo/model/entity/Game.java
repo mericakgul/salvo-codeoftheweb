@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "game")
@@ -21,6 +23,9 @@ public class Game {
 
     @Column(name = "creation_date")
     private Date creationDate;
+
+    @OneToMany(mappedBy = "game")
+    private Set<GamePlayer> gamePlayers = new HashSet<>();
 
 //    @Column(name = "deleted_date")
 //    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();

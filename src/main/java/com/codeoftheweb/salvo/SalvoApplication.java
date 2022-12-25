@@ -1,7 +1,9 @@
 package com.codeoftheweb.salvo;
 
 import com.codeoftheweb.salvo.model.entity.Game;
+import com.codeoftheweb.salvo.model.entity.GamePlayer;
 import com.codeoftheweb.salvo.model.entity.Player;
+import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -19,16 +21,28 @@ public class SalvoApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository) {
+    public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepository) {
         return (args) -> {
-            playerRepository.save(new Player("j.bauer@ctu.gov"));
-            playerRepository.save(new Player("c.obrian@ctu.gov"));
-            playerRepository.save(new Player("kim_bauer@gmail.com"));
-            playerRepository.save(new Player("t.almeida@ctu.gov"));
+            Player player1 = new Player("j.bauer@ctu.gov");
+            Player player2 = new Player("c.obrian@ctu.gov");
+            Player player3 = new Player("kim_bauer@gmail.com");
+            Player player4 = new Player("t.almeida@ctu.gov");
+            playerRepository.save(player1);
+            playerRepository.save(player2);
+            playerRepository.save(player3);
+            playerRepository.save(player4);
 
-            gameRepository.save(new Game(new Date()));
-            gameRepository.save(new Game(Date.from(new Date().toInstant().plusSeconds(3600))));
-            gameRepository.save(new Game(Date.from(new Date().toInstant().plusSeconds(7200))));
+            Game game1 = new Game(new Date());
+            Game game2 = new Game(Date.from(new Date().toInstant().plusSeconds(3600)));
+            Game game3 = new Game(Date.from(new Date().toInstant().plusSeconds(7200)));
+            gameRepository.save(game1);
+            gameRepository.save(game2);
+            gameRepository.save(game3);
+
+            GamePlayer gamePlayerOne = new GamePlayer(game1, player1, new Date());
+            GamePlayer gamePlayerTwo = new GamePlayer(game1, player2, new Date());
+            gamePlayerRepository.save(gamePlayerOne);
+            gamePlayerRepository.save(gamePlayerTwo);
         };
     }
 

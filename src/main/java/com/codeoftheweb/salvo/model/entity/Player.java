@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -19,13 +21,15 @@ public class Player {
     @Column(unique = true)
     private String username;
 
-//    @Column(name = "deleted_date")
-//    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
+    @OneToMany(mappedBy = "player")
+    private Set<GamePlayer> gamePlayers = new HashSet<>();
 
     public Player(String username){
         this.username = username;
     }
 
+//    @Column(name = "deleted_date")
+//    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
 
 //    public Player(PlayerDto playerDTO) {
 //        this.username = playerDTO.getUsername();
