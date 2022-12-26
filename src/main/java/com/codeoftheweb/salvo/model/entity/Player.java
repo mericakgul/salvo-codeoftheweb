@@ -12,7 +12,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-//@Where(clause = "DELETED_DATE = '1970-01-01 00:00:00.000'") // For Soft deleting
 public class Player {
 
     @Id
@@ -21,19 +20,8 @@ public class Player {
     @Column(unique = true)
     private String username;
 
-    @OneToMany(mappedBy = "player")
-    private Set<GamePlayer> gamePlayers = new HashSet<>();
-
     public Player(String username){
         this.username = username;
     }
-
-//    @Column(name = "deleted_date")
-//    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
-
-//    public Player(PlayerDto playerDTO) {
-//        this.username = playerDTO.getUsername();
-//    }
-
 
 }

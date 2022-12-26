@@ -1,5 +1,6 @@
 package com.codeoftheweb.salvo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-//@Where(clause = "DELETED_DATE = '1970-01-01 00:00:00.000'") // For Soft deleting
 public class Game {
 
     @Id
@@ -24,11 +24,9 @@ public class Game {
     @Column(name = "creation_date")
     private Date creationDate;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "game")
-    private Set<GamePlayer> gamePlayers = new HashSet<>();
-
-//    @Column(name = "deleted_date")
-//    private Date deletedDate = DeletedDateUtil.getDefaultDeletedDate();
+    private Set<GamePlayer> gamePlayers = new HashSet<>(); // This also creates recursion.
 
     public Game(Date creationDate){
         this.creationDate = creationDate;

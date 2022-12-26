@@ -9,7 +9,7 @@
 //import javax.validation.Valid;
 //import java.util.List;
 //
-//@CrossOrigin(origins = "http://localhost:63342/", maxAge = 3600)
+//@CrossOrigin(origins = "http://localhost:63342/", maxAge = 3600) // this is to allow other urls to reach your controller.
 //@RestController
 //@RequestMapping("/api/player")
 //@RequiredArgsConstructor

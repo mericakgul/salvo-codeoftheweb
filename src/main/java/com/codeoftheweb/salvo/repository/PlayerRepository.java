@@ -2,11 +2,11 @@ package com.codeoftheweb.salvo.repository;
 
 import com.codeoftheweb.salvo.model.entity.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.Optional;
 
-@Repository
+@RepositoryRestResource
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<Player> findByUsername(String username);
 
