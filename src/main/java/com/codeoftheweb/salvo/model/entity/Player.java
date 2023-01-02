@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Table(name = "players")
 @Setter
 @NoArgsConstructor
 public class Player {

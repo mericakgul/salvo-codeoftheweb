@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "game")
+@Table(name = "games")
 @Getter
 @Setter
 @NoArgsConstructor
