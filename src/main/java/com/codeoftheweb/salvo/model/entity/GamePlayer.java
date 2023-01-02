@@ -18,8 +18,8 @@ public class GamePlayer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creation_date")
-    private Date creationDate;
+    @Column(name = "join_date")
+    private Date joinDate;
 
     @ManyToOne
     @JoinColumn(name = "game_id")
@@ -30,10 +30,10 @@ public class GamePlayer {
     private Player player;
 
 
-    public GamePlayer(Game game, Player player){
+    public GamePlayer(Game game, Player player, Date joinDate){
         this.game = game;
         this.player = player;
-        this.creationDate = game.getCreationDate();
+        this.joinDate = joinDate;
     }
 
 //    @JsonIgnore

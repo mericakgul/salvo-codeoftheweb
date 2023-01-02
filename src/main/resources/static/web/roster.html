@@ -25,7 +25,6 @@
         }
         addPerson(textBox.value).then(_ => {
             textBox.value = '';
-            location.reload();
         });
     });
 
@@ -40,12 +39,7 @@
         });
 
     fetchJson(`${API_URL}players`).then(json => {
-        json['_embedded']['players'].forEach(player => {
-            const listItem = document.createElement('li');
-            const listItemText = document.createTextNode(player['username'])
-            listItem.appendChild(listItemText);
-            document.getElementById('playerList').appendChild(listItem);
-        })
+        json['_embedded']['players'].forEach(player => addPlayerToTheList(player));
     }).catch(error => {
         console.log(error);
     });
@@ -61,11 +55,19 @@
             body: JSON.stringify(username)
         }).then(response => {
             if (response.ok) {
+                response.json().then(player => addPlayerToTheList(player));
                 alert('Appointment saved');
             } else {
                 throw new Error('add person error ' + response.statusText);
             }
         });
+
+    const addPlayerToTheList = (player) => {
+        const listItem = document.createElement('li');
+        const listItemText = document.createTextNode(player['username'])
+        listItem.appendChild(listItemText);
+        document.getElementById('playerList').appendChild(listItem);
+    }
 </script>
 </body>
 </html>

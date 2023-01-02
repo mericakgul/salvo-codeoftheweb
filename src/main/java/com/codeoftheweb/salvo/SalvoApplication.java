@@ -39,12 +39,12 @@ public class SalvoApplication {
             gameRepository.save(game2);
             gameRepository.save(game3);
 
-            GamePlayer gamePlayerOne = new GamePlayer(game1, player1);
-            GamePlayer gamePlayerTwo = new GamePlayer(game1, player2);
-            GamePlayer gamePlayerThree = new GamePlayer(game2, player1);
-            GamePlayer gamePlayerFour = new GamePlayer(game2, player4);
-            GamePlayer gamePlayerFive = new GamePlayer(game3, player1);
-            GamePlayer gamePlayerSix = new GamePlayer(game3, player3);
+            GamePlayer gamePlayerOne = new GamePlayer(game1, player1, new Date());
+            GamePlayer gamePlayerTwo = new GamePlayer(game1, player2, new Date());
+            GamePlayer gamePlayerThree = new GamePlayer(game2, player1, new Date());
+            GamePlayer gamePlayerFour = new GamePlayer(game2, player4, new Date());
+            GamePlayer gamePlayerFive = new GamePlayer(game3, player1, new Date());
+            GamePlayer gamePlayerSix = new GamePlayer(game3, player3, new Date());
             gamePlayerRepository.save(gamePlayerOne);
             gamePlayerRepository.save(gamePlayerTwo);
             gamePlayerRepository.save(gamePlayerThree);
