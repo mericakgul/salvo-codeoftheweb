@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "game_players")
@@ -28,6 +30,9 @@ public class GamePlayer {
     @ManyToOne
     @JoinColumn(name = "player_id")
     private Player player;
+
+    @OneToMany(mappedBy = "gamePlayer")
+    private Set<Ship> ships = new HashSet<>();
 
 
     public GamePlayer(Game game, Player player, Date joinDate){
