@@ -1,18 +1,11 @@
+import {fetchJson} from "./utilities/helpers";
 const gamesList = document.getElementById("games-list");
 
-const fetchGames = url =>
-    fetch(url).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('error: ' + response.statusText);
-        }
-    });
-
-fetchGames('/api/games').then(games => {
+fetchJson('/api/games').then(games => {
+    console.log('games: ', games);
     const gamesInfo = games.map(game =>
-        game['created'].toLocaleString() +
-        game['gamePlayers'].map(gamePlayer => gamePlayer['player']['username']).sort().join(','));
+        game['created'].toLocaleString() + ', ' +
+        game['gamePlayers'].map(gamePlayer => gamePlayer['player']['username']).sort().join(', '));
 
     gamesInfo.forEach(createListOfGamesInfo);
 });

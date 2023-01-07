@@ -14,6 +14,8 @@
 </div>
 <ul id='playerList'></ul>
 <script type='module'>
+    import {fetchJson} from "../scripts/utilities/helpers";
+
     const API_URL = '/rest/';
 
     const textBox = document.querySelector('#newPlayer');
@@ -28,15 +30,6 @@
         });
     });
 
-
-    const fetchJson = url =>
-        fetch(url).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error(response.statusText);
-            }
-        });
 
     fetchJson(`${API_URL}players`).then(json => {
         json['_embedded']['players'].forEach(player => addPlayerToTheList(player));
