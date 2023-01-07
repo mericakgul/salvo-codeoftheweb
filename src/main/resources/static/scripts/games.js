@@ -1,4 +1,4 @@
-import {fetchJson} from "./utilities/helpers";
+import {fetchJson} from "./utilities/helpers.js";
 const gamesList = document.getElementById("games-list");
 
 fetchJson('/api/games').then(games => {
