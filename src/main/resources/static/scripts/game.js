@@ -62,7 +62,7 @@ if (gamePlayerId !== null) {
 
 function placeShipsOnGrid(ships) {
     ships.forEach(ship => {
-        ship['locations'].forEach(location => {
+        ship['shipLocations'].forEach(location => {
             const gridCell = document.querySelector(`#${location}`);
             gridCell.setAttribute('style', 'background-color: rgba(12, 25, 25, 0.8)');
         });

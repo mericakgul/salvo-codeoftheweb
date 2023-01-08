@@ -2,6 +2,7 @@ package com.codeoftheweb.salvo.controller;
 
 import com.codeoftheweb.salvo.model.entity.Game;
 import com.codeoftheweb.salvo.model.entity.GamePlayer;
+import com.codeoftheweb.salvo.model.entity.ShipLocation;
 import com.codeoftheweb.salvo.model.entity.Ship;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
@@ -65,7 +66,9 @@ public class SalvoController {
                 .map(ship -> {
                     Map<String, Object> shipMap = new HashMap<>();
                     shipMap.put("type", ship.getShipType());
-                    shipMap.put("locations", ship.getLocations());
+                    shipMap.put("shipLocations", ship.getShipLocations()
+                            .stream()
+                            .map(ShipLocation::getGridCell));
                     return shipMap;
                 })
                 .collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package com.codeoftheweb.salvo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class GamePlayer {
     @JoinColumn(name = "player_id")
     private Player player;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "gamePlayer")
     private Set<Ship> ships = new HashSet<>();
 

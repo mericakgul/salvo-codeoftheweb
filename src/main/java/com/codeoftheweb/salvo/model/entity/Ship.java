@@ -1,12 +1,13 @@
 package com.codeoftheweb.salvo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "ships")
@@ -26,13 +27,12 @@ public class Ship {
     @JoinColumn(name = "game_player_id")
     private GamePlayer gamePlayer;
 
-    @ElementCollection
-    @Column(name = "locations")
-    private List<String> locations = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "ship")
+    private Set<ShipLocation> shipLocations = new HashSet<>();
 
-    public Ship(String shipType, GamePlayer gamePlayer, List<String> locations){
+    public Ship(String shipType, GamePlayer gamePlayer){
         this.shipType = shipType;
         this.gamePlayer = gamePlayer;
-        this.locations = locations;
     }
 }
