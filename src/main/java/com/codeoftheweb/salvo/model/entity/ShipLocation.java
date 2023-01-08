@@ -17,11 +17,12 @@ public class ShipLocation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "grid_cell")
+    private String gridCell;
+
     @ManyToOne
     @JoinColumn(name = "ship_id")
     private Ship ship;
-
-    private String gridCell;
 
     public ShipLocation(Ship ship, String gridCell){
         this.ship = ship;
