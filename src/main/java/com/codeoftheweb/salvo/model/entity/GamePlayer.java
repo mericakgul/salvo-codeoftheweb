@@ -36,6 +36,10 @@ public class GamePlayer {
     @OneToMany(mappedBy = "gamePlayer")
     private Set<Ship> ships = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "gamePlayer")
+    private Set<Salvo> salvoes = new HashSet<>();
+
 
     public GamePlayer(Game game, Player player, Date joinDate){
         this.game = game;

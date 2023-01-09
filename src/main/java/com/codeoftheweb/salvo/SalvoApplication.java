@@ -19,7 +19,8 @@ public class SalvoApplication {
     @Bean
     public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository,
                                       GamePlayerRepository gamePlayerRepository, ShipRepository shipRepository,
-                                      LocationRepository locationRepository) {
+                                      ShipLocationRepository shipLocationRepository, SalvoRepository salvoRepository,
+                                      SalvoLocationRepository salvoLocationRepository) {
         return (args) -> {
             // Players
             Player player1 = new Player("j.bauer@ctu.gov");
@@ -195,8 +196,121 @@ public class SalvoApplication {
             //Ship27 Locations
             shipLocations.add(new ShipLocation(ship27, "G6"));
             shipLocations.add(new ShipLocation(ship27, "H6"));
-            locationRepository.saveAll(shipLocations);
+            shipLocationRepository.saveAll(shipLocations);
 
+            // Salvoes
+            Salvo salvo1 = new Salvo(gamePlayer1, 1);
+            Salvo salvo2 = new Salvo(gamePlayer2, 1);
+            Salvo salvo3 = new Salvo(gamePlayer1, 2);
+            Salvo salvo4 = new Salvo(gamePlayer2, 2);
+            Salvo salvo5 = new Salvo(gamePlayer3, 1);
+            Salvo salvo6 = new Salvo(gamePlayer4, 1);
+            Salvo salvo7 = new Salvo(gamePlayer3, 2);
+            Salvo salvo8 = new Salvo(gamePlayer4, 2);
+            Salvo salvo9 = new Salvo(gamePlayer5, 1);
+            Salvo salvo10 = new Salvo(gamePlayer6, 1);
+            Salvo salvo11 = new Salvo(gamePlayer5, 2);
+            Salvo salvo12 = new Salvo(gamePlayer6, 2);
+            Salvo salvo13 = new Salvo(gamePlayer7, 1);
+            Salvo salvo14 = new Salvo(gamePlayer8, 1);
+            Salvo salvo15 = new Salvo(gamePlayer7, 2);
+            Salvo salvo16 = new Salvo(gamePlayer8, 2);
+            Salvo salvo17 = new Salvo(gamePlayer9, 1);
+            Salvo salvo18 = new Salvo(gamePlayer10, 1);
+            Salvo salvo19 = new Salvo(gamePlayer9, 2);
+            Salvo salvo20 = new Salvo(gamePlayer10, 2);
+            Salvo salvo21 = new Salvo(gamePlayer10, 3);
+            salvoRepository.save(salvo1); salvoRepository.save(salvo2); salvoRepository.save(salvo3);
+            salvoRepository.save(salvo4); salvoRepository.save(salvo5); salvoRepository.save(salvo6);
+            salvoRepository.save(salvo7); salvoRepository.save(salvo8); salvoRepository.save(salvo9);
+            salvoRepository.save(salvo10); salvoRepository.save(salvo11); salvoRepository.save(salvo12);
+            salvoRepository.save(salvo13); salvoRepository.save(salvo14); salvoRepository.save(salvo15);
+            salvoRepository.save(salvo16); salvoRepository.save(salvo17); salvoRepository.save(salvo18);
+            salvoRepository.save(salvo19); salvoRepository.save(salvo20); salvoRepository.save(salvo21);
+
+            // SALVO LOCATIONS
+            List<SalvoLocation> salvoLocations = new ArrayList<>();
+            // Salvo1 Locations
+            salvoLocations.add(new SalvoLocation(salvo1, "B5"));
+            salvoLocations.add(new SalvoLocation(salvo1, "C5"));
+            salvoLocations.add(new SalvoLocation(salvo1, "F1"));
+            // Salvo2 Locations
+            salvoLocations.add(new SalvoLocation(salvo2, "B4"));
+            salvoLocations.add(new SalvoLocation(salvo2, "B5"));
+            salvoLocations.add(new SalvoLocation(salvo2, "B6"));
+            // Salvo3 Locations
+            salvoLocations.add(new SalvoLocation(salvo3, "F2"));
+            salvoLocations.add(new SalvoLocation(salvo3, "D5"));
+            // Salvo4 Locations
+            salvoLocations.add(new SalvoLocation(salvo4, "E1"));
+            salvoLocations.add(new SalvoLocation(salvo4, "H3"));
+            salvoLocations.add(new SalvoLocation(salvo4, "A2"));
+            // Salvo5 Locations
+            salvoLocations.add(new SalvoLocation(salvo5, "A2"));
+            salvoLocations.add(new SalvoLocation(salvo5, "A4"));
+            salvoLocations.add(new SalvoLocation(salvo5, "G6"));
+            // Salvo6 Locations
+            salvoLocations.add(new SalvoLocation(salvo6, "B5"));
+            salvoLocations.add(new SalvoLocation(salvo6, "D5"));
+            salvoLocations.add(new SalvoLocation(salvo6, "C7"));
+            // Salvo7 Locations
+            salvoLocations.add(new SalvoLocation(salvo7, "A3"));
+            salvoLocations.add(new SalvoLocation(salvo7, "H6"));
+            // Salvo8 Locations
+            salvoLocations.add(new SalvoLocation(salvo8, "C5"));
+            salvoLocations.add(new SalvoLocation(salvo8, "C6"));
+            // Salvo9 Locations
+            salvoLocations.add(new SalvoLocation(salvo9, "G6"));
+            salvoLocations.add(new SalvoLocation(salvo9, "H6"));
+            salvoLocations.add(new SalvoLocation(salvo9, "A4"));
+            // Salvo10 Locations
+            salvoLocations.add(new SalvoLocation(salvo10, "H1"));
+            salvoLocations.add(new SalvoLocation(salvo10, "H2"));
+            salvoLocations.add(new SalvoLocation(salvo10, "H3"));
+            // Salvo11 Locations
+            salvoLocations.add(new SalvoLocation(salvo11, "A2"));
+            salvoLocations.add(new SalvoLocation(salvo11, "A3"));
+            salvoLocations.add(new SalvoLocation(salvo11, "D8"));
+            // Salvo12 Locations
+            salvoLocations.add(new SalvoLocation(salvo12, "E1"));
+            salvoLocations.add(new SalvoLocation(salvo12, "F2"));
+            salvoLocations.add(new SalvoLocation(salvo12, "G3"));
+            // Salvo13 Locations
+            salvoLocations.add(new SalvoLocation(salvo13, "A3"));
+            salvoLocations.add(new SalvoLocation(salvo13, "A4"));
+            salvoLocations.add(new SalvoLocation(salvo13, "F7"));
+            // Salvo14 Locations
+            salvoLocations.add(new SalvoLocation(salvo14, "B5"));
+            salvoLocations.add(new SalvoLocation(salvo14, "C6"));
+            salvoLocations.add(new SalvoLocation(salvo14, "H1"));
+            // Salvo15 Locations
+            salvoLocations.add(new SalvoLocation(salvo15, "A2"));
+            salvoLocations.add(new SalvoLocation(salvo15, "G6"));
+            salvoLocations.add(new SalvoLocation(salvo15, "H6"));
+            // Salvo16 Locations
+            salvoLocations.add(new SalvoLocation(salvo16, "C5"));
+            salvoLocations.add(new SalvoLocation(salvo16, "C7"));
+            salvoLocations.add(new SalvoLocation(salvo16, "D5"));
+            // Salvo17 Locations
+            salvoLocations.add(new SalvoLocation(salvo17, "A1"));
+            salvoLocations.add(new SalvoLocation(salvo17, "A2"));
+            salvoLocations.add(new SalvoLocation(salvo17, "A3"));
+            // Salvo18 Locations
+            salvoLocations.add(new SalvoLocation(salvo18, "B5"));
+            salvoLocations.add(new SalvoLocation(salvo18, "B6"));
+            salvoLocations.add(new SalvoLocation(salvo18, "C7"));
+            // Salvo19 Locations
+            salvoLocations.add(new SalvoLocation(salvo19, "G6"));
+            salvoLocations.add(new SalvoLocation(salvo19, "G7"));
+            salvoLocations.add(new SalvoLocation(salvo19, "G8"));
+            // Salvo20 Locations
+            salvoLocations.add(new SalvoLocation(salvo20, "C6"));
+            salvoLocations.add(new SalvoLocation(salvo20, "D6"));
+            salvoLocations.add(new SalvoLocation(salvo20, "E6"));
+            // Salvo21 Locations
+            salvoLocations.add(new SalvoLocation(salvo21, "H1"));
+            salvoLocations.add(new SalvoLocation(salvo21, "H8"));
+            salvoLocationRepository.saveAll(salvoLocations);
         };
     }
 
