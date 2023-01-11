@@ -1,9 +1,6 @@
 package com.codeoftheweb.salvo.controller;
 
-import com.codeoftheweb.salvo.model.entity.Game;
-import com.codeoftheweb.salvo.model.entity.GamePlayer;
-import com.codeoftheweb.salvo.model.entity.ShipLocation;
-import com.codeoftheweb.salvo.model.entity.Ship;
+import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,13 +29,14 @@ public class SalvoController {
     }
 
     @GetMapping("/game_view/{gamePlayerId}")
-    public Map<String, Object> getGameView(@PathVariable Long gamePlayerId){
+    public Map<String, Object> getGameView(@PathVariable Long gamePlayerId) {
         GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
         Game game = gamePlayer.getGame();
-        Map<String, Object> mapOfGameView = makeGameMap(game);
+        Map<String, Object> mapOfGameView = this.makeGameMap(game);
         mapOfGameView.put("gamePlayerId", gamePlayerId);
-        mapOfGameView.put("ships", createShipListOfPlayer(gamePlayer.getShips()));
+        mapOfGameView.put("ships", this.createShipListOfPlayer(gamePlayer.getShips()));
+        mapOfGameView.put("salvoes", this.createSalvoesOfGameForEachPlayer(gamePlayer));
         return new TreeMap<>(mapOfGameView);
     }
 
@@ -61,16 +59,33 @@ public class SalvoController {
                 .collect(Collectors.toList());
     }
 
-    private List<Object> createShipListOfPlayer(Set<Ship> ships){
+    private List<Object> createShipListOfPlayer(Set<Ship> ships) {
         return ships.stream()
                 .map(ship -> {
                     Map<String, Object> shipMap = new HashMap<>();
-                    shipMap.put("type", ship.getShipType());
+                    shipMap.put("shipType", ship.getShipType());
                     shipMap.put("shipLocations", ship.getShipLocations()
                             .stream()
                             .map(ShipLocation::getGridCell));
                     return shipMap;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private Map<Long, Object> createSalvoesOfGameForEachPlayer(GamePlayer gamePlayerRequested) {
+        Map<Long, Object> mapOfSalvoes = new HashMap<>();
+        Set<GamePlayer> gamePlayers = gamePlayerRequested.getGame().getGamePlayers();
+        gamePlayers.forEach(gamePlayer ->
+                    mapOfSalvoes.put(gamePlayer.getPlayer().getId(), this.createSalvoTurnsAndLocations(gamePlayer.getSalvoes())));
+        return mapOfSalvoes;
+    }
+
+    private Map<Integer, Object> createSalvoTurnsAndLocations(Set<Salvo> salvoes) {
+        Map<Integer, Object> mapOfLocations = new HashMap<>();
+        salvoes.forEach(salvo ->
+                mapOfLocations.put(salvo.getTurnNumber(), salvo.getSalvoLocations()
+                        .stream()
+                        .map(SalvoLocation::getGridCell)));
+        return mapOfLocations;
     }
 }
