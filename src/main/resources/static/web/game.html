@@ -7,8 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <p id="game-info"></p>
-    <div class="grid-container"></div>
+    <div class="grids-container">
+        <div>
+            <h3>Ship Grid</h3>
+            <p class="info" id="game-info">No game data!</p>
+            <div id="ships-grid-container" class="grid-container"></div>
+        </div>
+        <div>
+            <h3>Salvo Grid</h3>
+            <p class="info">Salvos you did!</p>
+            <div id="salvoes-grid-container" class="grid-container"></div>
+        </div>
+
+    </div>
 
 <script src="../scripts/game.js" type="module"></script>
 </body>
