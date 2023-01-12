@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "games")
@@ -26,7 +24,11 @@ public class Game {
 
     @JsonIgnore
     @OneToMany(mappedBy = "game")
-    private Set<GamePlayer> gamePlayers = new HashSet<>(); // This also creates recursion.
+    private Set<GamePlayer> gamePlayers = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "game")
+    private List<Score> scores = new ArrayList<>();
 
     public Game(Date creationDate){
         this.creationDate = creationDate;

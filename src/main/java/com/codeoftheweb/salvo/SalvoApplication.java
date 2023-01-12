@@ -20,7 +20,7 @@ public class SalvoApplication {
     public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository,
                                       GamePlayerRepository gamePlayerRepository, ShipRepository shipRepository,
                                       ShipLocationRepository shipLocationRepository, SalvoRepository salvoRepository,
-                                      SalvoLocationRepository salvoLocationRepository) {
+                                      SalvoLocationRepository salvoLocationRepository, ScoreRepository scoreRepository) {
         return (args) -> {
             // Players
             Player player1 = new Player("j.bauer@ctu.gov");
@@ -311,6 +311,18 @@ public class SalvoApplication {
             salvoLocations.add(new SalvoLocation(salvo21, "H1"));
             salvoLocations.add(new SalvoLocation(salvo21, "H8"));
             salvoLocationRepository.saveAll(salvoLocations);
+
+            //Scores
+            List<Score> scores = new ArrayList<>();
+            scores.add(new Score(game1, player1, 1.0, new Date()));
+            scores.add(new Score(game1, player2, 0.0, new Date()));
+            scores.add(new Score(game2, player1, 0.5, new Date()));
+            scores.add(new Score(game2, player2, 0.5, new Date()));
+            scores.add(new Score(game3, player2, 1.0, new Date()));
+            scores.add(new Score(game3, player4, 0.0, new Date()));
+            scores.add(new Score(game4, player2, 0.5, new Date()));
+            scores.add(new Score(game4, player1, 0.5, new Date()));
+            scoreRepository.saveAll(scores);
         };
     }
 
