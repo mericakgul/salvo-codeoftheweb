@@ -77,7 +77,11 @@ function placeShipsOnGrid(ships) {
     ships.forEach(ship => {
         ship['shipLocations'].forEach(location => {
             const gridCell = document.querySelector(`#SHIP${location}`);
-            gridCell.setAttribute('style', 'background-color: rgba(12, 25, 25, 0.8)');
+            if(gridCell) {
+                gridCell.setAttribute('style', 'background-color: rgba(12, 25, 25, 0.8)');
+            } else {
+                alert(`The location ${location} is not exist in the grid table. Check you locations.`);
+            }
         });
     });
 }
