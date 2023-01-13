@@ -20,7 +20,9 @@ public class SalvoService {
 
     public List<Object> getGames() {
         List<Game> games = this.gameRepository.findAll();
-        return games.stream().map(this::makeGameMap).collect(Collectors.toList());
+        return games.stream()
+                .map(this::makeGameMap)
+                .collect(Collectors.toList());
     }
 
     public Map<String, Object> getGameView(Long gamePlayerId) {
