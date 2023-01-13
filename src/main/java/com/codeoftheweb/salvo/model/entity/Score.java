@@ -26,16 +26,16 @@ public class Score {
     @JoinColumn(name = "player_id")
     private Player player;
 
-    @Column(name = "score")
-    private Double score;
+    @Column(name = "score_number")
+    private Double scoreNumber;
 
     @Column(name = "finish_date")
     private Date finishDate;
 
-    public Score(Game game, Player player, Double score, Date finishDate){
+    public Score(Game game, Player player, Double scoreNumber, Date finishDate){
         this.game = game;
         this.player = player;
-        this.score = score;
+        this.scoreNumber = scoreNumber;
         this.finishDate = finishDate;
     }
 }

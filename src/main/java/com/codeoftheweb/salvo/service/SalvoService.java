@@ -23,7 +23,7 @@ public class SalvoService {
         return games.stream().map(this::makeGameMap).collect(Collectors.toList());
     }
 
-    public Map<String, Object> getGameView(Long gamePlayerId){
+    public Map<String, Object> getGameView(Long gamePlayerId) {
         GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
         Game game = gamePlayer.getGame();
@@ -35,22 +35,32 @@ public class SalvoService {
     }
 
     private Map<String, Object> makeGameMap(Game game) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("gameId", game.getId());
-        map.put("created", game.getCreationDate());
-        map.put("gamePlayers", this.makeMapOfGamePlayers(game.getGamePlayers()));
-        return map;
+        Map<String, Object> gameMap = new HashMap<>();
+        gameMap.put("gameId", game.getId());
+        gameMap.put("created", game.getCreationDate());
+        gameMap.put("gamePlayers", this.makeMapOfGamePlayers(game.getGamePlayers()));
+        return gameMap;
     }
 
     private List<Object> makeMapOfGamePlayers(Set<GamePlayer> gamePlayers) {
         return gamePlayers.stream()
                 .map(gamePlayer -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", gamePlayer.getId());
-                    map.put("player", gamePlayer.getPlayer());
-                    return map;
+                    Map<String, Object> gamePlayerMap = new HashMap<>();
+                    gamePlayerMap.put("id", gamePlayer.getId());
+                    gamePlayerMap.put("player", gamePlayer.getPlayer());
+                    gamePlayerMap.put("score", this.gatherGamePlayerScore(gamePlayer));
+                    return gamePlayerMap;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private Double gatherGamePlayerScore(GamePlayer gamePlayer) {
+        List<Score> scoresOfGame = gamePlayer.getGame().getScores();
+        Long playerId = gamePlayer.getPlayer().getId();
+        Optional<Score> scoreOfGamePlayer = scoresOfGame.stream()
+                .filter(score -> Objects.equals(score.getPlayer().getId(), playerId))
+                .findFirst();
+        return scoreOfGamePlayer.map(Score::getScoreNumber).orElse(null);
     }
 
     private List<Object> createShipListOfPlayer(Set<Ship> ships) {
