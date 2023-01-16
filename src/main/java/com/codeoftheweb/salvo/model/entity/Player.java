@@ -25,6 +25,9 @@ public class Player {
     @Column(unique = true)
     private String username;
 
+    @Column(name = "password")
+    private String password;
+
     @JsonIgnore
     @OneToMany(mappedBy = "player")
     private Set<GamePlayer> gamePlayers = new HashSet<>();
@@ -33,8 +36,9 @@ public class Player {
     @OneToMany(mappedBy = "player")
     private List<Score> scores = new ArrayList<>();
 
-    public Player(String username){
+    public Player(String username, String password){
         this.username = username;
+        this.password = password;
     }
 
 }
