@@ -2,10 +2,7 @@ package com.codeoftheweb.salvo.controller;
 
 import com.codeoftheweb.salvo.service.SalvoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -26,4 +23,8 @@ public class SalvoController {
         return this.salvoService.getGameView(gamePlayerId);
     }
 
+    @PostMapping("/login")
+    public String login() {
+        return "Login";
+    }
 }

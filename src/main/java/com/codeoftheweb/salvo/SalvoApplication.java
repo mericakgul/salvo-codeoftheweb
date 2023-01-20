@@ -325,5 +325,4 @@ public class SalvoApplication {
             scoreRepository.saveAll(scores);
         };
     }
-
 }
