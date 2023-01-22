@@ -1,5 +1,6 @@
 package com.codeoftheweb.salvo.config;
 
+import com.codeoftheweb.salvo.service.SalvoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,19 +11,16 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityConfig, HttpSecurity> {
     @Autowired
-    private UserDetailsService userDetailsService;
+    private SalvoUserDetailsService userDetailsService;
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderConfiguration passwordEncoderConfiguration;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
@@ -62,7 +60,6 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
     public SimpleAuthenticationFilter authenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         SimpleAuthenticationFilter filter = new SimpleAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager);
-        filter.setAuthenticationFailureHandler(failureHandler());
         return filter;
     }
 
@@ -74,12 +71,8 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
     public AuthenticationProvider authProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPasswordEncoder(passwordEncoderConfiguration.passwordEncoder());
         return provider;
-    }
-
-    public SimpleUrlAuthenticationFailureHandler failureHandler() {
-        return new SimpleUrlAuthenticationFailureHandler("/login?error=true");
     }
 
 }
