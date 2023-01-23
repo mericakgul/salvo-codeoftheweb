@@ -35,7 +35,7 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        String[] whiteList = {"/web/games.html/**", "/scripts/**", "/web/login.html", "/api/games"};
+        String[] whiteList = {"/web/games.html/**", "/scripts/**", "/web/login.html", "/api/games", "/api/login"};
 
         http.csrf()
                 .disable()
@@ -49,6 +49,7 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
                 .and()
                 .formLogin()
                 .loginPage("/web/login.html")
+                .defaultSuccessUrl("/web/games.html")
                 .and()
                 .logout()
                 .logoutUrl("/api/logout")

@@ -1,5 +1,6 @@
 package com.codeoftheweb.salvo;
 
+import com.codeoftheweb.salvo.config.PasswordEncoderConfiguration;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.*;
 import org.springframework.boot.CommandLineRunner;
@@ -23,10 +24,10 @@ public class SalvoApplication {
                                       SalvoLocationRepository salvoLocationRepository, ScoreRepository scoreRepository) {
         return (args) -> {
             // Players
-            Player player1 = new Player("j.bauer@ctu.gov","24");
-            Player player2 = new Player("c.obrian@ctu.gov","42");
-            Player player3 = new Player("kim_bauer@gmail.com","kb");
-            Player player4 = new Player("t.almeida@ctu.gov","mole");
+            Player player1 = new Player("j.bauer@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("24"));
+            Player player2 = new Player("c.obrian@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("42"));
+            Player player3 = new Player("kim_bauer@gmail.com",new PasswordEncoderConfiguration().passwordEncoder().encode("kb"));
+            Player player4 = new Player("t.almeida@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("mole"));
             playerRepository.save(player1); playerRepository.save(player2);
             playerRepository.save(player3); playerRepository.save(player4);
 
