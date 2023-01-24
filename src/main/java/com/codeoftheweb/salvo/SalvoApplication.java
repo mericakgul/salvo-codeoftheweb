@@ -1,12 +1,12 @@
 package com.codeoftheweb.salvo;
 
-import com.codeoftheweb.salvo.config.PasswordEncoderConfiguration;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.*;
 
@@ -24,10 +24,10 @@ public class SalvoApplication {
                                       SalvoLocationRepository salvoLocationRepository, ScoreRepository scoreRepository) {
         return (args) -> {
             // Players
-            Player player1 = new Player("j.bauer@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("24"));
-            Player player2 = new Player("c.obrian@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("42"));
-            Player player3 = new Player("kim_bauer@gmail.com",new PasswordEncoderConfiguration().passwordEncoder().encode("kb"));
-            Player player4 = new Player("t.almeida@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("mole"));
+            Player player1 = new Player("j.bauer@ctu.gov", new BCryptPasswordEncoder().encode("24"));
+            Player player2 = new Player("c.obrian@ctu.gov",new BCryptPasswordEncoder().encode("42"));
+            Player player3 = new Player("kim_bauer@gmail.com",new BCryptPasswordEncoder().encode("kb"));
+            Player player4 = new Player("t.almeida@ctu.gov",new BCryptPasswordEncoder().encode("mole"));
             playerRepository.save(player1); playerRepository.save(player2);
             playerRepository.save(player3); playerRepository.save(player4);
 
