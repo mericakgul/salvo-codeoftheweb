@@ -1,10 +1,14 @@
 package com.codeoftheweb.salvo.service;
 
+import com.codeoftheweb.salvo.model.dto.LoginDto;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +21,7 @@ public class SalvoService {
 
     private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
+    private final AuthenticationManager authenticationManager;
 
     public List<Object> getGames() {
         List<Game> games = this.gameRepository.findAll();
@@ -93,5 +98,10 @@ public class SalvoService {
                         .stream()
                         .map(SalvoLocation::getGridCell)));
         return mapOfLocations;
+    }
+
+    public String login(LoginDto loginDto) {
+        this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        return "Login Success";
     }
 }

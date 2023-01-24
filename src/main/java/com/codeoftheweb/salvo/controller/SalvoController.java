@@ -1,7 +1,11 @@
 package com.codeoftheweb.salvo.controller;
 
+import com.codeoftheweb.salvo.model.dto.LoginDto;
+import com.codeoftheweb.salvo.model.entity.Player;
 import com.codeoftheweb.salvo.service.SalvoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +27,8 @@ public class SalvoController {
         return this.salvoService.getGameView(gamePlayerId);
     }
 
-    @PostMapping("/login")
-    public String login() {
-        return "Login";
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String login(@RequestBody LoginDto loginDto) {
+        return salvoService.login(loginDto);
     }
 }

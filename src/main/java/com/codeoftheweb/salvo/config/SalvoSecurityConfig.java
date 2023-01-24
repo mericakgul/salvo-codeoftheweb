@@ -49,10 +49,12 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
                 .and()
                 .formLogin()
                 .loginPage("/web/login.html")
-                .defaultSuccessUrl("/web/games.html")
+                .permitAll()
+                .defaultSuccessUrl("/web/games.html", true)
                 .and()
                 .logout()
-                .logoutUrl("/api/logout");
+                .logoutUrl("/api/logout")
+                .permitAll();
         return http.build();
     }
 }
