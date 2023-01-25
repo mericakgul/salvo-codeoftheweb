@@ -22,9 +22,4 @@ public class SalvoController {
     public Map<String, Object> getGameView(@PathVariable Long gamePlayerId) {
         return this.salvoService.getGameView(gamePlayerId);
     }
-
-    @PostMapping("/login")
-    public String login() {
-        return "Login";
-    }
 }
