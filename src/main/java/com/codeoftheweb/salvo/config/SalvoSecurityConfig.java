@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -37,24 +40,29 @@ public class SalvoSecurityConfig extends AbstractHttpConfigurer<SalvoSecurityCon
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] whiteList = {"/web/games.html/**", "/scripts/**", "/web/login.html", "/api/games", "/api/login", "/rest/**"};
 
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/admin/**")
-                .hasRole("ADMIN")
+        http.authorizeRequests()
                 .antMatchers(whiteList)
                 .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .formLogin()
-                .loginPage("/web/login.html")
-                .permitAll()
-                .defaultSuccessUrl("/web/games.html", true)
-                .and()
-                .logout()
-                .logoutUrl("/api/logout")
-                .permitAll();
+                .formLogin();
+
+        http.formLogin()
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .loginPage("/web/login.html");
+
+        http.logout().logoutUrl("/api/logout");
+
+        http.csrf().disable();
+
+        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+
         return http.build();
     }
 }
