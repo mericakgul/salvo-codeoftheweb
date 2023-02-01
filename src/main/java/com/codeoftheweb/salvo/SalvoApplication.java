@@ -1,20 +1,40 @@
 package com.codeoftheweb.salvo;
 
-import com.codeoftheweb.salvo.config.PasswordEncoderConfiguration;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.*;
+import com.codeoftheweb.salvo.service.SalvoUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @SpringBootApplication
-public class SalvoApplication {
+public class SalvoApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(SalvoApplication.class, args);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -24,12 +44,14 @@ public class SalvoApplication {
                                       SalvoLocationRepository salvoLocationRepository, ScoreRepository scoreRepository) {
         return (args) -> {
             // Players
-            Player player1 = new Player("j.bauer@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("24"));
-            Player player2 = new Player("c.obrian@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("42"));
-            Player player3 = new Player("kim_bauer@gmail.com",new PasswordEncoderConfiguration().passwordEncoder().encode("kb"));
-            Player player4 = new Player("t.almeida@ctu.gov",new PasswordEncoderConfiguration().passwordEncoder().encode("mole"));
-            playerRepository.save(player1); playerRepository.save(player2);
-            playerRepository.save(player3); playerRepository.save(player4);
+            Player player1 = new Player("j.bauer@ctu.gov", passwordEncoder().encode("24"));
+            Player player2 = new Player("c.obrian@ctu.gov", passwordEncoder().encode("42"));
+            Player player3 = new Player("kim_bauer@gmail.com", passwordEncoder().encode("kb"));
+            Player player4 = new Player("t.almeida@ctu.gov", passwordEncoder().encode("mole"));
+            playerRepository.save(player1);
+            playerRepository.save(player2);
+            playerRepository.save(player3);
+            playerRepository.save(player4);
 
             // Games
             Game game1 = new Game(new Date());
@@ -40,8 +62,14 @@ public class SalvoApplication {
             Game game6 = new Game(Date.from(new Date().toInstant().plusSeconds(10800)));
             Game game7 = new Game(Date.from(new Date().toInstant().plusSeconds(12600)));
             Game game8 = new Game(Date.from(new Date().toInstant().plusSeconds(14400)));
-            gameRepository.save(game1); gameRepository.save(game2); gameRepository.save(game3); gameRepository.save(game4);
-            gameRepository.save(game5); gameRepository.save(game6); gameRepository.save(game7); gameRepository.save(game8);
+            gameRepository.save(game1);
+            gameRepository.save(game2);
+            gameRepository.save(game3);
+            gameRepository.save(game4);
+            gameRepository.save(game5);
+            gameRepository.save(game6);
+            gameRepository.save(game7);
+            gameRepository.save(game8);
 
             // GamePlayers
             GamePlayer gamePlayer1 = new GamePlayer(game1, player1, new Date());
@@ -58,11 +86,20 @@ public class SalvoApplication {
             GamePlayer gamePlayer12 = new GamePlayer(game7, player4, new Date());
             GamePlayer gamePlayer13 = new GamePlayer(game8, player3, new Date());
             GamePlayer gamePlayer14 = new GamePlayer(game8, player4, new Date());
-            gamePlayerRepository.save(gamePlayer1); gamePlayerRepository.save(gamePlayer2); gamePlayerRepository.save(gamePlayer3);
-            gamePlayerRepository.save(gamePlayer4); gamePlayerRepository.save(gamePlayer5); gamePlayerRepository.save(gamePlayer6);
-            gamePlayerRepository.save(gamePlayer7); gamePlayerRepository.save(gamePlayer8); gamePlayerRepository.save(gamePlayer9);
-            gamePlayerRepository.save(gamePlayer10); gamePlayerRepository.save(gamePlayer11); gamePlayerRepository.save(gamePlayer12);
-            gamePlayerRepository.save(gamePlayer13); gamePlayerRepository.save(gamePlayer14);
+            gamePlayerRepository.save(gamePlayer1);
+            gamePlayerRepository.save(gamePlayer2);
+            gamePlayerRepository.save(gamePlayer3);
+            gamePlayerRepository.save(gamePlayer4);
+            gamePlayerRepository.save(gamePlayer5);
+            gamePlayerRepository.save(gamePlayer6);
+            gamePlayerRepository.save(gamePlayer7);
+            gamePlayerRepository.save(gamePlayer8);
+            gamePlayerRepository.save(gamePlayer9);
+            gamePlayerRepository.save(gamePlayer10);
+            gamePlayerRepository.save(gamePlayer11);
+            gamePlayerRepository.save(gamePlayer12);
+            gamePlayerRepository.save(gamePlayer13);
+            gamePlayerRepository.save(gamePlayer14);
 
             // Ships
             Ship ship1 = new Ship("Destroyer", gamePlayer1);
@@ -92,13 +129,33 @@ public class SalvoApplication {
             Ship ship25 = new Ship("Patrol Boat", gamePlayer13);
             Ship ship26 = new Ship("Submarine", gamePlayer14);
             Ship ship27 = new Ship("Patrol Boat", gamePlayer14);
-            shipRepository.save(ship1); shipRepository.save(ship2); shipRepository.save(ship3); shipRepository.save(ship4);
-            shipRepository.save(ship5); shipRepository.save(ship6); shipRepository.save(ship7); shipRepository.save(ship8);
-            shipRepository.save(ship9); shipRepository.save(ship10); shipRepository.save(ship11); shipRepository.save(ship12);
-            shipRepository.save(ship13); shipRepository.save(ship14); shipRepository.save(ship15); shipRepository.save(ship16);
-            shipRepository.save(ship17); shipRepository.save(ship18); shipRepository.save(ship19); shipRepository.save(ship20);
-            shipRepository.save(ship21); shipRepository.save(ship22); shipRepository.save(ship23); shipRepository.save(ship24);
-            shipRepository.save(ship25); shipRepository.save(ship26); shipRepository.save(ship27);
+            shipRepository.save(ship1);
+            shipRepository.save(ship2);
+            shipRepository.save(ship3);
+            shipRepository.save(ship4);
+            shipRepository.save(ship5);
+            shipRepository.save(ship6);
+            shipRepository.save(ship7);
+            shipRepository.save(ship8);
+            shipRepository.save(ship9);
+            shipRepository.save(ship10);
+            shipRepository.save(ship11);
+            shipRepository.save(ship12);
+            shipRepository.save(ship13);
+            shipRepository.save(ship14);
+            shipRepository.save(ship15);
+            shipRepository.save(ship16);
+            shipRepository.save(ship17);
+            shipRepository.save(ship18);
+            shipRepository.save(ship19);
+            shipRepository.save(ship20);
+            shipRepository.save(ship21);
+            shipRepository.save(ship22);
+            shipRepository.save(ship23);
+            shipRepository.save(ship24);
+            shipRepository.save(ship25);
+            shipRepository.save(ship26);
+            shipRepository.save(ship27);
 
             // SHIP LOCATIONS
             Set<ShipLocation> shipLocations = new HashSet<>();
@@ -221,13 +278,27 @@ public class SalvoApplication {
             Salvo salvo19 = new Salvo(gamePlayer9, 2);
             Salvo salvo20 = new Salvo(gamePlayer10, 2);
             Salvo salvo21 = new Salvo(gamePlayer10, 3);
-            salvoRepository.save(salvo1); salvoRepository.save(salvo2); salvoRepository.save(salvo3);
-            salvoRepository.save(salvo4); salvoRepository.save(salvo5); salvoRepository.save(salvo6);
-            salvoRepository.save(salvo7); salvoRepository.save(salvo8); salvoRepository.save(salvo9);
-            salvoRepository.save(salvo10); salvoRepository.save(salvo11); salvoRepository.save(salvo12);
-            salvoRepository.save(salvo13); salvoRepository.save(salvo14); salvoRepository.save(salvo15);
-            salvoRepository.save(salvo16); salvoRepository.save(salvo17); salvoRepository.save(salvo18);
-            salvoRepository.save(salvo19); salvoRepository.save(salvo20); salvoRepository.save(salvo21);
+            salvoRepository.save(salvo1);
+            salvoRepository.save(salvo2);
+            salvoRepository.save(salvo3);
+            salvoRepository.save(salvo4);
+            salvoRepository.save(salvo5);
+            salvoRepository.save(salvo6);
+            salvoRepository.save(salvo7);
+            salvoRepository.save(salvo8);
+            salvoRepository.save(salvo9);
+            salvoRepository.save(salvo10);
+            salvoRepository.save(salvo11);
+            salvoRepository.save(salvo12);
+            salvoRepository.save(salvo13);
+            salvoRepository.save(salvo14);
+            salvoRepository.save(salvo15);
+            salvoRepository.save(salvo16);
+            salvoRepository.save(salvo17);
+            salvoRepository.save(salvo18);
+            salvoRepository.save(salvo19);
+            salvoRepository.save(salvo20);
+            salvoRepository.save(salvo21);
 
             // SALVO LOCATIONS
             List<SalvoLocation> salvoLocations = new ArrayList<>();
@@ -327,3 +398,58 @@ public class SalvoApplication {
         };
     }
 }
+
+@Configuration
+@RequiredArgsConstructor
+class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
+    private final SalvoUserDetailsService salvoUserDetailsService;
+
+    @Override
+    public void init(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(salvoUserDetailsService);
+    }
+}
+
+@Configuration
+@EnableWebSecurity
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        String[] whiteList = {"/web/games.html", "/scripts/**", "/rest/**", "/api/games", "/api/login", "/web/login.html"};
+
+        http.authorizeRequests()
+                .antMatchers(whiteList).permitAll()
+                .antMatchers("/**").hasAuthority("USER")
+                .and()
+                .formLogin();
+
+        http.formLogin()
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .loginPage("/web/login.html")
+                .defaultSuccessUrl("/web/games")
+                .loginProcessingUrl("/api/login");
+
+        http.logout().logoutUrl("/api/logout");
+
+        http.csrf().disable();
+
+        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
+
+        http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+
+
+
+    }
+    private void clearAuthenticationAttributes(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        }
+    }
+}
+

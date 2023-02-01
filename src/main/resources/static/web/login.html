@@ -1,25 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Login</title>
 </head>
 <body>
-<h1>Login</h1>
-<form name='f' th:action="@{/api/login}" method='POST'>
-  <table>
-    <tr>
-      <td>User:</td>
-      <td><input type='text' name='username' value=''></td>
-    </tr>
-    <tr>
-      <td>Password:</td>
-      <td><input type='password' name='password' /></td>
-    </tr>
-    <tr>
-      <td><input name="submit" type="submit" value="submit" /></td>
-    </tr>
-  </table>
+<form onsubmit="return false;">
+    <label>Username: <input type="text" name="username" placeholder="name@example.com"></label>
+    <label>Password: <input type="text" name="password" placeholder="123"></label>
+    <button id="login-btn">Login</button>
+    <span id="login-result"></span>
 </form>
+
+<script>
+    const messageBox = document.querySelector('#login-result');
+
+    document.querySelector('#login-btn').addEventListener('click', async evt => {
+        const form = evt.target.form;
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: `username=${form.username.value}&password=${form.password.value}`
+        });
+        messageBox.innerText = response.ok && response.status === 200 ? 'logged in' : 'login failure';
+    });
+</script>
 </body>
 </html>
