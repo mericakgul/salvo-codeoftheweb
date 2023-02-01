@@ -3,8 +3,10 @@ package com.codeoftheweb.salvo.service;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
+import com.codeoftheweb.salvo.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +19,7 @@ public class SalvoService {
 
     private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
+    private final PlayerRepository playerRepository;
 
     public List<Object> getGames() {
         List<Game> games = this.gameRepository.findAll();
@@ -36,6 +39,14 @@ public class SalvoService {
         return new TreeMap<>(mapOfGameView);
     }
 
+    private Player getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+        return this.playerRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found with this username"));
+    }
+
     private Map<String, Object> makeGameMap(Game game) {
         Map<String, Object> gameMap = new HashMap<>();
         gameMap.put("gameId", game.getId());
@@ -49,14 +60,21 @@ public class SalvoService {
                 .map(gamePlayer -> {
                     Map<String, Object> gamePlayerMap = new HashMap<>();
                     gamePlayerMap.put("id", gamePlayer.getId());
-                    gamePlayerMap.put("player", gamePlayer.getPlayer());
-                    gamePlayerMap.put("score", this.gatherGamePlayerScore(gamePlayer));
+                    gamePlayerMap.put("player", makePlayerMap(gamePlayer.getPlayer()));
+                    gamePlayerMap.put("score", this.getGamePlayerScore(gamePlayer));
                     return gamePlayerMap;
                 })
                 .collect(Collectors.toList());
     }
 
-    private Double gatherGamePlayerScore(GamePlayer gamePlayer) {
+    private Map<String, Object> makePlayerMap(Player player){
+        Map<String, Object> playerMap = new HashMap<>();
+        playerMap.put("id", player.getId());
+        playerMap.put("username", player.getUsername());
+        return playerMap;
+    }
+
+    private Double getGamePlayerScore(GamePlayer gamePlayer) {
         List<Score> scoresOfGame = gamePlayer.getGame().getScores();
         Long playerId = gamePlayer.getPlayer().getId();
         Optional<Score> scoreOfGamePlayer = scoresOfGame.stream()
