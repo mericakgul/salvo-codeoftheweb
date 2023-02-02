@@ -21,11 +21,16 @@ public class SalvoService {
     private final GamePlayerRepository gamePlayerRepository;
     private final PlayerRepository playerRepository;
 
-    public List<Object> getGames() {
-        List<Game> games = this.gameRepository.findAll();
-        return games.stream()
-                .map(this::makeGameMap)
-                .collect(Collectors.toList());
+    public Map<String, Object> getGamesPageData(Authentication authentication) {
+        Map<String, Object> mapOfGamesPage = new HashMap<>();
+        Map<String,Object> mappedPlayer = new HashMap<>();
+        if(authentication != null){
+            Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
+            mappedPlayer = this.makePlayerMap(authenticatedPlayer);
+        }
+        mapOfGamesPage.put("player", mappedPlayer);
+        mapOfGamesPage.put("games", this.getGames());
+        return mapOfGamesPage;
     }
 
     public Map<String, Object> getGameView(Long gamePlayerId) {
@@ -40,11 +45,15 @@ public class SalvoService {
     }
 
     private Player getAuthenticatedUser(Authentication authentication) {
-        if (authentication == null) {
-            return null;
-        }
         return this.playerRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found with this username"));
+    }
+
+    private List<Object> getGames() {
+        List<Game> games = this.gameRepository.findAll();
+        return games.stream()
+                .map(this::makeGameMap)
+                .collect(Collectors.toList());
     }
 
     private Map<String, Object> makeGameMap(Game game) {

@@ -15,8 +15,8 @@ public class SalvoController {
     private final SalvoService salvoService;
 
     @GetMapping("/games")
-    public List<Object> getGames() {
-        return this.salvoService.getGames();
+    public Map<String, Object> getGames(Authentication authentication) {
+        return this.salvoService.getGamesPageData(authentication);
     }
 
     @GetMapping("/game_view/{gamePlayerId}")
