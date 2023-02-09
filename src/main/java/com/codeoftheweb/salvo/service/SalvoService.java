@@ -1,12 +1,16 @@
 package com.codeoftheweb.salvo.service;
 
+import com.codeoftheweb.salvo.model.dto.PlayerRequest;
+import com.codeoftheweb.salvo.model.dto.PlayerResponse;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,10 +25,12 @@ public class SalvoService {
     private final GamePlayerRepository gamePlayerRepository;
     private final PlayerRepository playerRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     public Map<String, Object> getGamesPageData(Authentication authentication) {
         Map<String, Object> mapOfGamesPage = new HashMap<>();
-        Map<String,Object> mappedPlayer = new HashMap<>();
-        if(authentication != null){
+        Map<String, Object> mappedPlayer = new HashMap<>();
+        if (authentication != null) {
             Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
             mappedPlayer = this.makePlayerMap(authenticatedPlayer);
         }
@@ -42,6 +48,17 @@ public class SalvoService {
         mapOfGameView.put("ships", this.createShipListOfPlayer(gamePlayer.getShips()));
         mapOfGameView.put("salvoes", this.createSalvoesOfGameForEachPlayer(gamePlayer));
         return new TreeMap<>(mapOfGameView);
+    }
+
+    public PlayerResponse signUp(PlayerRequest playerRequest) {
+        try {
+            playerRequest.setPassword(this.passwordEncoder.encode(playerRequest.getPassword()));
+            Player player = new Player(playerRequest.getUsername(), playerRequest.getPassword());
+            Player savedPlayer = this.playerRepository.save(player);
+            return new PlayerResponse(savedPlayer.getUsername());
+        } catch (ConstraintViolationException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,  "error: Name in use" );
+        }
     }
 
     private Player getAuthenticatedUser(Authentication authentication) {
@@ -76,7 +93,7 @@ public class SalvoService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Object> makePlayerMap(Player player){
+    private Map<String, Object> makePlayerMap(Player player) {
         Map<String, Object> playerMap = new HashMap<>();
         playerMap.put("id", player.getId());
         playerMap.put("username", player.getUsername());

@@ -22,7 +22,7 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")

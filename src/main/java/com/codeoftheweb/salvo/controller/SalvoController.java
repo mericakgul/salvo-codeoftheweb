@@ -1,11 +1,13 @@
 package com.codeoftheweb.salvo.controller;
 
+import com.codeoftheweb.salvo.model.dto.PlayerRequest;
+import com.codeoftheweb.salvo.model.dto.PlayerResponse;
 import com.codeoftheweb.salvo.service.SalvoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -22,5 +24,10 @@ public class SalvoController {
     @GetMapping("/game_view/{gamePlayerId}")
     public Map<String, Object> getGameView(@PathVariable Long gamePlayerId) {
         return this.salvoService.getGameView(gamePlayerId);
+    }
+
+    @PostMapping("/players")
+    public PlayerResponse signUp(@Valid @RequestBody PlayerRequest playerRequest){
+        return this.salvoService.signUp(playerRequest);
     }
 }
