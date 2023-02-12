@@ -27,6 +27,17 @@ export function login(evt) {
     });
 }
 
+export function logout(){
+    fetch('/api/logout', {
+        method:'POST'
+    }).then(response => {
+        if(response.ok && response.status === 200){
+            alert('Successfully logged out!');
+            history.go(0);
+        }
+    })
+}
+
 async function sendLoginRequest(evt) {
     const form = evt.target.form;
     const response = await fetch('/api/login', {

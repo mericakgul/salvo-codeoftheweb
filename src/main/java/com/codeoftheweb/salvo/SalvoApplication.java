@@ -432,7 +432,9 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
 
-        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendRedirect("/web/games.html")); // Bu satir oldugu surece, wrong credential hatasi da failureHandler'dan sonra burada da yakalaniyor ve unauthorised hatasini alamiyorum hep 302 aliyorum.
+//        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendRedirect("/web/games.html")); // Bu satir oldugu surece, wrong credential hatasi da failureHandler'dan sonra burada da yakalaniyor ve unauthorised hatasini alamiyorum hep 302 aliyorum.
+
+        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
         http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
 

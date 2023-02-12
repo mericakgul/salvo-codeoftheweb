@@ -1,22 +1,35 @@
-import {fetchJson, login} from "./utilities/helpers.js";
+import {fetchJson, login, logout} from "./utilities/helpers.js";
 
 const leaderboard = document.querySelector('#leaderboard');
 const gamesList = document.getElementById("games-list");
 const loggedInPlayerUsernameArea = document.getElementById("logged-in-player");
+const loginBtn = document.querySelector('#login-btn')
+const loginForm = document.querySelector('#login-form');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
 const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
 
+if (loggedInPlayerUsername) {
+    showPlayerUsername(loggedInPlayerUsername);
+    loginForm.remove();
+    createLogoutButton();
+    document.querySelector('#logoutBtn').addEventListener('click', () => logout());
+}
 
-document.querySelector('#login-btn').addEventListener('click', evt => login(evt));
+loginBtn.addEventListener('click', evt => login(evt));
 
-const showPlayerUsername = (username) => {
+
+function showPlayerUsername (username) {
     const usernameText = document.createTextNode(username);
     loggedInPlayerUsernameArea.appendChild(usernameText);
 }
 
-if(loggedInPlayerUsername) {
-    showPlayerUsername(loggedInPlayerUsername);
+function createLogoutButton() {
+    const logoutButton = document.createElement('button');
+    logoutButton.setAttribute('id', 'logoutBtn');
+    const logoutText = document.createTextNode('Logout');
+    logoutButton.appendChild(logoutText);
+    loggedInPlayerUsernameArea.appendChild(logoutButton);
 }
 
 const briefGameInfo = (games) => {
@@ -52,14 +65,14 @@ function createHtmlListOfGames(gameInfo) {
 }
 
 function createLeaderboardTable(player) {
-        const tableRow = document.createElement('tr');
-        Object.keys(player).forEach(key => {
-            const tableCell = document.createElement('td');
-            const tableCellText = document.createTextNode(player[key]);
-            tableCell.appendChild(tableCellText);
-            tableRow.appendChild(tableCell);
-        });
-        leaderboard.appendChild(tableRow);
+    const tableRow = document.createElement('tr');
+    Object.keys(player).forEach(key => {
+        const tableCell = document.createElement('td');
+        const tableCellText = document.createTextNode(player[key]);
+        tableCell.appendChild(tableCellText);
+        tableRow.appendChild(tableCell);
+    });
+    leaderboard.appendChild(tableRow);
 }
 
 function createPlayerListFromJson(games) {

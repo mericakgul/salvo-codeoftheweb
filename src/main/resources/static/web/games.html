@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="games-container">
-    <div>
+    <div id="login-form">
         <form onsubmit="return false;">
             <label>Username: <input type="text" name="username" id="username" placeholder="name@example.com"></label>
             <label>Password: <input type="text" name="password" id="password" placeholder="123"></label>
@@ -16,11 +16,14 @@
             <span id="login-result"></span>
         </form>
     </div>
+
     <h4 id="logged-in-player"></h4>
+
     <div>
         <h3>Games</h3>
         <ol id="games-list"></ol>
     </div>
+
     <div>
         <h3>Leaderboard</h3>
         <table class="table table-bordered" style="width: 50%">
