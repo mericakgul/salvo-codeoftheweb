@@ -24,7 +24,6 @@ public class SalvoService {
     private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
     private final PlayerRepository playerRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public Map<String, Object> getGamesPageData(Authentication authentication) {

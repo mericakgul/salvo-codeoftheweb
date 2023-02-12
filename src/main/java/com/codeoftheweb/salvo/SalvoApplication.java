@@ -33,7 +33,7 @@ public class SalvoApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
@@ -415,7 +415,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] whiteList = {"/web/games.html", "/scripts/**", "/rest/**", "/api/games", "/api/login", "/api/players", "/web/login.html"};
+        String[] whiteList = {"/web/games.html", "/scripts/**", "/styles/**", "/rest/**", "/api/games", "/api/login", "/api/players"};
 
         http.authorizeRequests()
                 .antMatchers(whiteList).permitAll()
@@ -424,27 +424,20 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin();
 
         http.formLogin()
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .loginPage("/web/login.html")
-                .defaultSuccessUrl("/web/games")
-                .loginProcessingUrl("/api/login");
+                .loginProcessingUrl("/api/login")
+                .successHandler((req, res, auth) -> clearAuthenticationAttributes(req))
+                .failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
         http.logout().logoutUrl("/api/logout");
 
         http.csrf().disable();
 
-        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
-
-        http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
-
-        http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendRedirect("/web/games.html")); // Bu satir oldugu surece, wrong credential hatasi da failureHandler'dan sonra burada da yakalaniyor ve unauthorised hatasini alamiyorum hep 302 aliyorum.
 
         http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
 
-
-
     }
+
     private void clearAuthenticationAttributes(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
