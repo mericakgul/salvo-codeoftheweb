@@ -1,8 +1,10 @@
-import {fetchJson} from "./utilities/helpers.js";
+import {fetchJson, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
 
 const gridSize = 10;
 const shipsGridContainer = document.querySelector('#ships-grid-container');
 const salvoesGridContainer = document.querySelector('#salvoes-grid-container');
+const loggedInPlayerUsernameArea = document.getElementById("logged-in-player");
+const logoutBtn = document.querySelector('#logout-btn');
 shipsGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`); // To be able to have dynamic grid size in case we want different size of grid.
 salvoesGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`);
 let rowLetterShip = 'A'; // The beginning letter of the row.
@@ -12,6 +14,12 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 const gamePlayerId = params['gp'];
+
+if (loggedInPlayerUsername) {
+    showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
+    logoutBtn.setAttribute('style', 'visibility: visible');
+    logoutBtn.addEventListener('click', () => logout());
+}
 
 createGrids();
 placeDataOnGrids();

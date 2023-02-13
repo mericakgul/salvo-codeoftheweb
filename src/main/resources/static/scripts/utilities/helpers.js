@@ -7,6 +7,9 @@ export const fetchJson = url =>
     fetch(domainUrl + url).then(response => {
         if (response.ok) {
             return response.json();
+        } else if (response.status === 401) {
+            alert('You need to log in to be able to see the game details!');
+            window.location.href = '/web/games.html';
         } else {
             throw new Error('error: ' + response.statusText);
         }
@@ -30,9 +33,18 @@ export function logout() {
     }).then(response => {
         if (response.ok && response.status === 200) {
             alert('Successfully logged out!');
-            history.go(0);
+            window.location.href = '/web/games.html';
         }
     })
+}
+
+const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
+export const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
+
+
+export function showPlayerUsername (username, loggedInPlayerUsernameArea) {
+    const usernameText = document.createTextNode(username);
+    loggedInPlayerUsernameArea.appendChild(usernameText);
 }
 
 function areFieldsValid() {
@@ -56,7 +68,7 @@ function sendLoginRequest(evt) {
         },
         body: `username=${form.username.value}&password=${form.password.value}`
     }).then(response => {
-        if(response.ok && response.status === 200){
+        if (response.ok && response.status === 200) {
             alert('You are successfully logged in!')
             history.go(0);
         } else {

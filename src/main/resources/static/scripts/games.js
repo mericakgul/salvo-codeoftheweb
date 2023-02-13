@@ -1,4 +1,4 @@
-import {fetchJson, login, signup, logout} from "./utilities/helpers.js";
+import {fetchJson, login, signup, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
 
 const leaderboard = document.querySelector('#leaderboard');
 const gamesList = document.getElementById("games-list");
@@ -9,22 +9,16 @@ const signupBtn = document.querySelector('#signup-btn');
 const loginForm = document.querySelector('#login-form');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
-const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
 
 loginBtn.addEventListener('click', evt => login(evt));
 
 signupBtn.addEventListener('click', (evt) => signup(evt));
 
 if (loggedInPlayerUsername) {
-    showPlayerUsername(loggedInPlayerUsername);
+    showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
     loginForm.remove();
     logoutBtn.setAttribute('style', 'visibility: visible');
     logoutBtn.addEventListener('click', () => logout());
-}
-
-function showPlayerUsername (username) {
-    const usernameText = document.createTextNode(username);
-    loggedInPlayerUsernameArea.appendChild(usernameText);
 }
 
 const briefGameInfo = (games) => {
