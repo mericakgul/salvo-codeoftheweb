@@ -1,35 +1,30 @@
-import {fetchJson, login, logout} from "./utilities/helpers.js";
+import {fetchJson, login, signup, logout} from "./utilities/helpers.js";
 
 const leaderboard = document.querySelector('#leaderboard');
 const gamesList = document.getElementById("games-list");
 const loggedInPlayerUsernameArea = document.getElementById("logged-in-player");
-const loginBtn = document.querySelector('#login-btn')
+const loginBtn = document.querySelector('#login-btn');
+const logoutBtn = document.querySelector('#logout-btn');
+const signupBtn = document.querySelector('#signup-btn');
 const loginForm = document.querySelector('#login-form');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
 const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
 
+loginBtn.addEventListener('click', evt => login(evt));
+
+signupBtn.addEventListener('click', (evt) => signup(evt));
+
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername);
     loginForm.remove();
-    createLogoutButton();
-    document.querySelector('#logoutBtn').addEventListener('click', () => logout());
+    logoutBtn.setAttribute('style', 'visibility: visible');
+    logoutBtn.addEventListener('click', () => logout());
 }
-
-loginBtn.addEventListener('click', evt => login(evt));
-
 
 function showPlayerUsername (username) {
     const usernameText = document.createTextNode(username);
     loggedInPlayerUsernameArea.appendChild(usernameText);
-}
-
-function createLogoutButton() {
-    const logoutButton = document.createElement('button');
-    logoutButton.setAttribute('id', 'logoutBtn');
-    const logoutText = document.createTextNode('Logout');
-    logoutButton.appendChild(logoutText);
-    loggedInPlayerUsernameArea.appendChild(logoutButton);
 }
 
 const briefGameInfo = (games) => {
@@ -53,7 +48,6 @@ const scoresOfPlayers = (games) => {
         return scoresOfPlayers;
     }, []).sort((firstPlayer, secondPlayer) => secondPlayer['total'] - firstPlayer['total']);
 }
-console.log('scoresOfPlayers', scoresOfPlayers(fetchedGamesList));
 scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 
 

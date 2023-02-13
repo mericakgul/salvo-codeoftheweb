@@ -13,6 +13,29 @@ export const fetchJson = url =>
     });
 
 export function login(evt) {
+    if (areFieldsValid()) {
+        sendLoginRequest(evt);
+    }
+}
+
+export function signup(evt) {
+    if (areFieldsValid()) {
+        sendSignupRequest(evt);
+    }
+}
+
+export function logout() {
+    fetch('/api/logout', {
+        method: 'POST'
+    }).then(response => {
+        if (response.ok && response.status === 200) {
+            alert('Successfully logged out!');
+            history.go(0);
+        }
+    })
+}
+
+function areFieldsValid() {
     if (!usernameInput.value || !passwordInput.value) {
         alert('Please fill both username and password fields in.');
         return;
@@ -21,33 +44,41 @@ export function login(evt) {
         alert('Please fill a valid email address in.');
         return;
     }
-    sendLoginRequest(evt).then(_ => {
-        usernameInput.value = '';
-        passwordInput.value = '';
-    });
+    return true;
 }
 
-export function logout(){
-    fetch('/api/logout', {
-        method:'POST'
-    }).then(response => {
-        if(response.ok && response.status === 200){
-            alert('Successfully logged out!');
-            history.go(0);
-        }
-    })
-}
-
-async function sendLoginRequest(evt) {
+function sendLoginRequest(evt) {
     const form = evt.target.form;
-    const response = await fetch('/api/login', {
+    fetch('/api/login', {
         method: 'POST',
         headers: {
             "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
         },
         body: `username=${form.username.value}&password=${form.password.value}`
+    }).then(response => {
+        if(response.ok && response.status === 200){
+            alert('You are successfully logged in!')
+            history.go(0);
+        } else {
+            messageBox.innerText = 'login failure';
+        }
     });
-    messageBox.innerText = response.ok && response.status === 200 ? history.go(0) : 'login failure';
+
+}
+
+function sendSignupRequest(evt) {
+    fetch('/api/players', {
+        method: 'POST',
+        body: JSON.stringify({username: usernameInput.value, password: passwordInput.value}),
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    }).then((response) => {
+        if (response.ok && response.status === 200) {
+            alert('You are successfully signed up!')
+            sendLoginRequest(evt);
+        }
+    });
 }
 
 function isValidEmail(email) {
