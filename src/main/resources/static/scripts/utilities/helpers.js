@@ -77,6 +77,8 @@ function sendSignupRequest(evt) {
         if (response.ok && response.status === 200) {
             alert('You are successfully signed up!')
             sendLoginRequest(evt);
+        } else if (response.status === 403) {
+            alert('This username is in use, choose another one.')
         }
     });
 }

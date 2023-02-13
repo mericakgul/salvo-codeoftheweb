@@ -7,7 +7,7 @@ import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,7 +55,7 @@ public class SalvoService {
             Player player = new Player(playerRequest.getUsername(), playerRequest.getPassword());
             Player savedPlayer = this.playerRepository.save(player);
             return new PlayerResponse(savedPlayer.getUsername());
-        } catch (ConstraintViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,  "error: Name in use" );
         }
     }
