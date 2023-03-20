@@ -1,12 +1,14 @@
 .grids-container {
     display: flex ;
-    justify-content: space-evenly
+    justify-content: space-evenly;
+    background-color: lightskyblue;
+    padding-bottom: 20px;
 }
 
 .grid-container {
     display: inline-grid;
     /*grid-template-columns: repeat(11, 1fr);*/
-    background-color: #2196F3;
+    background-color: #06508a;
     padding: 10px;
 }
 .grid-item {
@@ -24,6 +26,6 @@
 
 #logged-in-player {
     text-align: end;
-    background-color: aqua;
+    background-color: lightskyblue;
     padding-right: 10px;
 }
