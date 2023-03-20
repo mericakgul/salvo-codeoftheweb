@@ -16,6 +16,7 @@ signupBtn.addEventListener('click', (evt) => signup(evt));
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
+    loggedInPlayerUsernameArea.setAttribute('style', 'visibility: visible');
     loginForm.remove();
     logoutBtn.setAttribute('style', 'visibility: visible');
     logoutBtn.addEventListener('click', () => logout());
