@@ -89,7 +89,7 @@ function placeShipsOnGrid(ships) {
         ship['shipLocations'].forEach(location => {
             const gridCell = document.querySelector(`#SHIP${location}`);
             if (gridCell) {
-                gridCell.setAttribute('style', 'background-color: rgba(12, 25, 25, 0.8)');
+                gridCell.setAttribute('style', 'background-color: darkblue');
             } else {
                 alert(`The location ${location} is not exist in the grid table. Check you locations.`);
             }
@@ -128,7 +128,7 @@ function placeOwnerSalvoes(ownerSalvoes) {
         const salvoLocations = ownerSalvo[1];
         salvoLocations.forEach(location => {
             const gridCellInSalvoGrid = document.querySelector(`#SALVO${location}`);
-            gridCellInSalvoGrid.setAttribute('style', 'background-color: rgba(182, 23, 23, 0.8) ; color: white');
+            gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
             gridCellInSalvoGrid.innerHTML = turnNumber;
         });
     });
@@ -145,9 +145,9 @@ function placeOpponentSalvoes(opponentSalvoes, ownerShips) {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location}`);
             gridCellInOwnerShipGrid.innerHTML = turnNumber;
             if (ownerShipsAllLocations.includes(location)) {
-                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: rgba(128, 0, 128, 0.7) ; color: white');
+                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
             } else {
-                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: rgba(182, 23, 23, 0.8) ; color: white');
+                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
             }
         });
     });
