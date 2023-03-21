@@ -79,7 +79,7 @@ function placeDataOnGrids() {
         fetchJson(`/api/game_view/${gamePlayerId}`).then((game) => {
             placeShipsOnGrid(game['ships']);
             showGameInfo(game['gamePlayers']);
-            placeSalvoesOnGrids(game['salvoes'], game['gamePlayers']);
+            placeSalvoesOnGrids(game);
         });
     }
 }
@@ -88,7 +88,7 @@ function placeShipsOnGrid(ships) {
     ships.forEach(ship => {
         ship['shipLocations'].forEach(location => {
             const gridCell = document.querySelector(`#SHIP${location}`);
-            if(gridCell) {
+            if (gridCell) {
                 gridCell.setAttribute('style', 'background-color: rgba(12, 25, 25, 0.8)');
             } else {
                 alert(`The location ${location} is not exist in the grid table. Check you locations.`);
@@ -109,15 +109,15 @@ function showGameInfo(gamePlayers) {
     gameInfoTextField.appendChild(gameInfoText);
 }
 
-function placeSalvoesOnGrids(salvoes, gamePlayers){
-    const gamePlayerOwner = gamePlayers.find(({id}) => id.toString() === gamePlayerId);
+function placeSalvoesOnGrids(game) {
+    const gamePlayerOwner = game['gamePlayers'].find(({id}) => id.toString() === gamePlayerId);
     const ownerPlayerId = gamePlayerOwner['player']['id'];
-    placeOwnerSalvoes(salvoes[ownerPlayerId]);
+    placeOwnerSalvoes(game['salvoes'][ownerPlayerId]);
 
-    const gamePlayerOpponent = gamePlayers.find(({id}) => id.toString() !== gamePlayerId);
-    if(gamePlayerOpponent !== undefined){
+    const gamePlayerOpponent = game['gamePlayers'].find(({id}) => id.toString() !== gamePlayerId);
+    if (gamePlayerOpponent !== undefined) {
         const opponentPlayerId = gamePlayerOpponent['player']['id'];
-        placeOpponentSalvoes(salvoes[opponentPlayerId]);
+        placeOpponentSalvoes(game['salvoes'][opponentPlayerId], game['ships']);
     }
 }
 
@@ -134,15 +134,28 @@ function placeOwnerSalvoes(ownerSalvoes) {
     });
 }
 
-function placeOpponentSalvoes(opponentSalvoes) {
+function placeOpponentSalvoes(opponentSalvoes, ownerShips) {
+    const ownerShipsAllLocations = combineOwnerShipsLocations(ownerShips);
+
     const entriesOpponentSalvoes = Object.entries(opponentSalvoes);
     entriesOpponentSalvoes.forEach(opponentSalvo => {
         const turnNumber = opponentSalvo[0];
         const salvoLocations = opponentSalvo[1];
         salvoLocations.forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location}`);
-            gridCellInOwnerShipGrid.setAttribute('style', 'background-color: rgba(182, 23, 23, 0.8) ; color: white');
             gridCellInOwnerShipGrid.innerHTML = turnNumber;
+            if (ownerShipsAllLocations.includes(location)) {
+                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: rgba(128, 0, 128, 0.7) ; color: white');
+            } else {
+                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: rgba(182, 23, 23, 0.8) ; color: white');
+            }
         });
     });
+}
+
+function combineOwnerShipsLocations(ownerShips) {
+    return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
+        combinedLocationsArray.push(...shipLocations);
+        return combinedLocationsArray;
+    }, []);
 }
