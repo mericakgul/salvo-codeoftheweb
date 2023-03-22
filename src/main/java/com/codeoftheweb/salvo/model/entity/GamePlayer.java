@@ -44,14 +44,4 @@ public class GamePlayer {
         this.player = player;
         this.joinDate = joinDate;
     }
-
-//    @JsonIgnore
-//    public Set<GamePlayer> getGames(){ // 2nd task 2nd plan of attack. What is it asking by getPlayer() and getGame() methods.
-//        return this.player.getGamePlayers();
-//    }
-//
-//    @JsonIgnore
-//    public Set<GamePlayer> getPlayers(){
-//        return this.game.getGamePlayers();
-//    }
 }
