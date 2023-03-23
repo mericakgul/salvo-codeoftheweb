@@ -415,7 +415,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] whiteList = {"/web/games.html", "/web/game.html", "/scripts/**", "/styles/**", "/rest/**", "/api/games"};
+        String[] whiteList = {"/web/games.html", "/web/game.html", "/scripts/**", "/styles/**", "/rest/**", "/api/games", "/api/players"};
 
         http.authorizeRequests()
                 .antMatchers(whiteList).permitAll()
