@@ -9,6 +9,8 @@ const signupBtn = document.querySelector('#signup-btn');
 const loginForm = document.querySelector('#login-form');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
+let gameListRowNo = 0;
+let playerRank = 0;
 
 loginBtn.addEventListener('click', evt => login(evt));
 
@@ -23,16 +25,28 @@ if (loggedInPlayerUsername) {
 }
 
 const briefGameInfo = (games) => {
-    return games.map(game =>
-        game['created'].toLocaleString() + ', ' +
-        game['gamePlayers'].map(gamePlayer => gamePlayer['player']['username']).sort().join(', '));
+    return games.reduce((briefGameInfoList, game) => {
+        gameListRowNo += 1;
+        const briefGameInfo = {
+            'no': gameListRowNo,
+            'created-time': game['created'],
+            'first-player': game['gamePlayers'][0]['player']['username'],
+            'second-player': game['gamePlayers'][1]?.['player']?.['username'] || '', // If there is a game, there must be created time and first player who is the creator but second player might not exist.
+        }
+        briefGameInfoList.push(briefGameInfo);
+        return briefGameInfoList;
+    }, []);
 }
-briefGameInfo(fetchedGamesList).forEach(createHtmlListOfGames);
+
+briefGameInfo(fetchedGamesList).forEach(createGamesListTable);
+
 
 const scoresOfPlayers = (games) => {
     const playerList = createPlayerListFromJson(games);
     return playerList.reduce((scoresOfPlayers, player) => {
+        playerRank += 1;
         const playerResult = {
+            'no': playerRank,
             'name': player,
             'total': getTotalScoreOfPlayer(player, games),
             'won': getTotalWinCountOfPlayer(player, games),
@@ -43,35 +57,36 @@ const scoresOfPlayers = (games) => {
         return scoresOfPlayers;
     }, []).sort((firstPlayer, secondPlayer) => secondPlayer['total'] - firstPlayer['total']);
 }
+
 scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 
+function createGamesListTable(briefGameInfo) {
+    createTable(briefGameInfo,gamesList);
 
-function createHtmlListOfGames(gameInfo) {
-    const listItem = document.createElement('li');
-    const listItemText = document.createTextNode(gameInfo);
-    listItem.appendChild(listItemText);
-    gamesList.appendChild(listItem);
 }
 
 function createLeaderboardTable(player) {
+    createTable(player,leaderboard);
+}
+
+function createTable(data, tableName){
     const tableRow = document.createElement('tr');
-    Object.keys(player).forEach(key => {
+    Object.keys(data).forEach(key => {
         const tableCell = document.createElement('td');
-        const tableCellText = document.createTextNode(player[key]);
+        const tableCellText = document.createTextNode(data[key]);
         tableCell.appendChild(tableCellText);
         tableRow.appendChild(tableCell);
     });
-    leaderboard.appendChild(tableRow);
+    tableName.appendChild(tableRow);
 }
 
 function createPlayerListFromJson(games) {
     return games.reduce((playerList, {gamePlayers}) => {
-        gamePlayers.map(({player}) => player['username'])
-            .forEach(username => {
-                if (!playerList.includes(username)) {
-                    playerList.push(username);
-                }
-            });
+        gamePlayers.forEach(({player}) => {
+            if (!playerList.includes(player['username'])) {
+                playerList.push(player['username']);
+            }
+        });
         return playerList;
     }, []);
 }
