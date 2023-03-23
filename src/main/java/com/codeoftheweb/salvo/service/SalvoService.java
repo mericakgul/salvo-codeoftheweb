@@ -56,7 +56,7 @@ public class SalvoService {
             Player savedPlayer = this.playerRepository.save(player);
             return new PlayerResponse(savedPlayer.getUsername());
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,  "error: Name in use" );
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "error: Name in use");
         }
     }
 
@@ -80,7 +80,7 @@ public class SalvoService {
         return gameMap;
     }
 
-    private List<Object> makeMapOfGamePlayers(Set<GamePlayer> gamePlayers) {
+    private List<Map<String, Object>> makeMapOfGamePlayers(Set<GamePlayer> gamePlayers) {
         return gamePlayers.stream()
                 .map(gamePlayer -> {
                     Map<String, Object> gamePlayerMap = new HashMap<>();
@@ -89,6 +89,8 @@ public class SalvoService {
                     gamePlayerMap.put("score", this.getGamePlayerScore(gamePlayer));
                     return gamePlayerMap;
                 })
+                .sorted(Comparator.comparingLong((Map<String, Object> gamePlayerMap) -> (Long) gamePlayerMap.get("id"))) //This sorted() method has been added to be able to send the gamePlayers sorted depending on their id's because the gamePlayer that has the smaller id means that the player in that gamePlayer is the creator of the game. We want to show the creator before the second player on frontend.
+               // .sorted(Comparator.comparingLong((Map<String, Object> gamePlayerMap) -> (Long) gamePlayerMap.get("id")).reversed()) // This line is added for practice reason. It sorts in descending.
                 .collect(Collectors.toList());
     }
 
