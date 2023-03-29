@@ -9,8 +9,6 @@ const signupBtn = document.querySelector('#signup-btn');
 const loginForm = document.querySelector('#login-form');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
-let gameListRowNo = 0;
-let playerRank = 0;
 
 loginBtn.addEventListener('click', evt => login(evt));
 
@@ -25,11 +23,12 @@ if (loggedInPlayerUsername) {
 }
 
 const briefGameInfo = (games) => {
-    return games.reduce((briefGameInfoList, game) => {
-        gameListRowNo += 1;
+    return games.reduce((briefGameInfoList, game, index) => {
+        const date = new Date(game['created']);
+        const formattedDate = date.toLocaleString();
         const briefGameInfo = {
-            'no': gameListRowNo,
-            'created-time': game['created'],
+            'no': index + 1,
+            'created-time': formattedDate,
             'first-player': game['gamePlayers'][0]['player']['username'],
             'second-player': game['gamePlayers'][1]?.['player']?.['username'] || '', // If there is a game, there must be created time and first player who is the creator but second player might not exist.
         }
@@ -43,10 +42,9 @@ briefGameInfo(fetchedGamesList).forEach(createGamesListTable);
 
 const scoresOfPlayers = (games) => {
     const playerList = createPlayerListFromJson(games);
-    return playerList.reduce((scoresOfPlayers, player) => {
-        playerRank += 1;
+    return playerList.reduce((scoresOfPlayers, player, index) => {
         const playerResult = {
-            'no': playerRank,
+            'no': index + 1,
             'name': player,
             'total': getTotalScoreOfPlayer(player, games),
             'won': getTotalWinCountOfPlayer(player, games),
@@ -60,24 +58,43 @@ const scoresOfPlayers = (games) => {
 
 scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 
-function createGamesListTable(briefGameInfo) {
-    createTable(briefGameInfo,gamesList);
-
+function createGamesListTable(briefGameInfo, index) {
+    createTable(briefGameInfo,gamesList, index);
 }
 
 function createLeaderboardTable(player) {
     createTable(player,leaderboard);
 }
 
-function createTable(data, tableName){
+function createTable(data, tableName, index){
     const tableRow = document.createElement('tr');
+
     Object.keys(data).forEach(key => {
         const tableCell = document.createElement('td');
         const tableCellText = document.createTextNode(data[key]);
         tableCell.appendChild(tableCellText);
         tableRow.appendChild(tableCell);
     });
+
+    if(tableName === gamesList){
+        const rowId = index + 1;
+        tableRow.setAttribute('data-id', `${rowId}`);
+        createJoinButton(tableRow, data['second-player']);
+    }
     tableName.appendChild(tableRow);
+}
+
+function createJoinButton(tableRow, secondPlayer) {
+    const buttonCell = document.createElement('td');
+    const button = document.createElement('button');
+    button.classList.add('btn');
+    button.classList.add('btn-primary');
+    button.textContent = 'Join';
+    if(secondPlayer) {
+        button.disabled = true;
+    }
+    buttonCell.appendChild(button);
+    tableRow.appendChild(buttonCell);
 }
 
 function createPlayerListFromJson(games) {
