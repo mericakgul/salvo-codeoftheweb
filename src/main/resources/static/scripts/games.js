@@ -79,20 +79,19 @@ function createTable(data, tableName, index){
     if(tableName === gamesList){
         const rowId = index + 1;
         tableRow.setAttribute('data-id', `${rowId}`);
-        createJoinButton(tableRow, data['second-player']);
+        createButton(tableRow, 'View');
+        createButton(tableRow, 'Join', data['second-player']);
     }
     tableName.appendChild(tableRow);
 }
 
-function createJoinButton(tableRow, secondPlayer) {
+function createButton(tableRow, buttonText, secondPlayer){
     const buttonCell = document.createElement('td');
     const button = document.createElement('button');
     button.classList.add('btn');
     button.classList.add('btn-primary');
-    button.textContent = 'Join';
-    if(secondPlayer) {
-        button.disabled = true;
-    }
+    button.textContent = buttonText === 'Join' ? 'Join' : 'View';
+    button.disabled = !!secondPlayer;
     buttonCell.appendChild(button);
     tableRow.appendChild(buttonCell);
 }
