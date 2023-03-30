@@ -8,7 +8,7 @@ export const fetchJson = url =>
         if (response.ok) {
             return response.json();
         } else if (response.status === 401) {
-            alert('You need to log in to be able to see the game details!');
+            alert('You are not authorized to see the game details!');
             window.location.href = '/web/games.html';
         } else {
             throw new Error('error: ' + response.statusText);

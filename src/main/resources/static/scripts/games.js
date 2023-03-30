@@ -7,19 +7,22 @@ const loginBtn = document.querySelector('#login-btn');
 const logoutBtn = document.querySelector('#logout-btn');
 const signupBtn = document.querySelector('#signup-btn');
 const loginForm = document.querySelector('#login-form');
+const warningToLogin = document.querySelector('#warning-to-login');
+const infoAboutGames = document.querySelector('#info-about-games');
 const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
 
 loginBtn.addEventListener('click', evt => login(evt));
-
-signupBtn.addEventListener('click', (evt) => signup(evt));
+signupBtn.addEventListener('click', evt => signup(evt)); // Normally we do not need evt parameter for signup since we are sending the json file to our endpoint but we are also logging in after signing up automatically. This is why we use evt parameter.
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
-    loggedInPlayerUsernameArea.setAttribute('style', 'visibility: visible');
     loginForm.remove();
+    warningToLogin.remove();
+    infoAboutGames.setAttribute('style', 'visibility: visible');
+    loggedInPlayerUsernameArea.setAttribute('style', 'visibility: visible');
     logoutBtn.setAttribute('style', 'visibility: visible');
-    logoutBtn.addEventListener('click', () => logout());
+    logoutBtn.addEventListener('click', logout);
 }
 
 const briefGameInfo = (games) => {
@@ -31,6 +34,7 @@ const briefGameInfo = (games) => {
             'created-time': formattedDate,
             'first-player': game['gamePlayers'][0]['player']['username'],
             'second-player': game['gamePlayers'][1]?.['player']?.['username'] || '', // If there is a game, there must be created time and first player who is the creator but second player might not exist.
+            'game-id': game['gameId']
         }
         briefGameInfoList.push(briefGameInfo);
         return briefGameInfoList;
@@ -58,15 +62,15 @@ const scoresOfPlayers = (games) => {
 
 scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 
-function createGamesListTable(briefGameInfo, index) {
-    createTable(briefGameInfo,gamesList, index);
+function createGamesListTable(briefGameInfo) {
+    createTable(briefGameInfo, gamesList);
 }
 
 function createLeaderboardTable(player) {
-    createTable(player,leaderboard);
+    createTable(player, leaderboard);
 }
 
-function createTable(data, tableName, index){
+function createTable(data, tableName) {
     const tableRow = document.createElement('tr');
 
     Object.keys(data).forEach(key => {
@@ -76,24 +80,55 @@ function createTable(data, tableName, index){
         tableRow.appendChild(tableCell);
     });
 
-    if(tableName === gamesList){
-        const rowId = index + 1;
-        tableRow.setAttribute('data-id', `${rowId}`);
-        createButton(tableRow, 'View');
-        createButton(tableRow, 'Join', data['second-player']);
+    if (tableName === gamesList) {
+        createViewButton(tableRow, data);
+        createJoinButton(tableRow, data);
     }
     tableName.appendChild(tableRow);
 }
 
-function createButton(tableRow, buttonText, secondPlayer){
+function createViewButton(tableRow, gameData) {
+    const firstPlayer = gameData['first-player'];
+    const secondPlayer = gameData['second-player'];
+    const gameId = gameData['game-id'];
     const buttonCell = document.createElement('td');
+    const button = createButtonBasics('View');
+    buttonCell.appendChild(button);
+    tableRow.appendChild(buttonCell);
+    button.disabled = !loggedInPlayerUsername || ![firstPlayer, secondPlayer].includes(loggedInPlayerUsername);
+    button.addEventListener('click', () => viewTheGame(gameId));
+}
+
+function createJoinButton(tableRow, gameData) {
+    const firstPlayer = gameData['first-player'];
+    const secondPlayer = gameData['second-player'];
+    const gameId = gameData['game-id'];
+    const buttonCell = document.createElement('td');
+    const button = createButtonBasics('Join');
+    buttonCell.appendChild(button);
+    tableRow.appendChild(buttonCell);
+    button.disabled = !loggedInPlayerUsername || !!secondPlayer || firstPlayer === loggedInPlayerUsername;
+    button.addEventListener('click', () => joinTheGame(gameId));
+}
+
+function createButtonBasics(buttonText) {
     const button = document.createElement('button');
     button.classList.add('btn');
     button.classList.add('btn-primary');
-    button.textContent = buttonText === 'Join' ? 'Join' : 'View';
-    button.disabled = !!secondPlayer;
-    buttonCell.appendChild(button);
-    tableRow.appendChild(buttonCell);
+    button.textContent = buttonText;
+    return button;
+}
+
+function viewTheGame(gameId) {
+    const gameClicked = fetchedGamesList.find(game => game['gameId'] === gameId);
+    const gamePlayerOfLoggedInUser = gameClicked['gamePlayers']
+        .find(gamePlayer => gamePlayer['player']['username'] === loggedInPlayerUsername);
+    const gamePlayerId = gamePlayerOfLoggedInUser['id'];
+    window.location.href = `/web/game.html?gp=${gamePlayerId}`;
+}
+
+function joinTheGame() {
+ //TODO
 }
 
 function createPlayerListFromJson(games) {

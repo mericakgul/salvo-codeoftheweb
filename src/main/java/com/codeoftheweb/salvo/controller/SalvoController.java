@@ -22,8 +22,8 @@ public class SalvoController {
     }
 
     @GetMapping("/game_view/{gamePlayerId}")
-    public Map<String, Object> getGameView(@PathVariable Long gamePlayerId) {
-        return this.salvoService.getGameView(gamePlayerId);
+    public Map<String, Object> getGameView(@PathVariable Long gamePlayerId, Authentication authentication) {
+        return this.salvoService.getGameView(gamePlayerId, authentication);
     }
 
     @PostMapping("/players")

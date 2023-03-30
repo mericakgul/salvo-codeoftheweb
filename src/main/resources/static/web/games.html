@@ -12,15 +12,17 @@
         <form onsubmit="return false;">
             <label>Username: <input type="text" name="username" id="username" placeholder="name@example.com"></label>
             <label>Password: <input type="text" name="password" id="password" placeholder="123"></label>
-            <button id="login-btn">Login</button>
-            <button id="signup-btn">Signup</button>
+            <button class="btn btn-primary" id="login-btn">Login</button>
+            <button class="btn btn-primary" id="signup-btn">Signup</button>
             <span id="login-result"></span>
         </form>
     </div>
 
     <h4 id="logged-in-player" style="visibility: hidden">
-        <button id="logout-btn" style="visibility: hidden">Logout</button>
+        <button class="btn btn-primary" id="logout-btn" style="visibility: hidden">Logout</button>
     </h4>
+
+    <h4 id="warning-to-login">Please log in to be able to view or join games!</h4>
 
     <div>
         <h3>Games</h3>
@@ -31,11 +33,13 @@
                 <th>Created Time</th>
                 <th>First Player (Creator)</th>
                 <th>Second Player</th>
+                <th>Game Id</th>
             </tr>
             <tbody id="games-list">
 
             </tbody>
         </table>
+        <h4 id="info-about-games" style="visibility: hidden">You can view the games if you are one of the player(s). You can join the games that don't have a second player, and you are not the first player.</h4>
     </div>
 
     <div>

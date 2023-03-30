@@ -38,15 +38,20 @@ public class SalvoService {
         return mapOfGamesPage;
     }
 
-    public Map<String, Object> getGameView(Long gamePlayerId) {
-        GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
-        Game game = gamePlayer.getGame();
-        Map<String, Object> mapOfGameView = this.makeGameMap(game);
-        mapOfGameView.put("gamePlayerId", gamePlayerId);
-        mapOfGameView.put("ships", this.createShipListOfPlayer(gamePlayer.getShips()));
-        mapOfGameView.put("salvoes", this.createSalvoesOfGameForEachPlayer(gamePlayer));
-        return new TreeMap<>(mapOfGameView);
+    public Map<String, Object> getGameView(Long gamePlayerId, Authentication authentication) {
+        Boolean canPlayerSeeThisGame = this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        if(canPlayerSeeThisGame){
+            GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
+            Game game = gamePlayer.getGame();
+            Map<String, Object> mapOfGameView = this.makeGameMap(game);
+            mapOfGameView.put("gamePlayerId", gamePlayerId);
+            mapOfGameView.put("ships", this.createShipListOfPlayer(gamePlayer.getShips()));
+            mapOfGameView.put("salvoes", this.createSalvoesOfGameForEachPlayer(gamePlayer));
+            return new TreeMap<>(mapOfGameView);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed to see this games details.");
+        }
     }
 
     public PlayerResponse signUp(PlayerRequest playerRequest) {
@@ -63,6 +68,15 @@ public class SalvoService {
     private Player getAuthenticatedUser(Authentication authentication) {
         return this.playerRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found with this username"));
+    }
+
+    private Boolean isPlayerAuthenticatedForTheGame(Long gamePlayerId, Authentication authentication) {
+        Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
+        Set<GamePlayer> gamePlayersOfAuthPlayer = authenticatedPlayer.getGamePlayers();
+        Set<Long> gamePlayerIdsOfAuthPlayer = gamePlayersOfAuthPlayer.stream()
+                .map(GamePlayer::getId)
+                .collect(Collectors.toSet());
+        return gamePlayerIdsOfAuthPlayer.contains(gamePlayerId);
     }
 
     private List<Object> getGames() {

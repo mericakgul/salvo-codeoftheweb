@@ -1,9 +1,25 @@
-.games-container{
+.games-container {
     padding: 20px;
+}
+
+#games-list {
+    text-align: center;
+}
+
+#login-form {
+    background-color: lightskyblue;
 }
 
 #logged-in-player {
     text-align: end;
     background-color: lightskyblue;
     padding-right: 10px;
+}
+
+#info-about-games {
+    color: green;
+}
+
+#warning-to-login {
+    color: red;
 }
