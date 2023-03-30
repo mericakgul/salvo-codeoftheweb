@@ -75,7 +75,6 @@ function sendLoginRequest(evt) {
             messageBox.innerText = 'login failure';
         }
     });
-
 }
 
 function sendSignupRequest(evt) {
@@ -87,7 +86,7 @@ function sendSignupRequest(evt) {
         })
     }).then((response) => {
         if (response.ok && response.status === 200) {
-            alert('You are successfully signed up!')
+            alert('You are successfully signed up!');
             sendLoginRequest(evt);
         } else if (response.status === 403) {
             alert('This username is in use, choose another one.')
