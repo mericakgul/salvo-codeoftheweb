@@ -38,7 +38,7 @@ export function logout() {
     })
 }
 
-const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
+export const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 export const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
 
 

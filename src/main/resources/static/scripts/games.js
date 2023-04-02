@@ -1,4 +1,4 @@
-import {fetchJson, login, signup, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
+import {login, signup, logout, showPlayerUsername,fetchedGamesObject, loggedInPlayerUsername} from "./utilities/helpers.js";
 
 const leaderboard = document.querySelector('#leaderboard');
 const gamesList = document.getElementById("games-list");
@@ -6,14 +6,16 @@ const loggedInPlayerUsernameArea = document.getElementById("logged-in-player");
 const loginBtn = document.querySelector('#login-btn');
 const logoutBtn = document.querySelector('#logout-btn');
 const signupBtn = document.querySelector('#signup-btn');
+const createGameBtn =document.querySelector('#create-game');
 const loginForm = document.querySelector('#login-form');
 const warningToLogin = document.querySelector('#warning-to-login');
 const infoAboutGames = document.querySelector('#info-about-games');
-const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
 const fetchedGamesList = fetchedGamesObject['games'];
 
 loginBtn.addEventListener('click', evt => login(evt));
 signupBtn.addEventListener('click', evt => signup(evt)); // Normally we do not need evt parameter for signup since we are sending the json file to our endpoint but we are also logging in after signing up automatically. This is why we use evt parameter.
+
+createGameBtn.addEventListener('click', () => createNewGame());
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
@@ -23,6 +25,7 @@ if (loggedInPlayerUsername) {
     loggedInPlayerUsernameArea.setAttribute('style', 'visibility: visible');
     logoutBtn.setAttribute('style', 'visibility: visible');
     logoutBtn.addEventListener('click', logout);
+    createGameBtn.removeAttribute('disabled');
 }
 
 const briefGameInfo = (games) => {
@@ -129,6 +132,21 @@ function viewTheGame(gameId) {
 
 function joinTheGame() {
  //TODO
+}
+
+function createNewGame() {
+    fetch('/api/games', {
+        method: 'POST'
+    }).then(response => {
+        if(response.status === 201) {
+            return response.json();
+        } else {
+            alert('Game couldn\'t be created! Try again later.');
+        }
+    }).then(responseJSON => {
+        alert('New game is successfully added.');
+        window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`
+    });
 }
 
 function createPlayerListFromJson(games) {
