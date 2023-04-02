@@ -39,8 +39,8 @@ public class SalvoService {
     }
 
     public Map<String, Object> getGameView(Long gamePlayerId, Authentication authentication) {
-        Boolean canPlayerSeeThisGame = this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
-        if(canPlayerSeeThisGame){
+        boolean isPlayerAuthorized = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        if (isPlayerAuthorized) {
             GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
             Game game = gamePlayer.getGame();
@@ -62,6 +62,20 @@ public class SalvoService {
             return new PlayerResponse(savedPlayer.getUsername());
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "error: Name in use");
+        }
+    }
+
+    public Map<String, Long> createGame(Authentication authentication) {
+        if (authentication != null) {
+            Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
+            Game createdGame = new Game(new Date());
+            Game savedGame = this.gameRepository.save(createdGame);
+            GamePlayer createdGamePlayer = new GamePlayer(savedGame, authenticatedPlayer, createdGame.getCreationDate());
+            GamePlayer savedGamePlayer = this.gamePlayerRepository.save(createdGamePlayer);
+            Long gpid = savedGamePlayer.getId();
+            return Collections.singletonMap("gpid", gpid);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to log in to create a game.");
         }
     }
 
@@ -104,7 +118,7 @@ public class SalvoService {
                     return gamePlayerMap;
                 })
                 .sorted(Comparator.comparingLong((Map<String, Object> gamePlayerMap) -> (Long) gamePlayerMap.get("id"))) //This sorted() method has been added to be able to send the gamePlayers sorted depending on their id's because the gamePlayer that has the smaller id means that the player in that gamePlayer is the creator of the game. We want to show the creator before the second player on frontend.
-               // .sorted(Comparator.comparingLong((Map<String, Object> gamePlayerMap) -> (Long) gamePlayerMap.get("id")).reversed()) // This line is added for practice reason. It sorts in descending.
+                // .sorted(Comparator.comparingLong((Map<String, Object> gamePlayerMap) -> (Long) gamePlayerMap.get("id")).reversed()) // This line is added for practice reason. It sorts in descending.
                 .collect(Collectors.toList());
     }
 
