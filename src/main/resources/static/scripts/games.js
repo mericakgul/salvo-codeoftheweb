@@ -1,4 +1,11 @@
-import {login, signup, logout, showPlayerUsername,fetchedGamesObject, loggedInPlayerUsername} from "./utilities/helpers.js";
+import {
+    login,
+    signup,
+    logout,
+    showPlayerUsername,
+    fetchedGamesObject,
+    loggedInPlayerUsername
+} from "./utilities/helpers.js";
 
 const leaderboard = document.querySelector('#leaderboard');
 const gamesList = document.getElementById("games-list");
@@ -6,7 +13,7 @@ const loggedInPlayerUsernameArea = document.getElementById("logged-in-player");
 const loginBtn = document.querySelector('#login-btn');
 const logoutBtn = document.querySelector('#logout-btn');
 const signupBtn = document.querySelector('#signup-btn');
-const createGameBtn =document.querySelector('#create-game');
+const createGameBtn = document.querySelector('#create-game');
 const loginForm = document.querySelector('#login-form');
 const warningToLogin = document.querySelector('#warning-to-login');
 const infoAboutGames = document.querySelector('#info-about-games');
@@ -123,29 +130,44 @@ function createButtonBasics(buttonText) {
 }
 
 function viewTheGame(gameId) {
-    const gameClicked = fetchedGamesList.find(game => game['gameId'] === gameId);
-    const gamePlayerOfLoggedInUser = gameClicked['gamePlayers']
+    const gameClickedToView = fetchedGamesList.find(game => game['gameId'] === gameId);
+    const gamePlayerOfLoggedInUser = gameClickedToView['gamePlayers']
         .find(gamePlayer => gamePlayer['player']['username'] === loggedInPlayerUsername);
     const gamePlayerId = gamePlayerOfLoggedInUser['id'];
     window.location.href = `/web/game.html?gp=${gamePlayerId}`;
 }
 
-function joinTheGame() {
- //TODO
+async function joinTheGame(gameId) {
+    try {
+        const response = await fetch(`/api/game/${gameId}/players`, {
+            method: 'POST'
+        });
+        if(response.status === 201) {
+            const responseJSON = await response.json();
+            alert('You have joined the game!');
+            window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`;
+        } else {
+            throw new Error('You couldn\'t join the game. Try again later.');
+        }
+    } catch (error) {
+        alert(error.message);
+    }
+
+
 }
 
 function createNewGame() {
     fetch('/api/games', {
         method: 'POST'
     }).then(response => {
-        if(response.status === 201) {
+        if (response.status === 201) {
             return response.json();
         } else {
             alert('Game couldn\'t be created! Try again later.');
         }
     }).then(responseJSON => {
         alert('New game is successfully added.');
-        window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`
+        window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`;
     });
 }
 
