@@ -2,10 +2,9 @@ package com.codeoftheweb.salvo.service;
 
 import com.codeoftheweb.salvo.model.dto.PlayerRequest;
 import com.codeoftheweb.salvo.model.dto.PlayerResponse;
+import com.codeoftheweb.salvo.model.dto.ShipDto;
 import com.codeoftheweb.salvo.model.entity.*;
-import com.codeoftheweb.salvo.repository.GamePlayerRepository;
-import com.codeoftheweb.salvo.repository.GameRepository;
-import com.codeoftheweb.salvo.repository.PlayerRepository;
+import com.codeoftheweb.salvo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,8 @@ public class SalvoService {
     private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
     private final PlayerRepository playerRepository;
+    private final ShipRepository shipRepository;
+    private final ShipLocationRepository shipLocationRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Map<String, Object> getGamesPageData(Authentication authentication) {
@@ -39,10 +40,11 @@ public class SalvoService {
     }
 
     public Map<String, Object> getGameView(Long gamePlayerId, Authentication authentication) {
+        GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
+
         boolean isPlayerAuthorized = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
         if (isPlayerAuthorized) {
-            GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
             Game game = gamePlayer.getGame();
             Map<String, Object> mapOfGameView = this.makeGameMap(game);
             mapOfGameView.put("gamePlayerId", gamePlayerId);
@@ -84,15 +86,45 @@ public class SalvoService {
             int playerNumberInTheGame = gameRequestedToJoin.getGamePlayers().size();
             if (playerNumberInTheGame > 1) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is full!");
-            } else if(isPlayerAlreadyInTheGame(gameRequestedToJoin, authenticatedPlayer.getUsername())){
+            } else if (isPlayerAlreadyInTheGame(gameRequestedToJoin, authenticatedPlayer.getUsername())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are already in this game");
-            }
-            else {
+            } else {
                 return this.createGamePlayer(gameRequestedToJoin, authenticatedPlayer, new Date());
             }
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to log in to join a game.");
         }
+    }
+
+    public void placeShips(Long gamePlayerId, List<ShipDto> shipDtoList, Authentication authentication) {
+        // TODO Add code to check if the ship locations make sense in the table. They have to be in row horizontally or vertically.
+
+        GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
+
+        boolean isPlayerAuthorizedToPlaceShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        if(!isPlayerAuthorizedToPlaceShips){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
+        }
+        if(!gamePlayer.getShips().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You already have ships placed.");
+        }
+        shipDtoList.forEach(shipDto -> {
+            Ship savedShip = this.saveAndReturnShip(shipDto, gamePlayer);
+            shipDto.getShipLocations().forEach(gridCell -> {
+                this.saveShipLocation(savedShip, gridCell);
+            });
+        });
+    }
+
+    private Ship saveAndReturnShip(ShipDto shipDto, GamePlayer gamePlayer) {
+        Ship ship = new Ship(shipDto.getShipType(), gamePlayer);
+        return this.shipRepository.save(ship);
+    }
+
+    private void saveShipLocation(Ship ship, String gridCell) {
+        ShipLocation shipLocation = new ShipLocation(ship, gridCell);
+        this.shipLocationRepository.save(shipLocation);
     }
 
     private Map<String, Long> createGamePlayer(Game game, Player player, Date joinDate) {
@@ -116,7 +148,7 @@ public class SalvoService {
         return gamePlayerIdsOfAuthPlayer.contains(gamePlayerId);
     }
 
-    private Boolean isPlayerAlreadyInTheGame (Game game, String loggedInPlayerUsername) {
+    private Boolean isPlayerAlreadyInTheGame(Game game, String loggedInPlayerUsername) {
         Set<GamePlayer> gamePlayersOfTheGame = game.getGamePlayers();
         GamePlayer[] gamePlayersOfTheGame_Array = gamePlayersOfTheGame.toArray(new GamePlayer[0]);
         String usernameOfPlayerAlreadyInGame = gamePlayersOfTheGame_Array[0].getPlayer().getUsername();

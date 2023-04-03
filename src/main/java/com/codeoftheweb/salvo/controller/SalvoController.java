@@ -2,6 +2,7 @@ package com.codeoftheweb.salvo.controller;
 
 import com.codeoftheweb.salvo.model.dto.PlayerRequest;
 import com.codeoftheweb.salvo.model.dto.PlayerResponse;
+import com.codeoftheweb.salvo.model.dto.ShipDto;
 import com.codeoftheweb.salvo.service.SalvoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,12 +37,18 @@ public class SalvoController {
 
     @PostMapping("/games")
     public ResponseEntity<Map<String, Long>> createGame(Authentication authentication) {
-        return ResponseEntity.created(URI.create("/game_view/id")).body(this.salvoService.createGame(authentication));
+        return ResponseEntity.created(URI.create("/game_view/gamePlayerId")).body(this.salvoService.createGame(authentication));
     }
 
     @PostMapping("/game/{gameId}/players")
     public ResponseEntity<Map<String, Long>> joinGame(@PathVariable Long gameId, Authentication authentication) {
-        return ResponseEntity.created(URI.create("game_view/id")).body(this.salvoService.joinGame(gameId, authentication));
+        return ResponseEntity.created(URI.create("game_view/gamePlayerId")).body(this.salvoService.joinGame(gameId, authentication));
+    }
+
+    @PostMapping("/games/players/{gamePlayerId}/ships")
+    public ResponseEntity<Void> placeShips(@PathVariable Long gamePlayerId, @Valid @RequestBody List<ShipDto> shipDtoList, Authentication authentication){
+        this.salvoService.placeShips(gamePlayerId, shipDtoList, authentication);
+        return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
     }
 
     // Another way for creating games by using ResponseEntity.created()

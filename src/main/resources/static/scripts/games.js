@@ -152,8 +152,6 @@ async function joinTheGame(gameId) {
     } catch (error) {
         alert(error.message);
     }
-
-
 }
 
 function createNewGame() {
