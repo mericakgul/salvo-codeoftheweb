@@ -70,13 +70,36 @@ public class SalvoService {
             Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
             Game createdGame = new Game(new Date());
             Game savedGame = this.gameRepository.save(createdGame);
-            GamePlayer createdGamePlayer = new GamePlayer(savedGame, authenticatedPlayer, createdGame.getCreationDate());
-            GamePlayer savedGamePlayer = this.gamePlayerRepository.save(createdGamePlayer);
-            Long gpid = savedGamePlayer.getId();
-            return Collections.singletonMap("gpid", gpid);
+            return this.createGamePlayer(savedGame, authenticatedPlayer, createdGame.getCreationDate());
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to log in to create a game.");
         }
+    }
+
+    public Map<String, Long> joinGame(Long gameId, Authentication authentication) {
+        if (authentication != null) {
+            Player authenticatedPlayer = this.getAuthenticatedUser(authentication);
+            Game gameRequestedToJoin = this.gameRepository.findById(gameId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "No such game with this id."));
+            int playerNumberInTheGame = gameRequestedToJoin.getGamePlayers().size();
+            if (playerNumberInTheGame > 1) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is full!");
+            } else if(isPlayerAlreadyInTheGame(gameRequestedToJoin, authenticatedPlayer.getUsername())){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are already in this game");
+            }
+            else {
+                return this.createGamePlayer(gameRequestedToJoin, authenticatedPlayer, new Date());
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to log in to join a game.");
+        }
+    }
+
+    private Map<String, Long> createGamePlayer(Game game, Player player, Date joinDate) {
+        GamePlayer createdGamePlayer = new GamePlayer(game, player, joinDate);
+        GamePlayer savedGamePlayer = this.gamePlayerRepository.save(createdGamePlayer);
+        Long gpid = savedGamePlayer.getId();
+        return Collections.singletonMap("gpid", gpid);
     }
 
     private Player getAuthenticatedUser(Authentication authentication) {
@@ -91,6 +114,13 @@ public class SalvoService {
                 .map(GamePlayer::getId)
                 .collect(Collectors.toSet());
         return gamePlayerIdsOfAuthPlayer.contains(gamePlayerId);
+    }
+
+    private Boolean isPlayerAlreadyInTheGame (Game game, String loggedInPlayerUsername) {
+        Set<GamePlayer> gamePlayersOfTheGame = game.getGamePlayers();
+        GamePlayer[] gamePlayersOfTheGame_Array = gamePlayersOfTheGame.toArray(new GamePlayer[0]);
+        String usernameOfPlayerAlreadyInGame = gamePlayersOfTheGame_Array[0].getPlayer().getUsername();
+        return Objects.equals(usernameOfPlayerAlreadyInGame, loggedInPlayerUsername);
     }
 
     private List<Object> getGames() {

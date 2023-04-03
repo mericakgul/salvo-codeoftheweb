@@ -38,6 +38,11 @@ public class SalvoController {
         return ResponseEntity.created(URI.create("/game_view/id")).body(this.salvoService.createGame(authentication));
     }
 
+    @PostMapping("/game/{gameId}/players")
+    public ResponseEntity<Map<String, Long>> joinGame(@PathVariable Long gameId, Authentication authentication) {
+        return ResponseEntity.created(URI.create("game_view/id")).body(this.salvoService.joinGame(gameId, authentication));
+    }
+
     // Another way for creating games by using ResponseEntity.created()
 //    @PostMapping("/games")
 //    public ResponseEntity<Map<String, Long>> createGame(Authentication authentication){
