@@ -1,5 +1,6 @@
 package com.codeoftheweb.salvo.service;
 
+import com.codeoftheweb.salvo.core.util.ShipValidation;
 import com.codeoftheweb.salvo.model.dto.PlayerRequest;
 import com.codeoftheweb.salvo.model.dto.PlayerResponse;
 import com.codeoftheweb.salvo.model.dto.ShipDto;
@@ -97,7 +98,13 @@ public class SalvoService {
     }
 
     public void placeShips(Long gamePlayerId, List<ShipDto> shipDtoList, Authentication authentication) {
-        // TODO Add code to check if the ship locations make sense in the table. They have to be in row horizontally or vertically.
+        // TODO ship overlap check
+        // check if shipType or shipLocations null
+        try {
+            ShipValidation.areShipTypesAndLocationsValid(shipDtoList);
+        } catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
 
         GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
@@ -111,9 +118,7 @@ public class SalvoService {
         }
         shipDtoList.forEach(shipDto -> {
             Ship savedShip = this.saveAndReturnShip(shipDto, gamePlayer);
-            shipDto.getShipLocations().forEach(gridCell -> {
-                this.saveShipLocation(savedShip, gridCell);
-            });
+            shipDto.getShipLocations().forEach(gridCell -> this.saveShipLocation(savedShip, gridCell));
         });
     }
 
