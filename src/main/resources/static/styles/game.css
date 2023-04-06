@@ -14,8 +14,6 @@ body {
 
 .grid-container {
     display: inline-grid;
-    /*grid-template-columns: repeat(11, 1fr);*/
-    background-color: #06508a;
     padding: 10px;
 }
 

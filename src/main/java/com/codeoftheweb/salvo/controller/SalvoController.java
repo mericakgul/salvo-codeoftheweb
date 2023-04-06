@@ -45,7 +45,9 @@ public class SalvoController {
     }
 
     @PostMapping("/games/players/{gamePlayerId}/ships")
-    public ResponseEntity<Void> placeShips(@PathVariable Long gamePlayerId, @Valid @RequestBody ShipDtoListWrapper shipDtoListWrapper, Authentication authentication){
+    public ResponseEntity<Void> placeShips(@PathVariable Long gamePlayerId,
+                                           @Valid @RequestBody ShipDtoListWrapper shipDtoListWrapper,
+                                           Authentication authentication) {
         this.salvoService.placeShips(gamePlayerId, shipDtoListWrapper, authentication);
         return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
     }

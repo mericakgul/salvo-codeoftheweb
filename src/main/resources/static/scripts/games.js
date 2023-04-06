@@ -21,7 +21,6 @@ const fetchedGamesList = fetchedGamesObject['games'];
 
 loginBtn.addEventListener('click', evt => login(evt));
 signupBtn.addEventListener('click', evt => signup(evt)); // Normally we do not need evt parameter for signup since we are sending the json file to our endpoint but we are also logging in after signing up automatically. This is why we use evt parameter.
-
 createGameBtn.addEventListener('click', () => createNewGame());
 
 if (loggedInPlayerUsername) {
@@ -213,4 +212,24 @@ function resultCounter(playerUsername, games, resultType) {
         });
         return counter;
     }, 0);
+}
+
+function sendShips(jsonBody) {
+
+    fetch('/api/games/players/12/ships', {
+        method: 'POST',
+        body: jsonBody,
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    }).then((response) => {
+        if(response.ok && response.status === 201){
+            alert('Ships are in');
+            window.location.href = '/web/game.html?gp=12';
+        } else {
+            return response.json().then(error => {
+                throw new Error(error.message);
+            });
+        }
+    }).catch(error => alert(error.message));
 }
