@@ -4,6 +4,7 @@ import com.codeoftheweb.salvo.core.util.ShipValidation;
 import com.codeoftheweb.salvo.model.dto.PlayerRequest;
 import com.codeoftheweb.salvo.model.dto.PlayerResponse;
 import com.codeoftheweb.salvo.model.dto.ShipDto;
+import com.codeoftheweb.salvo.model.dto.ShipDtoListWrapper;
 import com.codeoftheweb.salvo.model.entity.*;
 import com.codeoftheweb.salvo.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -97,11 +98,11 @@ public class SalvoService {
         }
     }
 
-    public void placeShips(Long gamePlayerId, List<ShipDto> shipDtoList, Authentication authentication) {
+    public void placeShips(Long gamePlayerId, ShipDtoListWrapper shipDtoListWrapper, Authentication authentication) {
         // TODO ship overlap check
         // check if shipType or shipLocations null
         try {
-            ShipValidation.areShipTypesAndLocationsValid(shipDtoList);
+            ShipValidation.areShipTypesAndLocationsValid(shipDtoListWrapper);
         } catch (IllegalArgumentException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -116,7 +117,7 @@ public class SalvoService {
         if(!gamePlayer.getShips().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You already have ships placed.");
         }
-        shipDtoList.forEach(shipDto -> {
+        shipDtoListWrapper.getShipDtoList().forEach(shipDto -> {
             Ship savedShip = this.saveAndReturnShip(shipDto, gamePlayer);
             shipDto.getShipLocations().forEach(gridCell -> this.saveShipLocation(savedShip, gridCell));
         });
