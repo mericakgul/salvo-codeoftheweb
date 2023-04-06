@@ -4,6 +4,7 @@ import com.codeoftheweb.salvo.model.dto.ShipDto;
 import com.codeoftheweb.salvo.model.dto.ShipDtoListWrapper;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ShipValidation {
 
@@ -27,6 +28,7 @@ public class ShipValidation {
         boolean doShipLocationsHaveCorrectSyntax = hasCorrectShipLocationSyntax(shipLocationsListOfShipDto);
         boolean doShipsHaveCorrectSize = hasCorrectShipSize(shipDtoListWrapper);
         boolean areShipLocationsInConsecutiveOrder = areShipLocationsConsecutive(shipLocationsListOfShipDto);
+        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDto);
 
         if (!isNumberOfShipsValid) {
             throw new IllegalArgumentException("The number of ships has to be between 1 and 5.");
@@ -40,6 +42,8 @@ public class ShipValidation {
             throw new IllegalArgumentException("Wrong ship size.");
         } else if (!areShipLocationsInConsecutiveOrder) {
             throw new IllegalArgumentException("Ships are not consecutive order.");
+        } else if (areShipLocationsOverlapping) {
+            throw new IllegalArgumentException("Ships are overlapping");
         }
     }
 
@@ -50,7 +54,7 @@ public class ShipValidation {
 
     public static boolean haveShipTypesCorrectName(List<String> shipTypesList) {
         return shipTypesList.stream()
-                .allMatch(shipType -> shipTypesAndSizes.containsKey(shipType.toLowerCase()));
+                .allMatch(shipTypesAndSizes::containsKey);
     }
 
     public static boolean hasCorrectShipLocationSyntax(List<List<String>> shipLocationsList) {
@@ -80,7 +84,7 @@ public class ShipValidation {
     public static boolean hasCorrectShipSize(ShipDtoListWrapper shipDtoListWrapper) {
         return shipDtoListWrapper.getShipDtoList().stream()
                 .allMatch(shipDto -> {
-                    String shipType = shipDto.getShipType();
+                    String shipType = shipDto.getShipType().toLowerCase();
                     Integer shipLocationsSize = shipDto.getShipLocations().size();
                     return Objects.equals(shipTypesAndSizes.get(shipType), shipLocationsSize);
                 });
@@ -122,10 +126,21 @@ public class ShipValidation {
         return rowLetters.stream().distinct().count() <= 1;
     }
 
+    public static boolean doShipLocationsOverlap(List<List<String>> shipLocationsList){
+        Set<String> combinedShipLocationsSet = new HashSet<>();
+        AtomicInteger totalSizeOfShipLocations = new AtomicInteger(0);
+        shipLocationsList.forEach(shipLocations -> {
+            combinedShipLocationsSet.addAll(shipLocations);
+            totalSizeOfShipLocations .addAndGet(shipLocations.size());
+        });
+        return combinedShipLocationsSet.size() < totalSizeOfShipLocations.get();
+    }
+
 
     public static List<String> getShipTypesOfShipDtoList(ShipDtoListWrapper shipDtoListWrapper) {
         return shipDtoListWrapper.getShipDtoList().stream()
                 .map(ShipDto::getShipType)
+                .map(String::toLowerCase)
                 .toList();
     }
 
