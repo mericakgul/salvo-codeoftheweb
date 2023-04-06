@@ -51,7 +51,6 @@ function createColumnHeaders(gridContainer) {
 function createRowCells(gridContainer, rowLetter) {
     for (let columnNo = 0; columnNo <= gridSize; columnNo++) {
         const gridItem = document.createElement('label');
-        gridItem.setAttribute('style', 'opacity:0.6');
         gridItem.setAttribute('class', 'grid-item');
         if (columnNo === 0) {
             const gridItemText = document.createTextNode(rowLetter);
