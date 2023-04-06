@@ -50,18 +50,16 @@ public class ShipValidation {
 
     public static boolean haveShipTypesCorrectName(List<String> shipTypesList) {
         return shipTypesList.stream()
-                .allMatch(shipType -> shipType != null &&
-                        shipTypesAndSizes.containsKey(shipType.toLowerCase()));
+                .allMatch(shipType -> shipTypesAndSizes.containsKey(shipType.toLowerCase()));
     }
 
     public static boolean hasCorrectShipLocationSyntax(List<List<String>> shipLocationsList) {
         return shipLocationsList.stream()
-                .allMatch(shipLocations -> shipLocations != null &&
-                        shipLocations.stream()
-                                .allMatch(location -> !location.contains(" ") &&
-                                        location.length() >= 2 &&
-                                        isRowLetterValid(location.charAt(0)) &&
-                                        isColNumberValid(location.substring(1))));
+                .allMatch(shipLocations -> shipLocations.stream()
+                        .allMatch(location -> !location.contains(" ") &&
+                                location.length() >= 2 &&
+                                isRowLetterValid(location.charAt(0)) &&
+                                isColNumberValid(location.substring(1))));
     }
 
     public static boolean isRowLetterValid(Character rowLetter) {
