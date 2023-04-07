@@ -102,15 +102,16 @@ public class SalvoService {
         GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
         boolean isPlayerAuthorizedToPlaceShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
-        if(!isPlayerAuthorizedToPlaceShips){
+        boolean tryingToPlaceExistingShip = isThereAnyShipAlreadyPlaced(shipDtoListWrapper, gamePlayer);
+        if (!isPlayerAuthorizedToPlaceShips) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
         }
-        if(!gamePlayer.getShips().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You already have ships placed.");
+        if (tryingToPlaceExistingShip) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "One or more of the ships that you try to place was already placed.");
         }
         try {
-            ShipValidation.areShipTypesAndLocationsValid(shipDtoListWrapper);
-        } catch (IllegalArgumentException e){
+            ShipValidation.checkIfShipTypesAndLocationsValid(shipDtoListWrapper, gamePlayer);
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
         shipDtoListWrapper.getShipDtoList().forEach(shipDto -> {
@@ -148,6 +149,16 @@ public class SalvoService {
                 .map(GamePlayer::getId)
                 .collect(Collectors.toSet());
         return gamePlayerIdsOfAuthPlayer.contains(gamePlayerId);
+    }
+
+    private Boolean isThereAnyShipAlreadyPlaced(ShipDtoListWrapper shipDtoListWrapper, GamePlayer gamePlayer) {
+        List<String> shipTypesOfShipDtoList = ShipValidation.getShipTypesOfShipDtoList(shipDtoListWrapper);
+        List<String> existingShipsOfGamePlayer = gamePlayer.getShips().stream()
+                .map(Ship::getShipType)
+                .map(String::toLowerCase)
+                .toList();
+        return shipTypesOfShipDtoList.stream()
+                .anyMatch(existingShipsOfGamePlayer::contains);
     }
 
     private Boolean isPlayerAlreadyInTheGame(Game game, String loggedInPlayerUsername) {

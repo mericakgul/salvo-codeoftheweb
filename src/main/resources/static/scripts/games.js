@@ -160,12 +160,12 @@ function createNewGame() {
         if (response.status === 201) {
             return response.json();
         } else {
-            alert('Game couldn\'t be created! Try again later.');
+            throw new Error('Game couldn\'t be created! Try again later.');
         }
     }).then(responseJSON => {
         alert('New game is successfully added.');
         window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`;
-    });
+    }).catch(error => alert(error.message));
 }
 
 function createPlayerListFromJson(games) {
@@ -224,7 +224,7 @@ function sendShips(jsonBody) {
         })
     }).then((response) => {
         if(response.ok && response.status === 201){
-            alert('Ships are in');
+            alert('Ships have been placed');
             window.location.href = '/web/game.html?gp=12';
         } else {
             return response.json().then(error => {

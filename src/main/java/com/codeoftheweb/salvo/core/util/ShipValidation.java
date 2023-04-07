@@ -2,9 +2,12 @@ package com.codeoftheweb.salvo.core.util;
 
 import com.codeoftheweb.salvo.model.dto.ShipDto;
 import com.codeoftheweb.salvo.model.dto.ShipDtoListWrapper;
+import com.codeoftheweb.salvo.model.entity.GamePlayer;
+import com.codeoftheweb.salvo.model.entity.ShipLocation;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ShipValidation {
 
@@ -19,7 +22,7 @@ public class ShipValidation {
         shipTypesAndSizes.put("patrol boat", 2);
     }
 
-    public static void areShipTypesAndLocationsValid(ShipDtoListWrapper shipDtoListWrapper) {
+    public static void checkIfShipTypesAndLocationsValid(ShipDtoListWrapper shipDtoListWrapper, GamePlayer gamePlayer) {
         List<String> shipTypesOfShipDto = getShipTypesOfShipDtoList(shipDtoListWrapper);
         List<List<String>> shipLocationsListOfShipDto = getShipLocationsListOfShipDto(shipDtoListWrapper);
         boolean isNumberOfShipsValid = shipDtoListWrapper.getShipDtoList().size() >= 1 && shipDtoListWrapper.getShipDtoList().size() <= 5;
@@ -28,7 +31,7 @@ public class ShipValidation {
         boolean doShipLocationsHaveCorrectSyntax = hasCorrectShipLocationSyntax(shipLocationsListOfShipDto);
         boolean doShipsHaveCorrectSize = hasCorrectShipSize(shipDtoListWrapper);
         boolean areShipLocationsInConsecutiveOrder = areShipLocationsConsecutive(shipLocationsListOfShipDto);
-        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDto);
+        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDto, gamePlayer);
 
         if (!isNumberOfShipsValid) {
             throw new IllegalArgumentException("The number of ships has to be between 1 and 5.");
@@ -126,14 +129,18 @@ public class ShipValidation {
         return rowLetters.stream().distinct().count() <= 1;
     }
 
-    public static boolean doShipLocationsOverlap(List<List<String>> shipLocationsList){
-        Set<String> combinedShipLocationsSet = new HashSet<>();
+    public static boolean doShipLocationsOverlap(List<List<String>> shipLocationsList, GamePlayer gamePlayer){
+        Set<String> existingShipLocations = gamePlayer.getShips().stream()
+                .flatMap(ship -> ship.getShipLocations().stream())
+                .map(ShipLocation::getGridCell)
+                .collect(Collectors.toSet());
+        Set<String> combinedShipLocationsSet = new HashSet<>(existingShipLocations);
         AtomicInteger totalSizeOfShipLocations = new AtomicInteger(0);
         shipLocationsList.forEach(shipLocations -> {
             combinedShipLocationsSet.addAll(shipLocations);
             totalSizeOfShipLocations .addAndGet(shipLocations.size());
         });
-        return combinedShipLocationsSet.size() < totalSizeOfShipLocations.get();
+        return combinedShipLocationsSet.size() < existingShipLocations.size() + totalSizeOfShipLocations.get();
     }
 
 
