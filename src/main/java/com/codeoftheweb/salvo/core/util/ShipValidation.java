@@ -11,16 +11,7 @@ import java.util.stream.Collectors;
 
 public class ShipValidation {
 
-    public static final Map<String, Integer> shipTypesAndSizes;
-
-    static {
-        shipTypesAndSizes = new HashMap<>();
-        shipTypesAndSizes.put("carrier", 5);
-        shipTypesAndSizes.put("battleship", 4);
-        shipTypesAndSizes.put("submarine", 3);
-        shipTypesAndSizes.put("destroyer", 3);
-        shipTypesAndSizes.put("patrol boat", 2);
-    }
+    public static final Map<String, Integer> shipTypesAndSizes = ShipTypes.shipTypesAndSizes;
 
     public static void checkIfShipTypesAndLocationsValid(ShipDtoListWrapper shipDtoListWrapper, GamePlayer gamePlayer) {
         List<String> shipTypesOfShipDto = getShipTypesOfShipDtoList(shipDtoListWrapper);
