@@ -35,3 +35,23 @@ export async function createNewGameRequest() {
         window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`;
     }).catch(error => alert(error.message));
 }
+
+export function sendShips(jsonBody) {
+
+    fetch('/api/games/players/12/ships', {
+        method: 'POST',
+        body: jsonBody,
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    }).then((response) => {
+        if(response.ok && response.status === 201){
+            alert('Ships have been placed');
+            window.location.href = '/web/game.html?gp=12';
+        } else {
+            return response.json().then(error => {
+                throw new Error(error.message);
+            });
+        }
+    }).catch(error => alert(error.message));
+}
