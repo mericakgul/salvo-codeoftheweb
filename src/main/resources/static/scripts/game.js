@@ -1,5 +1,5 @@
 import {fetchJson, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
-import {allShipTypes} from "./utilities/constants"
+import {allShipTypes} from "./utilities/constants.js"
 
 const gridSize = 10;
 const shipsGridContainer = document.querySelector('#ships-grid-container');
