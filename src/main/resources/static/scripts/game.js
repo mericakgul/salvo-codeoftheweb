@@ -1,4 +1,7 @@
-import {fetchJson, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
+import {showPlayerUsername, combineOwnerShipsLocations, nextChar} from "./utilities/helpers.js";
+import {fetchJson, loggedInPlayerUsername} from "./utilities/requestsToApi.js";
+
+import {logout} from "./utilities/authorization.js";
 import {allShipTypes} from "./utilities/constants.js"
 
 const gridSize = 10;
@@ -68,11 +71,6 @@ function createRowCells(gridContainer, rowLetter) {
     rowLetter === rowLetterShip ?
         rowLetterShip = nextChar(rowLetterShip) :
         rowLetterSalvo = nextChar(rowLetterSalvo);
-}
-
-
-function nextChar(c) {
-    return String.fromCharCode(c.charCodeAt(0) + 1);
 }
 
 function placeDataOnGrids() {
@@ -153,13 +151,6 @@ function placeOpponentSalvoes(opponentSalvoes, ownerShips) {
             }
         });
     });
-}
-
-function combineOwnerShipsLocations(ownerShips) {
-    return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
-        combinedLocationsArray.push(...shipLocations);
-        return combinedLocationsArray;
-    }, []);
 }
 
 function createShipsForms(game) {
