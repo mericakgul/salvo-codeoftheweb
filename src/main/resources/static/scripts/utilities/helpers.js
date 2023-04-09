@@ -1,4 +1,4 @@
-const domainUrl = 'http://localhost:8080';
+import {domainUrl} from "./constants.js";
 const messageBox = document.querySelector('#login-result');
 const usernameInput = document.querySelector('#username');
 const passwordInput = document.querySelector('#password');

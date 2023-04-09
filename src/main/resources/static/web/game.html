@@ -7,26 +7,34 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h4 id="logged-in-player">
-        <button id="logout-btn" style="visibility: hidden">Logout</button>
-    </h4>
-    <div class="grids-container">
-        <div>
-            <h3 class="grid-title">Ship Grid</h3>
-            <p class="info" id="game-info">No game data!</p>
-            <div id="ships-grid-container" class="grid-container"></div>
-            <div>
-                <p class="color-info" style="color: darkred">red: salvos </p>
-                <p class="color-info" style="color: darkblue">dark blue: ships </p>
-                <p class="color-info" style="color: purple">purple: hit ships </p>
-            </div>
+<h4 id="logged-in-player">
+    <button id="logout-btn" style="visibility: hidden">Logout</button>
+</h4>
+<div class="grids-container">
+    <div class="ship-selection-menu">
+        <div class="ships-to-place-container">
+            <h4>Select a Ship To Place</h4>
         </div>
-        <div>
-            <h3 class="grid-title">Salvo Grid</h3>
-            <p class="info">Salvos you did!</p>
-            <div id="salvoes-grid-container" class="grid-container"></div>
+        <div class="placed-ships-container">
+            <h4>Placed Ships. Select to Remove.</h4>
         </div>
     </div>
+    <div>
+        <h3 class="grid-title">Ship Grid</h3>
+        <p class="info" id="game-info">No game data!</p>
+        <div id="ships-grid-container" class="grid-container"></div>
+        <div>
+            <p class="color-info" style="color: darkred">red: salvos </p>
+            <p class="color-info" style="color: darkblue">dark blue: ships </p>
+            <p class="color-info" style="color: purple">purple: hit ships </p>
+        </div>
+    </div>
+    <div>
+        <h3 class="grid-title">Salvo Grid</h3>
+        <p class="info">Salvos you did!</p>
+        <div id="salvoes-grid-container" class="grid-container"></div>
+    </div>
+</div>
 
 <script src="../scripts/game.js" type="module"></script>
 </body>

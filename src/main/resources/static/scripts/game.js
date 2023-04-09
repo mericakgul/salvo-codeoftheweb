@@ -1,4 +1,5 @@
 import {fetchJson, logout, showPlayerUsername, loggedInPlayerUsername} from "./utilities/helpers.js";
+import {allShipTypes} from "./utilities/constants"
 
 const gridSize = 10;
 const shipsGridContainer = document.querySelector('#ships-grid-container');
@@ -80,6 +81,7 @@ function placeDataOnGrids() {
             placeShipsOnGrid(game['ships']);
             showGameInfo(game['gamePlayers']);
             placeSalvoesOnGrids(game);
+            createShipsForms(game);
         });
     }
 }
@@ -158,4 +160,60 @@ function combineOwnerShipsLocations(ownerShips) {
         combinedLocationsArray.push(...shipLocations);
         return combinedLocationsArray;
     }, []);
+}
+
+function createShipsForms(game) {
+    const shipsToPlaceContainer = document.querySelector('.ships-to-place-container');
+
+    const alreadyPlacedShips = game['ships']
+        .map(({shipType}) => shipType.toLowerCase());
+
+    allShipTypes.forEach(ship => {
+        const container = document.createElement('div');
+        container.classList.add('form-check');
+
+        const input = createInput(ship, 'radio');
+        const label = createLabel(ship);
+
+        if (alreadyPlacedShips.includes(ship.name.toLowerCase())) {
+            input.disabled = true;
+            label.setAttribute('style', 'text-decoration: line-through red');
+            createPlacedShipsCheckBoxes(ship);
+        }
+
+        container.appendChild(input);
+        container.appendChild(label);
+        shipsToPlaceContainer.appendChild(container);
+    });
+}
+
+function createInput(ship, type) {
+    const input = document.createElement('input');
+    input.classList.add('form-check-input');
+    input.setAttribute('type', type);
+    input.setAttribute('id', ship.id);
+    if (type === 'radio') {
+        input.setAttribute('name', 'shipsToPlace');
+    }
+    return input;
+}
+
+function createLabel(ship) {
+    const label = document.createElement('label');
+    label.classList.add('form-check-label');
+    label.setAttribute('for', ship.id);
+    label.textContent = `${ship.name} (${'\u25A0 '.repeat(ship.size)})`;
+    return label;
+}
+
+function createPlacedShipsCheckBoxes(ship) {
+    const placedShipsContainer = document.querySelector('.placed-ships-container');
+    const container = document.createElement('div');
+    container.classList.add('form-check');
+    const input = createInput(ship, 'checkbox');
+    const label = createLabel(ship);
+
+    container.appendChild(input);
+    container.appendChild(label);
+    placedShipsContainer.appendChild(container);
 }

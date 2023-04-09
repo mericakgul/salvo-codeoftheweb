@@ -49,3 +49,14 @@ body {
     padding-right: 10px;
     color: brown;
 }
+
+.ship-selection-menu {
+    color: white;
+    padding-top: 50px;
+    padding-left: 20px;
+    padding-right: 10px;
+}
+
+.form-check label {
+    padding-left: 5px;
+}
