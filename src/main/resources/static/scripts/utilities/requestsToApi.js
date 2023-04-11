@@ -1,6 +1,6 @@
 import {domainUrl} from "./constants.js";
 
-export const fetchJson = url =>
+const fetchJson = url =>
     fetch(domainUrl + url).then(response => {
         if (response.ok) {
             return response.json();
@@ -13,7 +13,12 @@ export const fetchJson = url =>
     });
 
 export const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
+
 export const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
+
+export function fetchGameViewObject (gamePlayerId) {
+    return fetchJson(`/api/game_view/${gamePlayerId}`);
+}
 
 export function joinGameRequest(gameId){
     return fetch(`/api/game/${gameId}/players`, {
@@ -21,7 +26,7 @@ export function joinGameRequest(gameId){
     });
 }
 
-export async function createNewGameRequest() {
+export function createNewGameRequest() {
     fetch('/api/games', {
         method: 'POST'
     }).then(response => {
