@@ -1,4 +1,4 @@
-import {showPlayerUsername, combineOwnerShipsLocations, nextChar} from "./utilities/helpers.js";
+import {showPlayerUsername, combineShipsLocations, nextChar} from "./utilities/helpers.js";
 import {fetchGameViewObject, loggedInPlayerUsername} from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
@@ -11,28 +11,21 @@ const salvoesGridContainer = document.querySelector('#salvoes-grid-container');
 const loggedInPlayerUsernameArea = document.querySelector('#logged-in-player');
 const logoutBtn = document.querySelector('#logout-btn');
 const placedShipsContainer = document.querySelector('.placed-ships-container');
-let placedShipsCheckboxes = placedShipsContainer.querySelectorAll('input[type="checkbox"]');
 
 shipsGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`); // To be able to have dynamic grid size in case we want different size of grid.
 salvoesGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`);
 let rowLetterShip = 'A'; // The beginning letter of the row.
 let rowLetterSalvo = 'A';
-let shipObjectList = [];
+let shipObjectListPlacedByUser = [];
+console.log('shipObjectListPlacedByUser', shipObjectListPlacedByUser);
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 const gamePlayerId = params['gp'];
 const fetchedGameView = await fetchGameViewObject(gamePlayerId);
-const allLocationsOfPlacedOwnerShips = combineOwnerShipsLocations(fetchedGameView['ships']);
-
-
-//Because the checkboxes are created dynamically later, we need to observe if there is a change.
-const observer = new MutationObserver(() => {
-    placedShipsCheckboxes = placedShipsContainer.querySelectorAll('input[type="checkbox"]');
-});
-observer.observe(placedShipsContainer, {childList: true});
-
+const allLocationsOfAlreadySentOwnerShips = combineShipsLocations(fetchedGameView['ships']);
+console.log('allLocationsOfAlreadySentOwnerShips', allLocationsOfAlreadySentOwnerShips);
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
@@ -106,10 +99,12 @@ function handleShipGridItemClick(event) {
         const isThereEnoughSpace = checkIfThereIsEnoughSpace(shipSize, selectedDirection, clickedItemGridCode);
         if (isThereEnoughSpace) {
             const shipObject = createShipObject(shipName, shipSize, selectedDirection, clickedItemGridCode);
-            placeAShipOnGrid(shipObject);
+            console.log('shipObject', shipObject);
+            placeSelectedShipOnGrid(shipObject, selectedShipData);
         } else {
             alert('Ship cannot be placed.');
         }
+        console.log('selectedShipData', selectedShipData);
         console.log('selectedShip', selectedShip);
         console.log('shipSize', shipSize);
         console.log('selectedDirection', selectedDirection);
@@ -135,7 +130,6 @@ function createShipObject(shipName, shipSize, selectedDirection, clickedItemGrid
         "shipType": shipName,
         "shipLocations": shipLocationsArray
     };
-    shipObjectList.push(shipObject);
     return shipObject;
 }
 
@@ -155,10 +149,6 @@ function createShipLocationsArray(clickedItemGridCode, shipSize, selectedDirecti
             (_, index) => clickedGridLetter + (clickedGridNumber + index).toString()
         );
     }
-}
-
-function handleSalvoGridItemClick() {
-    console.log('Salvo grid item click handled');
 }
 
 function getSelectedShip() {
@@ -184,28 +174,53 @@ function getSelectedDirection() {
     return checkedShipDirection;
 }
 
+function placeSelectedShipOnGrid (ship, selectedShipData){
+    const allLocationsOfPlacedShips = combineShipsLocations(shipObjectListPlacedByUser);
+    console.log('allLocationsOfPlacedShips', allLocationsOfPlacedShips);
+    const combinedSavedAndPlacedShipLocations = [...allLocationsOfAlreadySentOwnerShips, ...allLocationsOfPlacedShips];
+    console.log('combinedSavedAndPlacedShipLocations', combinedSavedAndPlacedShipLocations);
+    const isOverlap = isShipOverlap(ship, combinedSavedAndPlacedShipLocations);
+    if(isOverlap) {
+        alert('Ships are overlapping, select another point.');
+    } else {
+        ship['shipLocations'].forEach(location => {
+            const gridCell = document.querySelector(`#SHIP${location}`);
+            gridCell ?
+                gridCell.setAttribute('style', 'background-color: lightblue') :
+                alert(`The location ${location} is not exist in the grid table. Check your locations.`);
+        });
+        shipObjectListPlacedByUser.push(ship);
+        createPlacedShipsCheckBoxes(selectedShipData);
+    }
+}
+
+function isShipOverlap(ship, combinedSavedAndPlacedShipLocations) {
+    const selectedShipLocations = ship['shipLocations'];
+    const allLocationsSet = new Set([...selectedShipLocations, ...combinedSavedAndPlacedShipLocations]);
+    return allLocationsSet.size < selectedShipLocations.length + combinedSavedAndPlacedShipLocations.length;
+}
+
+function handleSalvoGridItemClick() {
+    console.log('Salvo grid item click handled');
+}
 
 function placeDataOnGrids() {
     if (gamePlayerId !== null) {
-        placeShipsOnGrid(fetchedGameView['ships']);
+        placeAlreadySavedShipsOnGrid(fetchedGameView['ships']);
         showGameInfo(fetchedGameView['gamePlayers']);
         placeSalvoesOnGrids(fetchedGameView);
         createShipsForms(fetchedGameView);
     }
 }
 
-function placeShipsOnGrid(ships) {
-    ships.forEach(placeAShipOnGrid);
-}
-
-function placeAShipOnGrid(ship) {
-    ship['shipLocations'].forEach(location => {
-        const gridCell = document.querySelector(`#SHIP${location}`);
-        if (gridCell) {
-            gridCell.setAttribute('style', 'background-color: darkblue');
-        } else {
-            alert(`The location ${location} is not exist in the grid table. Check your locations.`);
-        }
+function placeAlreadySavedShipsOnGrid(ships) {
+    ships.forEach(ship => {
+        ship['shipLocations'].forEach(location => {
+            const gridCell = document.querySelector(`#SHIP${location}`);
+            gridCell ?
+                gridCell.setAttribute('style', 'background-color: darkblue') :
+                alert(`The location ${location} is not exist in the grid table. Check your locations.`);
+        });
     });
 }
 
@@ -254,7 +269,7 @@ function placeOpponentSalvoes(opponentSalvoes) {
         salvoLocations.forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location}`);
             gridCellInOwnerShipGrid.innerHTML = turnNumber;
-            if (allLocationsOfPlacedOwnerShips.includes(location)) {
+            if (allLocationsOfAlreadySentOwnerShips.includes(location)) {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
             } else {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
@@ -266,7 +281,7 @@ function placeOpponentSalvoes(opponentSalvoes) {
 function createShipsForms(game) {
     const shipsToPlaceContainer = document.querySelector('.ships-to-place-container');
 
-    const alreadyPlacedShips = game['ships']
+    const shipsAlreadySentInGame = game['ships']
         .map(({shipType}) => shipType.toLowerCase());
 
     allShipTypes.forEach(ship => {
@@ -276,10 +291,9 @@ function createShipsForms(game) {
         const input = createInput(ship, 'radio');
         const label = createLabel(ship, 'radio');
 
-        if (alreadyPlacedShips.includes(ship.name.toLowerCase())) {
+        if (shipsAlreadySentInGame.includes(ship.name.toLowerCase())) {
             input.disabled = true;
             label.setAttribute('style', 'text-decoration: line-through red');
-            createPlacedShipsCheckBoxes(ship);
         }
 
         container.appendChild(input);
@@ -312,6 +326,9 @@ function createPlacedShipsCheckBoxes(ship) {
     container.classList.add('form-check');
     const input = createInput(ship, 'checkbox');
     const label = createLabel(ship, 'checkbox');
+    const placedShipRadioButton = document.querySelector(`#${ship.id}_radio`);
+    placedShipRadioButton.checked = false;
+    placedShipRadioButton.disabled = true;
 
     container.appendChild(input);
     container.appendChild(label);

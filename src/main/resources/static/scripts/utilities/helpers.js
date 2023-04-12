@@ -20,7 +20,7 @@ export function areFieldsValid() {
 export function nextChar(c) {
     return String.fromCharCode(c.charCodeAt(0) + 1);
 }
-export function combineOwnerShipsLocations(ownerShips) {
+export function combineShipsLocations(ownerShips) {
     return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
         combinedLocationsArray.push(...shipLocations);
         return combinedLocationsArray;
