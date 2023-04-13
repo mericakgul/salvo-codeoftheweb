@@ -330,9 +330,9 @@ function updateRemoveAndSaveButtons() {
     saveShipButton.disabled = !isAnyShipChecked;
 }
 
-removeShipButton.addEventListener('click', removeCheckedShip);
+removeShipButton.addEventListener('click', removeCheckedShips);
 
-function removeCheckedShip() {
+function removeCheckedShips() {
     const checkedShipIds = getCheckedShipIds();
     checkedShipIds.forEach(shipId => {
         removeShipFromCheckboxShipList(shipId);
@@ -380,6 +380,13 @@ function deleteShipFromMap(locationsShipObjectToRemove){
         gridCell.setAttribute('style', 'background-color: lightgray');
     });
 }
+
+saveShipButton.addEventListener('click', saveCheckedShips);
+
+function saveCheckedShips(){
+
+}
+
 
 function handleSalvoGridItemClick() {
     console.log('Salvo grid item click handled');
