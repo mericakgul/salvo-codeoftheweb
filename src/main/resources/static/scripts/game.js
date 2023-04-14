@@ -1,5 +1,5 @@
 import {showPlayerUsername, combineShipsLocations, nextChar} from "./utilities/helpers.js";
-import {fetchGameViewObject, loggedInPlayerUsername} from "./utilities/requestsToApi.js";
+import {fetchGameViewObject, sendShips, loggedInPlayerUsername} from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
 import {allShipTypes} from "./utilities/constants.js"
@@ -333,8 +333,8 @@ function updateRemoveAndSaveButtons() {
 removeShipButton.addEventListener('click', removeCheckedShips);
 
 function removeCheckedShips() {
-    const checkedShipIds = getCheckedShipIds();
-    checkedShipIds.forEach(shipId => {
+    const checkedShipsIds = getCheckedShipsIds();
+    checkedShipsIds.forEach(shipId => {
         removeShipFromCheckboxShipList(shipId);
         enableShipOnRadioShipList(shipId);
         removeShip(shipId);
@@ -342,7 +342,7 @@ function removeCheckedShips() {
     });
 }
 
-function getCheckedShipIds() {
+function getCheckedShipsIds() {
     const checkboxes = placedShipsContainer.querySelectorAll('input[type="checkbox"]');
     return Array.from(checkboxes)
         .filter(checkbox => checkbox.checked)
@@ -384,7 +384,11 @@ function deleteShipFromMap(locationsShipObjectToRemove){
 saveShipButton.addEventListener('click', saveCheckedShips);
 
 function saveCheckedShips(){
-
+    const checkedShipsIds = getCheckedShipsIds();
+    const checkedShipObjects = checkedShipsIds.map(shipId => allShipTypes.find(ship => ship.id === shipId).name)
+        .map(shipName => shipObjectListPlacedByUser.find(shipObject => shipObject['shipType'] === shipName));
+    const requestBody = {shipDtoList: checkedShipObjects};
+    sendShips(requestBody, gamePlayerId);
 }
 
 

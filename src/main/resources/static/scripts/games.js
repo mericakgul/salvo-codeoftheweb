@@ -4,8 +4,7 @@ import {
     createNewGameRequest,
     fetchedGamesObject,
     joinGameRequest,
-    loggedInPlayerUsername,
-    sendShips
+    loggedInPlayerUsername
 } from "./utilities/requestsToApi.js";
 
 const leaderboard = document.querySelector('#leaderboard');

@@ -41,18 +41,18 @@ export function createNewGameRequest() {
     }).catch(error => alert(error.message));
 }
 
-export function sendShips(jsonBody) {
+export function sendShips(requestBody, gamePlayerId) {
 
-    fetch('/api/games/players/12/ships', {
+    fetch(`/api/games/players/${gamePlayerId}/ships`, {
         method: 'POST',
-        body: jsonBody,
+        body: JSON.stringify(requestBody),
         headers: new Headers({
             'Content-Type': 'application/json'
         })
     }).then((response) => {
         if(response.ok && response.status === 201){
-            alert('Ships have been placed');
-            window.location.href = '/web/game.html?gp=12';
+            alert('Ships have been saved');
+            window.location.href = `/web/game.html?gp=${gamePlayerId}`;
         } else {
             return response.json().then(error => {
                 throw new Error(error.message);
