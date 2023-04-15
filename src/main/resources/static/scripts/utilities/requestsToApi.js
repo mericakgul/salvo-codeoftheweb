@@ -41,6 +41,11 @@ export function createNewGameRequest() {
     }).catch(error => alert(error.message));
 }
 
+export async function getShips(gamePlayerId){
+    const shipsWrapperObject = await fetchJson(`/api/games/players/${gamePlayerId}/ships`);
+    return shipsWrapperObject['ships'];
+}
+
 export function sendShips(requestBody, gamePlayerId) {
 
     fetch(`/api/games/players/${gamePlayerId}/ships`, {
@@ -52,7 +57,7 @@ export function sendShips(requestBody, gamePlayerId) {
     }).then((response) => {
         if(response.ok && response.status === 201){
             alert('Ships have been saved');
-            window.location.href = `/web/game.html?gp=${gamePlayerId}`;
+            history.go(0);
         } else {
             return response.json().then(error => {
                 throw new Error(error.message);

@@ -14,15 +14,15 @@ public class ShipValidation {
     public static final Map<String, Integer> shipTypesAndSizes = ShipTypes.shipTypesAndSizes;
 
     public static void checkIfShipTypesAndLocationsValid(ShipDtoListWrapper shipDtoListWrapper, GamePlayer gamePlayer) {
-        List<String> shipTypesOfShipDto = getShipTypesOfShipDtoList(shipDtoListWrapper);
-        List<List<String>> shipLocationsListOfShipDto = getShipLocationsListOfShipDto(shipDtoListWrapper);
-        boolean isNumberOfShipsValid = shipDtoListWrapper.getShipDtoList().size() >= 1 && shipDtoListWrapper.getShipDtoList().size() <= 5;
-        boolean areAllShipsUnique = areAllShipsUnique(shipTypesOfShipDto);
-        boolean doShipTypesHaveCorrectName = haveShipTypesCorrectName(shipTypesOfShipDto);
-        boolean doShipLocationsHaveCorrectSyntax = hasCorrectShipLocationSyntax(shipLocationsListOfShipDto);
+        List<String> shipTypesOfShipDtoList = getShipTypesOfShipDtoList(shipDtoListWrapper);
+        List<List<String>> shipLocationsListOfShipDtoList = getShipLocationsListOfShipDtoList(shipDtoListWrapper);
+        boolean isNumberOfShipsValid = shipDtoListWrapper.getShips().size() >= 1 && shipDtoListWrapper.getShips().size() <= 5;
+        boolean areAllShipsUnique = areAllShipsUnique(shipTypesOfShipDtoList);
+        boolean doShipTypesHaveCorrectName = haveShipTypesCorrectName(shipTypesOfShipDtoList);
+        boolean doShipLocationsHaveCorrectSyntax = hasCorrectShipLocationSyntax(shipLocationsListOfShipDtoList);
         boolean doShipsHaveCorrectSize = hasCorrectShipSize(shipDtoListWrapper);
-        boolean areShipLocationsInConsecutiveOrder = areShipLocationsConsecutive(shipLocationsListOfShipDto);
-        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDto, gamePlayer);
+        boolean areShipLocationsInConsecutiveOrder = areShipLocationsConsecutive(shipLocationsListOfShipDtoList);
+        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDtoList, gamePlayer);
 
         if (!isNumberOfShipsValid) {
             throw new IllegalArgumentException("The number of ships has to be between 1 and 5.");
@@ -76,7 +76,7 @@ public class ShipValidation {
     }
 
     public static boolean hasCorrectShipSize(ShipDtoListWrapper shipDtoListWrapper) {
-        return shipDtoListWrapper.getShipDtoList().stream()
+        return shipDtoListWrapper.getShips().stream()
                 .allMatch(shipDto -> {
                     String shipType = shipDto.getShipType().toLowerCase();
                     Integer shipLocationsSize = shipDto.getShipLocations().size();
@@ -136,14 +136,14 @@ public class ShipValidation {
 
 
     public static List<String> getShipTypesOfShipDtoList(ShipDtoListWrapper shipDtoListWrapper) {
-        return shipDtoListWrapper.getShipDtoList().stream()
+        return shipDtoListWrapper.getShips().stream()
                 .map(ShipDto::getShipType)
                 .map(String::toLowerCase)
                 .toList();
     }
 
-    public static List<List<String>> getShipLocationsListOfShipDto(ShipDtoListWrapper shipDtoListWrapper) {
-        return shipDtoListWrapper.getShipDtoList().stream()
+    public static List<List<String>> getShipLocationsListOfShipDtoList(ShipDtoListWrapper shipDtoListWrapper) {
+        return shipDtoListWrapper.getShips().stream()
                 .map(ShipDto::getShipLocations)
                 .toList();
     }

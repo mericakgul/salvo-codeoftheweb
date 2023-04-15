@@ -44,6 +44,11 @@ public class SalvoController {
         return ResponseEntity.created(URI.create("game_view/gamePlayerId")).body(this.salvoService.joinGame(gameId, authentication));
     }
 
+    @GetMapping("/games/players/{gamePlayerId}/ships")
+    public ShipDtoListWrapper getShips(@PathVariable Long gamePlayerId, Authentication authentication){
+        return this.salvoService.getShips(gamePlayerId, authentication);
+    }
+
     @PostMapping("/games/players/{gamePlayerId}/ships")
     public ResponseEntity<Void> placeShips(@PathVariable Long gamePlayerId,
                                            @Valid @RequestBody ShipDtoListWrapper shipDtoListWrapper,

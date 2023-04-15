@@ -98,6 +98,18 @@ public class SalvoService {
         }
     }
 
+    public ShipDtoListWrapper getShips(Long gamePlayerId, Authentication authentication) {
+        GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
+        boolean isPlayerAuthorizedToGetShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        if (!isPlayerAuthorizedToGetShips) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
+        } else {
+            List<ShipDto> ships = this.createShipListOfPlayer(gamePlayer.getShips());
+            return new ShipDtoListWrapper(ships);
+        }
+    }
+
     public void placeShips(Long gamePlayerId, ShipDtoListWrapper shipDtoListWrapper, Authentication authentication) {
         GamePlayer gamePlayer = this.gamePlayerRepository.findById(gamePlayerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no GamePlayer found with this id."));
@@ -114,9 +126,10 @@ public class SalvoService {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        shipDtoListWrapper.getShipDtoList().forEach(shipDto -> {
+        shipDtoListWrapper.getShips().forEach(shipDto -> {
             Ship savedShip = this.saveAndReturnShip(shipDto, gamePlayer);
-            shipDto.getShipLocations().forEach(gridCell -> this.saveShipLocation(savedShip, gridCell));
+            shipDto.getShipLocations()
+                    .forEach(gridCell -> this.saveShipLocation(savedShip, gridCell));
         });
     }
 
@@ -213,15 +226,15 @@ public class SalvoService {
         return scoreOfGamePlayer.map(Score::getScoreNumber).orElse(null);
     }
 
-    private List<Object> createShipListOfPlayer(Set<Ship> ships) {
+    private List<ShipDto> createShipListOfPlayer(Set<Ship> ships) {
         return ships.stream()
                 .map(ship -> {
-                    Map<String, Object> shipMap = new HashMap<>();
-                    shipMap.put("shipType", ship.getShipType());
-                    shipMap.put("shipLocations", ship.getShipLocations()
+                    String shipType = ship.getShipType();
+                    List<String> shipLocations = ship.getShipLocations()
                             .stream()
-                            .map(ShipLocation::getGridCell));
-                    return shipMap;
+                            .map(ShipLocation::getGridCell)
+                            .toList();
+                    return new ShipDto(shipType, shipLocations);
                 })
                 .collect(Collectors.toList());
     }

@@ -1,5 +1,5 @@
 import {showPlayerUsername, combineShipsLocations, nextChar} from "./utilities/helpers.js";
-import {fetchGameViewObject, sendShips, loggedInPlayerUsername} from "./utilities/requestsToApi.js";
+import {fetchGameViewObject, sendShips, loggedInPlayerUsername, getShips} from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
 import {allShipTypes} from "./utilities/constants.js"
@@ -25,7 +25,8 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 });
 const gamePlayerId = params['gp'];
 const fetchedGameView = await fetchGameViewObject(gamePlayerId);
-const allLocationsOfAlreadySentOwnerShips = combineShipsLocations(fetchedGameView['ships']);
+const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
+const allLocationsOfAlreadySentOwnerShips = combineShipsLocations(fetchedShipsOfGamePlayer);
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
@@ -84,10 +85,10 @@ function createRowCells(gridContainer, rowLetter, gridItemCallBack) {
 
 function placeDataOnGrids() {
     if (gamePlayerId !== null) {
-        placeAlreadySavedShipsOnGrid(fetchedGameView['ships']);
+        placeAlreadySavedShipsOnGrid(fetchedShipsOfGamePlayer);
         showGameInfo(fetchedGameView['gamePlayers']);
         placeSalvoesOnGrids(fetchedGameView);
-        createShipsForms(fetchedGameView);
+        createShipsForms(fetchedShipsOfGamePlayer);
     }
 }
 
@@ -156,10 +157,10 @@ function placeOpponentSalvoes(opponentSalvoes) {
     });
 }
 
-function createShipsForms(game) {
+function createShipsForms(fetchedShipsOfGamePlayer) {
     const shipsToPlaceContainer = document.querySelector('.ships-to-place-container');
 
-    const shipsAlreadySentInGame = game['ships']
+    const shipsAlreadySentInGame = fetchedShipsOfGamePlayer
         .map(({shipType}) => shipType.toLowerCase());
 
     allShipTypes.forEach(ship => {
@@ -385,9 +386,10 @@ saveShipButton.addEventListener('click', saveCheckedShips);
 
 function saveCheckedShips(){
     const checkedShipsIds = getCheckedShipsIds();
-    const checkedShipObjects = checkedShipsIds.map(shipId => allShipTypes.find(ship => ship.id === shipId).name)
+    const checkedShipObjects = checkedShipsIds
+        .map(shipId => allShipTypes.find(ship => ship.id === shipId).name)
         .map(shipName => shipObjectListPlacedByUser.find(shipObject => shipObject['shipType'] === shipName));
-    const requestBody = {shipDtoList: checkedShipObjects};
+    const requestBody = {ships: checkedShipObjects};
     sendShips(requestBody, gamePlayerId);
 }
 
