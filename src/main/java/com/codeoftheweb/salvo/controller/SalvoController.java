@@ -64,12 +64,13 @@ public class SalvoController {
         return this.salvoService.getOwnerSalvoes(gamePlayerId, authentication);
     }
 
-//    @PostMapping("/games/players/{gamePlayerId}/salvoes")
-//    public ResponseEntity<Void> placeSalvoes(@PathVariable Long gamePlayerId,
-//                                             @RequestBody List<String> salvoLocations,
-//                                             Authentication authentication){
-//        this.salvoService.placeSalvo
-//    }
+    @PostMapping("/games/players/{gamePlayerId}/salvoes")
+    public ResponseEntity<Void> placeSalvoes(@PathVariable Long gamePlayerId,
+                                             @Valid @RequestBody SalvoDto salvoDto,
+                                             Authentication authentication){
+        this.salvoService.placeSalvo(gamePlayerId, salvoDto, authentication);
+        return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
+    }
 
     // Another way for creating games by using ResponseEntity.created()
 //    @PostMapping("/games")

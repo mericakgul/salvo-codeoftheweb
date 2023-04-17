@@ -6,7 +6,6 @@ import com.codeoftheweb.salvo.model.entity.GamePlayer;
 import com.codeoftheweb.salvo.model.entity.ShipLocation;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ShipValidation {
@@ -17,26 +16,21 @@ public class ShipValidation {
         List<String> shipTypesOfShipDtoList = getShipTypesOfShipDtoList(shipDtoListWrapper);
         List<List<String>> shipLocationsListOfShipDtoList = getShipLocationsListOfShipDtoList(shipDtoListWrapper);
         boolean isNumberOfShipsValid = shipDtoListWrapper.getShips().size() >= 1 && shipDtoListWrapper.getShips().size() <= 5;
-        boolean areAllShipsUnique = areAllShipsUnique(shipTypesOfShipDtoList);
-        boolean doShipTypesHaveCorrectName = haveShipTypesCorrectName(shipTypesOfShipDtoList);
-        boolean doShipLocationsHaveCorrectSyntax = hasCorrectShipLocationSyntax(shipLocationsListOfShipDtoList);
-        boolean doShipsHaveCorrectSize = hasCorrectShipSize(shipDtoListWrapper);
-        boolean areShipLocationsInConsecutiveOrder = areShipLocationsConsecutive(shipLocationsListOfShipDtoList);
-        boolean areShipLocationsOverlapping = doShipLocationsOverlap(shipLocationsListOfShipDtoList, gamePlayer);
+        boolean haveShipsCorrectLocationSyntax = CommonSyntaxValidation.hasCorrectLocationSyntax(combineListOfShipLocationList(shipLocationsListOfShipDtoList));
 
         if (!isNumberOfShipsValid) {
             throw new IllegalArgumentException("The number of ships has to be between 1 and 5.");
-        } else if (!areAllShipsUnique) {
+        } else if (!areAllShipsUnique(shipTypesOfShipDtoList)) {
             throw new IllegalArgumentException("Duplicated ships.");
-        } else if (!doShipTypesHaveCorrectName) {
+        } else if (!haveShipTypesCorrectName(shipTypesOfShipDtoList)) {
             throw new IllegalArgumentException("Wrong ship names.");
-        } else if (!doShipLocationsHaveCorrectSyntax) {
+        } else if (!haveShipsCorrectLocationSyntax) {
             throw new IllegalArgumentException("Wrong Ship Location Syntax.");
-        } else if (!doShipsHaveCorrectSize) {
+        } else if (!hasCorrectShipSize(shipDtoListWrapper)) {
             throw new IllegalArgumentException("Wrong ship size.");
-        } else if (!areShipLocationsInConsecutiveOrder) {
+        } else if (!areShipLocationsConsecutive(shipLocationsListOfShipDtoList)) {
             throw new IllegalArgumentException("Ships are not consecutive order.");
-        } else if (areShipLocationsOverlapping) {
+        } else if (doShipLocationsOverlap(shipLocationsListOfShipDtoList, gamePlayer)) {
             throw new IllegalArgumentException("Ships are overlapping");
         }
     }
@@ -49,30 +43,6 @@ public class ShipValidation {
     public static boolean haveShipTypesCorrectName(List<String> shipTypesList) {
         return shipTypesList.stream()
                 .allMatch(shipTypesAndSizes::containsKey);
-    }
-
-    public static boolean hasCorrectShipLocationSyntax(List<List<String>> shipLocationsList) {
-        return shipLocationsList.stream()
-                .allMatch(shipLocations -> shipLocations.stream()
-                        .allMatch(location -> !location.contains(" ") &&
-                                location.length() >= 2 &&
-                                isRowLetterValid(location.charAt(0)) &&
-                                isColNumberValid(location.substring(1))));
-    }
-
-    public static boolean isRowLetterValid(Character rowLetter) {
-        return Character.isLetter(rowLetter) &&
-                Character.toLowerCase(rowLetter) >= 'a' &&
-                Character.toLowerCase(rowLetter) <= 'j';
-    }
-
-    public static boolean isColNumberValid(String colNumberAsString) {
-        try {
-            int colNumber = Integer.parseInt(colNumberAsString);
-            return colNumber >= 1 && colNumber <= 10;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 
     public static boolean hasCorrectShipSize(ShipDtoListWrapper shipDtoListWrapper) {
@@ -120,18 +90,26 @@ public class ShipValidation {
         return rowLetters.stream().distinct().count() <= 1;
     }
 
-    public static boolean doShipLocationsOverlap(List<List<String>> shipLocationsList, GamePlayer gamePlayer){
+    public static boolean doShipLocationsOverlap(List<List<String>> shipLocationsList, GamePlayer gamePlayer) {
         Set<String> existingShipLocations = gamePlayer.getShips().stream()
                 .flatMap(ship -> ship.getShipLocations().stream())
                 .map(ShipLocation::getGridCell)
+                .map(String::toLowerCase)
                 .collect(Collectors.toSet());
+        List<String> requestedShipLocations = combineListOfShipLocationList(shipLocationsList).stream()
+                .map(String::toLowerCase)
+                .toList();
+
         Set<String> combinedShipLocationsSet = new HashSet<>(existingShipLocations);
-        AtomicInteger totalSizeOfShipLocations = new AtomicInteger(0);
-        shipLocationsList.forEach(shipLocations -> {
-            combinedShipLocationsSet.addAll(shipLocations);
-            totalSizeOfShipLocations .addAndGet(shipLocations.size());
-        });
-        return combinedShipLocationsSet.size() < existingShipLocations.size() + totalSizeOfShipLocations.get();
+        combinedShipLocationsSet.addAll(requestedShipLocations);
+
+        return combinedShipLocationsSet.size() < existingShipLocations.size() + requestedShipLocations.size();
+    }
+
+    public static List<String> combineListOfShipLocationList(List<List<String>> shipLocationsListOfShipList){
+        return shipLocationsListOfShipList.stream()
+                .flatMap(Collection::stream)
+                .toList();
     }
 
 
@@ -150,7 +128,7 @@ public class ShipValidation {
 
     public static List<Character> getShipLocationsRowLetters(List<String> shipLocations) {
         List<Character> rowLetters = new ArrayList<>(shipLocations.stream()
-                .map(gridName -> gridName.charAt(0))
+                .map(gridName -> Character.toLowerCase(gridName.charAt(0)))
                 .toList());
         Collections.sort(rowLetters);
         return rowLetters;

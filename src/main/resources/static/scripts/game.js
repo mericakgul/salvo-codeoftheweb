@@ -16,8 +16,8 @@ const saveShipButton = document.querySelector('#saveShip');
 
 shipsGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`); // To be able to have dynamic grid size in case we want different size of grid.
 salvoesGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`);
-let rowLetterShip = 'A'; // The beginning letter of the row.
-let rowLetterSalvo = 'A';
+let rowLetterShip = 'a'; // The beginning letter of the row.
+let rowLetterSalvo = 'a';
 let shipObjectListPlacedByUser = [];
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -95,7 +95,7 @@ function placeDataOnGrids() {
 function placeAlreadySavedShipsOnGrid(ships) {
     ships.forEach(ship => {
         ship['shipLocations'].forEach(location => {
-            const gridCell = document.querySelector(`#SHIP${location}`);
+            const gridCell = document.querySelector(`#SHIP${location.toLowerCase()}`);
             gridCell ?
                 gridCell.setAttribute('style', 'background-color: darkblue') :
                 alert(`The location ${location} is not exist in the grid table. Check your locations.`);
@@ -130,7 +130,7 @@ function placeSalvoesOnGrids(game) {
 function placeOwnerSalvoes(ownerSalvoes) {
     ownerSalvoes.forEach(ownerSalvo => {
         ownerSalvo['salvoLocations'].forEach(location => {
-            const gridCellInSalvoGrid = document.querySelector(`#SALVO${location}`);
+            const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
             gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
             gridCellInSalvoGrid.innerHTML = ownerSalvo['turnNumber'];
         });
@@ -140,7 +140,7 @@ function placeOwnerSalvoes(ownerSalvoes) {
 function placeOpponentSalvoes(opponentSalvoes) {
     opponentSalvoes.forEach(opponentSalvo => {
         opponentSalvo['salvoLocations'].forEach(location => {
-            const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location}`);
+            const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
             gridCellInOwnerShipGrid.innerHTML = opponentSalvo['turnNumber'];
             if (allLocationsOfAlreadySentOwnerShips.includes(location)) {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
@@ -287,7 +287,7 @@ function placeSelectedShipOnGrid(shipObject, selectedShipData) {
         alert('Ships are overlapping, select another point.');
     } else {
         shipObject['shipLocations'].forEach(location => {
-            const gridCell = document.querySelector(`#SHIP${location}`);
+            const gridCell = document.querySelector(`#SHIP${location.toLowerCase()}`);
             gridCell ?
                 gridCell.setAttribute('style', 'background-color: lightskyblue') :
                 alert(`The location ${location} is not exist in the grid table. Check your locations.`);

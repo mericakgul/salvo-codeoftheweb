@@ -1,6 +1,7 @@
 package com.codeoftheweb.salvo.service;
 
 import com.codeoftheweb.salvo.core.helper.ObjectExistence;
+import com.codeoftheweb.salvo.core.util.SalvoValidation;
 import com.codeoftheweb.salvo.core.util.ShipValidation;
 import com.codeoftheweb.salvo.model.dto.*;
 import com.codeoftheweb.salvo.model.entity.*;
@@ -25,6 +26,8 @@ public class SalvoService {
     private final PlayerRepository playerRepository;
     private final ShipRepository shipRepository;
     private final ShipLocationRepository shipLocationRepository;
+    private final SalvoRepository salvoRepository;
+    private final SalvoLocationRepository salvoLocationRepository;
     private final ObjectExistence objectExistence;
     private final PasswordEncoder passwordEncoder;
 
@@ -109,11 +112,11 @@ public class SalvoService {
     public void placeShips(Long gamePlayerId, ShipDtoListWrapper shipDtoListWrapper, Authentication authentication) {
         GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
         boolean isPlayerAuthorizedToPlaceShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
-        boolean tryingToPlaceExistingShip = isThereAnyShipAlreadyPlaced(shipDtoListWrapper, gamePlayer);
+        boolean isTryingToPlaceExistingShip = isThereAnyShipAlreadyPlaced(shipDtoListWrapper, gamePlayer);
         if (!isPlayerAuthorizedToPlaceShips) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
         }
-        if (tryingToPlaceExistingShip) {
+        if (isTryingToPlaceExistingShip) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "One or more of the ships that you try to place was already placed.");
         }
         try {
@@ -130,14 +133,53 @@ public class SalvoService {
 
     public List<SalvoDto> getOwnerSalvoes(Long gamePlayerId, Authentication authentication) {
         GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
-        boolean isPlayerAuthorizedToGetShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
-        if (!isPlayerAuthorizedToGetShips) {
+        boolean isPlayerAuthorizedToGetSalvoes = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        if (!isPlayerAuthorizedToGetSalvoes) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to get salvoes.");
         } else {
             return this.createSalvoTurnsAndLocations(gamePlayer.getSalvoes());
         }
     }
 
+    public void placeSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication){
+        GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
+        boolean isPlayerAuthorizedToPlaceSalvo = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
+        boolean sameTurnSalvo = this.hasSalvoBeenPlacedThisTurn(gamePlayer, salvoDto);
+        if (!isPlayerAuthorizedToPlaceSalvo) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
+        }
+        if(sameTurnSalvo) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You have already sent your salvo, wait for next turn.");
+        }
+        try {
+            SalvoValidation.checkIfSalvoLocationsValid(salvoDto, gamePlayer);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        Salvo savedSalvo = this.saveAndReturnSalvo(gamePlayer, salvoDto);
+        salvoDto.getSalvoLocations()
+                .forEach(gridCell -> this.saveSalvoLocation(savedSalvo, gridCell));
+    }
+
+    private Boolean hasSalvoBeenPlacedThisTurn(GamePlayer gamePlayer, SalvoDto salvoDto){
+        Integer turnNumberRequested = salvoDto.getTurnNumber();
+        List<Integer> alreadyPlayedTurns = gamePlayer.getSalvoes()
+                .stream()
+                .map(Salvo::getTurnNumber)
+                .toList();
+        return alreadyPlayedTurns.contains(turnNumberRequested);
+    }
+
+
+    private Salvo saveAndReturnSalvo(GamePlayer gamePlayer, SalvoDto salvoDto){
+        Salvo salvo = new Salvo(gamePlayer, salvoDto.getTurnNumber());
+        return this.salvoRepository.save(salvo);
+    }
+
+    private void saveSalvoLocation(Salvo salvo, String gridCell){
+        SalvoLocation salvoLocation = new SalvoLocation(salvo, gridCell);
+        this.salvoLocationRepository.save(salvoLocation);
+    }
     private Ship saveAndReturnShip(ShipDto shipDto, GamePlayer gamePlayer) {
         Ship ship = new Ship(shipDto.getShipType(), gamePlayer);
         return this.shipRepository.save(ship);
