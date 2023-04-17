@@ -2,6 +2,7 @@ package com.codeoftheweb.salvo.controller;
 
 import com.codeoftheweb.salvo.model.dto.PlayerRequest;
 import com.codeoftheweb.salvo.model.dto.PlayerResponse;
+import com.codeoftheweb.salvo.model.dto.SalvoDto;
 import com.codeoftheweb.salvo.model.dto.ShipDtoListWrapper;
 import com.codeoftheweb.salvo.service.SalvoService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -56,6 +58,18 @@ public class SalvoController {
         this.salvoService.placeShips(gamePlayerId, shipDtoListWrapper, authentication);
         return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
     }
+
+    @GetMapping("/games/players/{gamePlayerId}/salvoes")
+    public List<SalvoDto> getOwnerSalvoes(@PathVariable Long gamePlayerId, Authentication authentication){
+        return this.salvoService.getOwnerSalvoes(gamePlayerId, authentication);
+    }
+
+//    @PostMapping("/games/players/{gamePlayerId}/salvoes")
+//    public ResponseEntity<Void> placeSalvoes(@PathVariable Long gamePlayerId,
+//                                             @RequestBody List<String> salvoLocations,
+//                                             Authentication authentication){
+//        this.salvoService.placeSalvo
+//    }
 
     // Another way for creating games by using ResponseEntity.created()
 //    @PostMapping("/games")
