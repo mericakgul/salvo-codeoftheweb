@@ -128,26 +128,20 @@ function placeSalvoesOnGrids(game) {
 }
 
 function placeOwnerSalvoes(ownerSalvoes) {
-    const entriesOwnerSalvoes = Object.entries(ownerSalvoes);
-    entriesOwnerSalvoes.forEach(ownerSalvo => {
-        const turnNumber = ownerSalvo[0];
-        const salvoLocations = ownerSalvo[1];
-        salvoLocations.forEach(location => {
+    ownerSalvoes.forEach(ownerSalvo => {
+        ownerSalvo['salvoLocations'].forEach(location => {
             const gridCellInSalvoGrid = document.querySelector(`#SALVO${location}`);
             gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
-            gridCellInSalvoGrid.innerHTML = turnNumber;
+            gridCellInSalvoGrid.innerHTML = ownerSalvo['turnNumber'];
         });
     });
 }
 
 function placeOpponentSalvoes(opponentSalvoes) {
-    const entriesOpponentSalvoes = Object.entries(opponentSalvoes);
-    entriesOpponentSalvoes.forEach(opponentSalvo => {
-        const turnNumber = opponentSalvo[0];
-        const salvoLocations = opponentSalvo[1];
-        salvoLocations.forEach(location => {
+    opponentSalvoes.forEach(opponentSalvo => {
+        opponentSalvo['salvoLocations'].forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location}`);
-            gridCellInOwnerShipGrid.innerHTML = turnNumber;
+            gridCellInOwnerShipGrid.innerHTML = opponentSalvo['turnNumber'];
             if (allLocationsOfAlreadySentOwnerShips.includes(location)) {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
             } else {
@@ -369,12 +363,12 @@ function removeShip(shipId) {
     deleteShipFromMap(locationsShipObjectToRemove);
 
     const indexToRemove = shipObjectListPlacedByUser.findIndex(shipObject => shipObject['shipType'] === shipName);
-    if(indexToRemove !== -1){
+    if (indexToRemove !== -1) {
         shipObjectListPlacedByUser.splice(indexToRemove, 1);
     }
 }
 
-function deleteShipFromMap(locationsShipObjectToRemove){
+function deleteShipFromMap(locationsShipObjectToRemove) {
     locationsShipObjectToRemove.forEach(location => {
         const gridCellId = 'SHIP' + location;
         const gridCell = document.getElementById(gridCellId);
@@ -384,7 +378,7 @@ function deleteShipFromMap(locationsShipObjectToRemove){
 
 saveShipButton.addEventListener('click', saveCheckedShips);
 
-function saveCheckedShips(){
+function saveCheckedShips() {
     const checkedShipsIds = getCheckedShipsIds();
     const checkedShipObjects = checkedShipsIds
         .map(shipId => allShipTypes.find(ship => ship.id === shipId).name)
