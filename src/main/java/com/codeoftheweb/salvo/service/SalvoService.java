@@ -141,15 +141,16 @@ public class SalvoService {
         }
     }
 
-    public void placeSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication){
+    public void placeSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication) {
         GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
         boolean isPlayerAuthorizedToPlaceSalvo = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
-        boolean sameTurnSalvo = this.hasSalvoBeenPlacedThisTurn(gamePlayer, salvoDto);
         if (!isPlayerAuthorizedToPlaceSalvo) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
         }
-        if(sameTurnSalvo) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You have already sent your salvo, wait for next turn.");
+        try {
+            SalvoValidation.checkIfPlayerCanSubmitSalvo(gamePlayer, salvoDto);
+        } catch (IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
         try {
             SalvoValidation.checkIfSalvoLocationsValid(salvoDto, gamePlayer);
@@ -161,25 +162,17 @@ public class SalvoService {
                 .forEach(gridCell -> this.saveSalvoLocation(savedSalvo, gridCell));
     }
 
-    private Boolean hasSalvoBeenPlacedThisTurn(GamePlayer gamePlayer, SalvoDto salvoDto){
-        Integer turnNumberRequested = salvoDto.getTurnNumber();
-        List<Integer> alreadyPlayedTurns = gamePlayer.getSalvoes()
-                .stream()
-                .map(Salvo::getTurnNumber)
-                .toList();
-        return alreadyPlayedTurns.contains(turnNumberRequested);
-    }
 
-
-    private Salvo saveAndReturnSalvo(GamePlayer gamePlayer, SalvoDto salvoDto){
+    private Salvo saveAndReturnSalvo(GamePlayer gamePlayer, SalvoDto salvoDto) {
         Salvo salvo = new Salvo(gamePlayer, salvoDto.getTurnNumber());
         return this.salvoRepository.save(salvo);
     }
 
-    private void saveSalvoLocation(Salvo salvo, String gridCell){
+    private void saveSalvoLocation(Salvo salvo, String gridCell) {
         SalvoLocation salvoLocation = new SalvoLocation(salvo, gridCell);
         this.salvoLocationRepository.save(salvoLocation);
     }
+
     private Ship saveAndReturnShip(ShipDto shipDto, GamePlayer gamePlayer) {
         Ship ship = new Ship(shipDto.getShipType(), gamePlayer);
         return this.shipRepository.save(ship);

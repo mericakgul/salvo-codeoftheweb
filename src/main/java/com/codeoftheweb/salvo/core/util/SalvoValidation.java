@@ -2,6 +2,7 @@ package com.codeoftheweb.salvo.core.util;
 
 import com.codeoftheweb.salvo.model.dto.SalvoDto;
 import com.codeoftheweb.salvo.model.entity.GamePlayer;
+import com.codeoftheweb.salvo.model.entity.Salvo;
 import com.codeoftheweb.salvo.model.entity.SalvoLocation;
 
 import java.util.HashSet;
@@ -10,6 +11,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SalvoValidation {
+
+    public static void checkIfPlayerCanSubmitSalvo(GamePlayer gamePlayer, SalvoDto salvoDto) {
+        if (gamePlayer.getShips().size() < 5) {
+            throw new IllegalStateException("First save all your ships, then submit your salvo.");
+        }
+        if (gamePlayer.getGame().getGamePlayers().size() < 2) {
+            throw new IllegalStateException("Wait for opponent player to submit a salvo.");
+        }
+        if (hasSalvoBeenPlacedThisTurn(gamePlayer, salvoDto)) {
+            throw new IllegalStateException("You have already sent your salvo, wait for next turn.");
+        }
+    }
 
     public static void checkIfSalvoLocationsValid(SalvoDto salvoDto, GamePlayer gamePlayer) {
         if (salvoDto.getSalvoLocations().size() > 5) {
@@ -21,7 +34,15 @@ public class SalvoValidation {
         if (!CommonSyntaxValidation.hasCorrectLocationSyntax(salvoDto.getSalvoLocations())) {
             throw new IllegalArgumentException("Wrong Salvo Location Syntax.");
         }
+    }
 
+    public static boolean hasSalvoBeenPlacedThisTurn(GamePlayer gamePlayer, SalvoDto salvoDto) {
+        Integer turnNumberRequested = salvoDto.getTurnNumber();
+        List<Integer> alreadyPlayedTurns = gamePlayer.getSalvoes()
+                .stream()
+                .map(Salvo::getTurnNumber)
+                .toList();
+        return alreadyPlayedTurns.contains(turnNumberRequested);
     }
 
     public static boolean hasSalvoDuplicatedLocation(SalvoDto salvoDto, GamePlayer gamePlayer) {
