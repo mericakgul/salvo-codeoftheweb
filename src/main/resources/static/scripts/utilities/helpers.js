@@ -21,10 +21,14 @@ export function nextChar(c) {
     return String.fromCharCode(c.charCodeAt(0) + 1);
 }
 export function combineShipsLocations(ownerShips) {
-    return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
-        combinedLocationsArray.push(...shipLocations);
-        return combinedLocationsArray;
-    }, []);
+    return ownerShips.flatMap(ship => ship['shipLocations']);
+
+    // Second way by using reduce:
+    // return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
+    //     combinedLocationsArray.push(...shipLocations);
+    //     return combinedLocationsArray;
+    // }, []);
+
 }
 
 function isValidEmail(email) {
