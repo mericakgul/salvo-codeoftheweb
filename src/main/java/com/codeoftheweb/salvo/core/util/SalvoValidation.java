@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 public class SalvoValidation {
 
     public static void checkIfPlayerCanSubmitSalvo(GamePlayer gamePlayer, SalvoDto salvoDto) {
-        if (gamePlayer.getShips().size() < 5) {
-            throw new IllegalStateException("First save all your ships, then submit your salvo.");
-        }
         if (gamePlayer.getGame().getGamePlayers().size() < 2) {
             throw new IllegalStateException("Wait for opponent player to submit a salvo.");
+        }
+        if (gamePlayer.getShips().size() < 5) {
+            throw new IllegalStateException("First save all your ships, then submit your salvo.");
         }
         if (hasSalvoBeenPlacedThisTurn(gamePlayer, salvoDto)) {
             throw new IllegalStateException("You have already sent your salvo, wait for next turn.");

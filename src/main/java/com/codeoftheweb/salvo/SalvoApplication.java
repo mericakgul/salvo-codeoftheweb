@@ -220,11 +220,11 @@ public class SalvoApplication extends SpringBootServletInitializer {
             shipLocations.add(new ShipLocation(ship17, "G6"));
             shipLocations.add(new ShipLocation(ship17, "H6"));
             //Ship18 Locations
-            shipLocations.add(new ShipLocation(ship18, "B5"));
+            shipLocations.add(new ShipLocation(ship18, "b5"));
             shipLocations.add(new ShipLocation(ship18, "C5"));
             shipLocations.add(new ShipLocation(ship18, "D5"));
             //Ship19 Locations
-            shipLocations.add(new ShipLocation(ship19, "C6"));
+            shipLocations.add(new ShipLocation(ship19, "c6"));
             shipLocations.add(new ShipLocation(ship19, "C7"));
             //Ship20 Locations
             shipLocations.add(new ShipLocation(ship20, "A2"));

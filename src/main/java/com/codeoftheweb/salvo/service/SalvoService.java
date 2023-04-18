@@ -109,7 +109,7 @@ public class SalvoService {
         }
     }
 
-    public void placeShips(Long gamePlayerId, ShipDtoListWrapper shipDtoListWrapper, Authentication authentication) {
+    public void saveShips(Long gamePlayerId, ShipDtoListWrapper shipDtoListWrapper, Authentication authentication) {
         GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
         boolean isPlayerAuthorizedToPlaceShips = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
         boolean isTryingToPlaceExistingShip = isThereAnyShipAlreadyPlaced(shipDtoListWrapper, gamePlayer);
@@ -141,7 +141,7 @@ public class SalvoService {
         }
     }
 
-    public void placeSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication) {
+    public void saveSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication) {
         GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
         boolean isPlayerAuthorizedToPlaceSalvo = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
         if (!isPlayerAuthorizedToPlaceSalvo) {

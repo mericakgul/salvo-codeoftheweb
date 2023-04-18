@@ -21,7 +21,8 @@ export function nextChar(c) {
     return String.fromCharCode(c.charCodeAt(0) + 1);
 }
 export function combineLocationLists(locationObjects, locationType) {
-    return locationObjects.flatMap(object => object[locationType]);
+    return locationObjects.flatMap(object => object[locationType])
+        .map(location => location.toLowerCase());
 
     // Second way by using reduce:
     // return locationObjects.reduce((combinedLocationsArray, { [locationType]: loc }) => {

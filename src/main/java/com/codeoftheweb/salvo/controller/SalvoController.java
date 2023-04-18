@@ -52,10 +52,10 @@ public class SalvoController {
     }
 
     @PostMapping("/games/players/{gamePlayerId}/ships")
-    public ResponseEntity<Void> placeShips(@PathVariable Long gamePlayerId,
-                                           @Valid @RequestBody ShipDtoListWrapper shipDtoListWrapper,
-                                           Authentication authentication) {
-        this.salvoService.placeShips(gamePlayerId, shipDtoListWrapper, authentication);
+    public ResponseEntity<Void> saveShips(@PathVariable Long gamePlayerId,
+                                          @Valid @RequestBody ShipDtoListWrapper shipDtoListWrapper,
+                                          Authentication authentication) {
+        this.salvoService.saveShips(gamePlayerId, shipDtoListWrapper, authentication);
         return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
     }
 
@@ -65,10 +65,10 @@ public class SalvoController {
     }
 
     @PostMapping("/games/players/{gamePlayerId}/salvoes")
-    public ResponseEntity<Void> placeSalvoes(@PathVariable Long gamePlayerId,
-                                             @Valid @RequestBody SalvoDto salvoDto,
-                                             Authentication authentication){
-        this.salvoService.placeSalvo(gamePlayerId, salvoDto, authentication);
+    public ResponseEntity<Void> saveSalvoes(@PathVariable Long gamePlayerId,
+                                            @Valid @RequestBody SalvoDto salvoDto,
+                                            Authentication authentication){
+        this.salvoService.saveSalvo(gamePlayerId, salvoDto, authentication);
         return ResponseEntity.created(URI.create("game_view/gamePlayerId")).build();
     }
 

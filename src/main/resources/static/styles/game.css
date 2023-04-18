@@ -68,3 +68,7 @@ body {
 .ships-to-place-container, .ship-direction-container {
     padding-bottom: 50px;
 }
+
+button#fireSalvo {
+    margin-top: 30px;
+}

@@ -65,3 +65,26 @@ export function sendShips(requestBody, gamePlayerId) {
         }
     }).catch(error => alert(error.message));
 }
+
+export async function getSalvoes(gamePlayerId){
+    return await fetchJson(`/api/games/players/${gamePlayerId}/salvoes`);
+}
+
+export function sendSalvoes(requestBody, gamePlayerId){
+    fetch(`/api/games/players/${gamePlayerId}/salvoes`, {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    }).then((response) => {
+        if(response.ok && response.status === 201){
+            alert('Salvoes have been fired');
+            history.go(0);
+        } else {
+            return response.json().then(error => {
+                throw new Error(error.message);
+            });
+        }
+    }).catch(error => alert(error.message));
+}

@@ -1,24 +1,33 @@
-import {showPlayerUsername, combineShipsLocations, nextChar} from "./utilities/helpers.js";
-import {fetchGameViewObject, sendShips, loggedInPlayerUsername, getShips} from "./utilities/requestsToApi.js";
+import {combineLocationLists, nextChar, showPlayerUsername} from "./utilities/helpers.js";
+import {
+    fetchGameViewObject,
+    getSalvoes,
+    getShips,
+    loggedInPlayerUsername, sendSalvoes,
+    sendShips
+} from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
 import {allShipTypes} from "./utilities/constants.js"
 
 const gridSize = 10;
-const lastLetterInMap = String.fromCharCode(65 + gridSize - 1); // Because charcode return array is also zero indexed, we need to subtract 1.
+const lastLetterInMap = String.fromCharCode(97 + gridSize - 1); // Because charcode return array is also zero indexed, we need to subtract 1.
 const shipsGridContainer = document.querySelector('#ships-grid-container');
 const salvoesGridContainer = document.querySelector('#salvoes-grid-container');
 const loggedInPlayerUsernameArea = document.querySelector('#logged-in-player');
 const logoutBtn = document.querySelector('#logout-btn');
+const goBackGamesButton = document.querySelector('#go-back-games-page');
 const placedShipsContainer = document.querySelector('.placed-ships-container');
 const removeShipButton = document.querySelector('#removeShip');
 const saveShipButton = document.querySelector('#saveShip');
+const fireSalvoButton = document.querySelector('#fireSalvo');
 
 shipsGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`); // To be able to have dynamic grid size in case we want different size of grid.
 salvoesGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`);
 let rowLetterShip = 'a'; // The beginning letter of the row.
 let rowLetterSalvo = 'a';
 let shipObjectListPlacedByUser = [];
+let selectedSalvoLocations = [];
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
@@ -26,7 +35,12 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 const gamePlayerId = params['gp'];
 const fetchedGameView = await fetchGameViewObject(gamePlayerId);
 const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
-const allLocationsOfAlreadySentOwnerShips = combineShipsLocations(fetchedShipsOfGamePlayer);
+const allLocationsOfPreviouslySavedOwnerShips = combineLocationLists(fetchedShipsOfGamePlayer, 'shipLocations');
+const fetchedSalvoesOfGamePlayer = await getSalvoes(gamePlayerId);
+const previouslyFiredSalvoLocations = combineLocationLists(fetchedSalvoesOfGamePlayer, 'salvoLocations');
+const lastTurnNumber = Math.max(...fetchedSalvoesOfGamePlayer.map(salvo => salvo.turnNumber));
+
+goBackGamesButton.addEventListener('click', () => window.location.href = '/web/games.html');
 
 if (loggedInPlayerUsername) {
     showPlayerUsername(loggedInPlayerUsername, loggedInPlayerUsernameArea);
@@ -69,9 +83,12 @@ function createRowCells(gridContainer, rowLetter, gridItemCallBack) {
             const gridItemText = document.createTextNode(rowLetter);
             gridItem.appendChild(gridItemText);
         } else {
-            gridContainer === shipsGridContainer ?
-                gridItem.setAttribute('id', `SHIP${rowLetter + columnNo}`) :
+            if(gridContainer === shipsGridContainer){
+                gridItem.setAttribute('id', `SHIP${rowLetter + columnNo}`);
+            } else {
                 gridItem.setAttribute('id', `SALVO${rowLetter + columnNo}`);
+                gridItem.setAttribute('data-isSelected', 'false');
+            }
             gridItem.addEventListener('click', gridItemCallBack);
         }
         gridContainer === shipsGridContainer ?
@@ -98,7 +115,7 @@ function placeAlreadySavedShipsOnGrid(ships) {
             const gridCell = document.querySelector(`#SHIP${location.toLowerCase()}`);
             gridCell ?
                 gridCell.setAttribute('style', 'background-color: darkblue') :
-                alert(`The location ${location} is not exist in the grid table. Check your locations.`);
+                alert(`The location ${location.toLowerCase()} is not exist in the grid table. Check your locations.`);
         });
     });
 }
@@ -142,7 +159,7 @@ function placeOpponentSalvoes(opponentSalvoes) {
         opponentSalvo['salvoLocations'].forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
             gridCellInOwnerShipGrid.innerHTML = opponentSalvo['turnNumber'];
-            if (allLocationsOfAlreadySentOwnerShips.includes(location)) {
+            if (allLocationsOfPreviouslySavedOwnerShips.includes(location.toLowerCase())) {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
             } else {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
@@ -280,17 +297,15 @@ function getSelectedDirection() {
 }
 
 function placeSelectedShipOnGrid(shipObject, selectedShipData) {
-    const allLocationsOfPlacedShips = combineShipsLocations(shipObjectListPlacedByUser);
-    const combinedSavedAndPlacedShipLocations = [...allLocationsOfAlreadySentOwnerShips, ...allLocationsOfPlacedShips];
+    const allLocationsOfPlacedShips = combineLocationLists(shipObjectListPlacedByUser, 'shipLocations');
+    const combinedSavedAndPlacedShipLocations = [...allLocationsOfPreviouslySavedOwnerShips, ...allLocationsOfPlacedShips];
     const isOverlap = isShipOverlap(shipObject, combinedSavedAndPlacedShipLocations);
     if (isOverlap) {
         alert('Ships are overlapping, select another point.');
     } else {
         shipObject['shipLocations'].forEach(location => {
             const gridCell = document.querySelector(`#SHIP${location.toLowerCase()}`);
-            gridCell ?
-                gridCell.setAttribute('style', 'background-color: lightskyblue') :
-                alert(`The location ${location} is not exist in the grid table. Check your locations.`);
+            gridCell.setAttribute('style', 'background-color: lightskyblue');
         });
         shipObjectListPlacedByUser.push(shipObject);
         createPlacedShipsCheckBoxes(selectedShipData);
@@ -388,6 +403,68 @@ function saveCheckedShips() {
 }
 
 
-function handleSalvoGridItemClick() {
-    console.log('Salvo grid item click handled');
+function handleSalvoGridItemClick(event) {
+    const clickedItemId = event.target.id;
+    const clickedItemGridCode = clickedItemId.slice(5);
+    const isSelected = event.target.getAttribute('data-isSelected');
+
+    try{
+        checkIfPlayerCanFire(clickedItemGridCode, isSelected);
+    } catch (error){
+        alert(error.message);
+        return;
+    }
+
+    if(isSelected === 'false'){
+        selectTheSalvoGrid(event, clickedItemGridCode);
+    } else {
+        deselectTheSalvoGrid(event, clickedItemGridCode)
+    }
 }
+
+function checkIfPlayerCanFire(clickedItemGridCode, isSelected){
+    if(fetchedGameView['gamePlayers'].length < 2){
+        throw new Error("Wait for your opponent.");
+    }
+    if(fetchedShipsOfGamePlayer.length < 5){
+        throw new Error("First place all of your ships, then select salvo");
+    }
+    if(previouslyFiredSalvoLocations.includes(clickedItemGridCode)){
+        throw new Error("You fired this point before, pick another point.");
+    }
+    if(selectedSalvoLocations.length === 5 && isSelected === 'false'){
+        throw new Error("You can only select a maximum of 5 cells.");
+    }
+}
+
+function selectTheSalvoGrid(event, clickedItemGridCode) {
+    event.target.style.backgroundColor = 'orange';
+    event.target.setAttribute('data-isSelected', 'true');
+    selectedSalvoLocations.push(clickedItemGridCode);
+    fireSalvoButton.disabled = false;
+}
+
+function deselectTheSalvoGrid(event, clickedItemGridCode){
+    event.target.style.backgroundColor = 'lightgray';
+    event.target.setAttribute('data-isSelected', 'false');
+    let index = selectedSalvoLocations.indexOf(clickedItemGridCode);
+    if(index !== -1){
+        selectedSalvoLocations.splice(index,1);
+    }
+}
+function createSalvoObject() {
+    return {
+        "turnNumber": lastTurnNumber + 1,
+        "salvoLocations": selectedSalvoLocations
+    };
+}
+
+fireSalvoButton.addEventListener('click', fireSalvo);
+
+function fireSalvo(){
+    const requestBody = createSalvoObject();
+    sendSalvoes(requestBody, gamePlayerId);
+    fireSalvoButton.disabled = true;
+}
+
+
