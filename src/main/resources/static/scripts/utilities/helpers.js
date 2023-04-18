@@ -20,15 +20,14 @@ export function areFieldsValid() {
 export function nextChar(c) {
     return String.fromCharCode(c.charCodeAt(0) + 1);
 }
-export function combineShipsLocations(ownerShips) {
-    return ownerShips.flatMap(ship => ship['shipLocations']);
+export function combineLocationLists(locationObjects, locationType) {
+    return locationObjects.flatMap(object => object[locationType]);
 
     // Second way by using reduce:
-    // return ownerShips.reduce((combinedLocationsArray, {shipLocations}) => {
-    //     combinedLocationsArray.push(...shipLocations);
+    // return locationObjects.reduce((combinedLocationsArray, { [locationType]: loc }) => {
+    //     combinedLocationsArray.push(...loc);
     //     return combinedLocationsArray;
     // }, []);
-
 }
 
 function isValidEmail(email) {
