@@ -38,7 +38,9 @@ const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
 const allLocationsOfPreviouslySavedOwnerShips = combineLocationLists(fetchedShipsOfGamePlayer, 'shipLocations');
 const fetchedSalvoesOfGamePlayer = await getSalvoes(gamePlayerId);
 const previouslyFiredSalvoLocations = combineLocationLists(fetchedSalvoesOfGamePlayer, 'salvoLocations');
-const lastTurnNumber = Math.max(...fetchedSalvoesOfGamePlayer.map(salvo => salvo.turnNumber));
+const lastTurnNumber = fetchedSalvoesOfGamePlayer.length === 0
+    ? 0
+    : Math.max(...fetchedSalvoesOfGamePlayer.map(salvo => salvo.turnNumber));
 
 goBackGamesButton.addEventListener('click', () => window.location.href = '/web/games.html');
 
@@ -83,7 +85,7 @@ function createRowCells(gridContainer, rowLetter, gridItemCallBack) {
             const gridItemText = document.createTextNode(rowLetter);
             gridItem.appendChild(gridItemText);
         } else {
-            if(gridContainer === shipsGridContainer){
+            if (gridContainer === shipsGridContainer) {
                 gridItem.setAttribute('id', `SHIP${rowLetter + columnNo}`);
             } else {
                 gridItem.setAttribute('id', `SALVO${rowLetter + columnNo}`);
@@ -408,31 +410,31 @@ function handleSalvoGridItemClick(event) {
     const clickedItemGridCode = clickedItemId.slice(5);
     const isSelected = event.target.getAttribute('data-isSelected');
 
-    try{
+    try {
         checkIfPlayerCanFire(clickedItemGridCode, isSelected);
-    } catch (error){
+    } catch (error) {
         alert(error.message);
         return;
     }
 
-    if(isSelected === 'false'){
+    if (isSelected === 'false') {
         selectTheSalvoGrid(event, clickedItemGridCode);
     } else {
         deselectTheSalvoGrid(event, clickedItemGridCode)
     }
 }
 
-function checkIfPlayerCanFire(clickedItemGridCode, isSelected){
-    if(fetchedGameView['gamePlayers'].length < 2){
+function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
+    if (fetchedGameView['gamePlayers'].length < 2) {
         throw new Error("Wait for your opponent.");
     }
-    if(fetchedShipsOfGamePlayer.length < 5){
+    if (fetchedShipsOfGamePlayer.length < 5) {
         throw new Error("First place all of your ships, then select salvo");
     }
-    if(previouslyFiredSalvoLocations.includes(clickedItemGridCode)){
+    if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
         throw new Error("You fired this point before, pick another point.");
     }
-    if(selectedSalvoLocations.length === 5 && isSelected === 'false'){
+    if (selectedSalvoLocations.length === 5 && isSelected === 'false') {
         throw new Error("You can only select a maximum of 5 cells.");
     }
 }
@@ -444,14 +446,15 @@ function selectTheSalvoGrid(event, clickedItemGridCode) {
     fireSalvoButton.disabled = false;
 }
 
-function deselectTheSalvoGrid(event, clickedItemGridCode){
+function deselectTheSalvoGrid(event, clickedItemGridCode) {
     event.target.style.backgroundColor = 'lightgray';
     event.target.setAttribute('data-isSelected', 'false');
     let index = selectedSalvoLocations.indexOf(clickedItemGridCode);
-    if(index !== -1){
-        selectedSalvoLocations.splice(index,1);
+    if (index !== -1) {
+        selectedSalvoLocations.splice(index, 1);
     }
 }
+
 function createSalvoObject() {
     return {
         "turnNumber": lastTurnNumber + 1,
@@ -461,7 +464,7 @@ function createSalvoObject() {
 
 fireSalvoButton.addEventListener('click', fireSalvo);
 
-function fireSalvo(){
+function fireSalvo() {
     const requestBody = createSalvoObject();
     sendSalvoes(requestBody, gamePlayerId);
     fireSalvoButton.disabled = true;
