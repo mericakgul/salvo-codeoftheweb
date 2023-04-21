@@ -33,7 +33,7 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 const gamePlayerId = params['gp'];
-const fetchedGameView = await fetchGameViewObject(gamePlayerId);
+let fetchedGameView = await fetchGameViewObject(gamePlayerId);
 const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
 const allLocationsOfPreviouslySavedOwnerShips = combineLocationLists(fetchedShipsOfGamePlayer, 'shipLocations');
 const fetchedSalvoesOfGamePlayer = await getSalvoes(gamePlayerId);
@@ -51,7 +51,15 @@ if (loggedInPlayerUsername) {
 }
 
 createGrids();
-placeDataOnGrids();
+placeShipDataOnGrids();
+
+async function updateGameView() {
+    fetchedGameView = await fetchGameViewObject(gamePlayerId);
+    showGameInfo(fetchedGameView['gamePlayers']);
+    placeSalvoesOnGrids(fetchedGameView);
+}
+
+setInterval(updateGameView, 5000);
 
 function createGrids() {
     for (let rowNo = 0; rowNo <= gridSize; rowNo++) {
@@ -102,11 +110,9 @@ function createRowCells(gridContainer, rowLetter, gridItemCallBack) {
         rowLetterSalvo = nextChar(rowLetterSalvo);
 }
 
-function placeDataOnGrids() {
+function placeShipDataOnGrids() {
     if (gamePlayerId !== null) {
         placeAlreadySavedShipsOnGrid(fetchedShipsOfGamePlayer);
-        showGameInfo(fetchedGameView['gamePlayers']);
-        placeSalvoesOnGrids(fetchedGameView);
         createShipsForms(fetchedShipsOfGamePlayer);
     }
 }
@@ -218,6 +224,9 @@ function handleShipGridItemClick(event) {
     const clickedItemGridCode = clickedItemId.slice(4);
     const selectedShip = getSelectedShip();
     const selectedDirection = getSelectedDirection();
+    if(fetchedShipsOfGamePlayer.length === 5){
+        return;
+    }
     if (!selectedShip || !selectedDirection) {
         alert('Please select a ship and direction from the menu to place');
     } else {

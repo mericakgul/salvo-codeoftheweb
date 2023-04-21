@@ -80,7 +80,6 @@ export function sendSalvoes(requestBody, gamePlayerId){
     }).then((response) => {
         if(response.ok && response.status === 201){
             alert('Salvoes have been fired');
-            history.go(0);
         } else {
             return response.json().then(error => {
                 throw new Error(error.message);
