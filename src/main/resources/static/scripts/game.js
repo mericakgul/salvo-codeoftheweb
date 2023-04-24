@@ -38,7 +38,7 @@ const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
 const allLocationsOfPreviouslySavedOwnerShips = combineLocationLists(fetchedShipsOfGamePlayer, 'shipLocations');
 const fetchedSalvoesOfGamePlayer = await getSalvoes(gamePlayerId);
 const previouslyFiredSalvoLocations = combineLocationLists(fetchedSalvoesOfGamePlayer, 'salvoLocations');
-const lastTurnNumber = fetchedSalvoesOfGamePlayer.length === 0
+let lastTurnNumber = fetchedSalvoesOfGamePlayer.length === 0
     ? 0
     : Math.max(...fetchedSalvoesOfGamePlayer.map(salvo => salvo.turnNumber));
 
@@ -59,7 +59,7 @@ async function updateGameView() {
     placeSalvoesOnGrids(fetchedGameView);
 }
 
-setInterval(updateGameView, 5000);
+setInterval(updateGameView, 2000);
 
 function createGrids() {
     for (let rowNo = 0; rowNo <= gridSize; rowNo++) {
@@ -477,6 +477,8 @@ function fireSalvo() {
     const requestBody = createSalvoObject();
     sendSalvoes(requestBody, gamePlayerId);
     fireSalvoButton.disabled = true;
+    selectedSalvoLocations = [];
+    lastTurnNumber += 1;
 }
 
 
