@@ -41,22 +41,46 @@
             <button id="saveShip" class="btn btn-primary" disabled>Save</button>
         </div>
         <button id="fireSalvo" class="btn btn-primary" disabled>Fire Salvo</button>
-    </div>
-    <div>
-        <h3 class="grid-title">Ship Grid</h3>
-        <p class="info" id="game-info">No game data!</p>
-        <div id="ships-grid-container" class="grid-container"></div>
         <div>
-            <p class="color-info" style="color: darkblue">dark blue: saved ships </p>
-            <p class="color-info" style="color: lightskyblue">light blue: placed ships </p>
-            <p class="color-info" style="color: darkred">red: salvos </p>
-            <p class="color-info" style="color: purple">purple: hit ships </p>
+            <p class="color-info" style="color: darkblue"><span>dark blue: saved ships</span></p>
+            <p class="color-info" style="color: lightskyblue"><span>light blue: placed ships</span></p>
+            <p class="color-info" style="color: darkred"><span>red: salvos</span></p>
+            <p class="color-info" style="color: purple"><span>purple: hit ships</span></p>
         </div>
     </div>
     <div>
+        <h3 class="grid-title">Ship Grid</h3>
+        <p class="info" id="game-info"><span>No game data!</span></p>
+        <div id="ships-grid-container" class="grid-container"></div>
+        <p class="history-title"><span>Hits on you</span></p>
+        <table class="table history-table">
+            <thead>
+            <tr>
+                <th>Turn</th>
+                <th>Ship hit</th>
+                <th>Hits on ship</th>
+                <th>Ships left</th>
+            </tr>
+            <tbody id="game-history-owner">
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-left: 10px">
         <h3 class="grid-title">Salvo Grid</h3>
-        <p class="info">Salvos you did!</p>
+        <p class="info"><span>Salvos you did!</span></p>
         <div id="salvoes-grid-container" class="grid-container"></div>
+        <p class="history-title"><span>Hits on opponent</span></p>
+        <table class="table history-table">
+            <thead>
+            <tr>
+                <th>Turn</th>
+                <th>Ship hit</th>
+                <th>Hits on ship</th>
+                <th>Ships left</th>
+            </tr>
+            <tbody id="game-history-opponent">
+            </tbody>
+        </table>
     </div>
 </div>
 

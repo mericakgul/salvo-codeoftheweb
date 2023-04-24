@@ -134,7 +134,7 @@ function showGameInfo(gamePlayers) {
     const gamePlayerOpponent = gamePlayers.find(({id}) => id.toString() !== gamePlayerId);
     const opponentUsername = gamePlayerOpponent === undefined ? '"waiting_for_opponent"' : gamePlayerOpponent['player']['username'];
 
-    const gameInfoTextField = document.querySelector('#game-info');
+    const gameInfoTextField = document.querySelector('#game-info span');
     const gameInfoText = document.createTextNode(`${ownerUsername} (you) vs ${opponentUsername}`);
     gameInfoTextField.innerHTML = '';
     gameInfoTextField.appendChild(gameInfoText);

@@ -6,3 +6,44 @@ export const allShipTypes = [
     {id: 'destroyer', name: 'Destroyer', size: 3},
     {id: 'patrolboat', name: 'Patrol Boat', size: 2}
 ];
+
+export const game_history =
+    {
+        1: [
+            {
+                1: {
+                    "ships_hit": {
+                        "destroyer": 2,
+                        "submarine": 1
+                    },
+                    "ship_number_left": 5
+                }
+            },
+            {
+                2: {
+                    "ships_hit": {
+                        "submarine": 3
+                    },
+                    "ship_number_left": 5
+                }
+            }
+        ],
+        2: [
+            {
+                1: {
+                    "ships_hit": {
+                        "destroyer": 1
+                    },
+                    "ship_number_left": 5
+                }
+            },
+            {
+                2: {
+                    "ships_hit": {
+                        "destroyer": 2
+                    },
+                    "ship_number_left": 5
+                }
+            }
+        ]
+    }
