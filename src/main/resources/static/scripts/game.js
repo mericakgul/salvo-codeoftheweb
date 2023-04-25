@@ -8,7 +8,7 @@ import {
 } from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
-import {allShipTypes} from "./utilities/constants.js"
+import {allShipTypes, game_history} from "./utilities/constants.js"
 
 const gridSize = 10;
 const lastLetterInMap = String.fromCharCode(97 + gridSize - 1); // Because charcode return array is also zero indexed, we need to subtract 1.
@@ -21,6 +21,8 @@ const placedShipsContainer = document.querySelector('.placed-ships-container');
 const removeShipButton = document.querySelector('#removeShip');
 const saveShipButton = document.querySelector('#saveShip');
 const fireSalvoButton = document.querySelector('#fireSalvo');
+const gameHistoryOwnerTableBody = document.querySelector('#game-history-owner');
+const gameHistoryOpponentTableBody = document.querySelector('#game-history-opponent');
 
 shipsGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`); // To be able to have dynamic grid size in case we want different size of grid.
 salvoesGridContainer.setAttribute('style', `grid-template-columns:repeat(${gridSize + 1}, 1fr)`);
@@ -28,6 +30,8 @@ let rowLetterShip = 'a'; // The beginning letter of the row.
 let rowLetterSalvo = 'a';
 let shipObjectListPlacedByUser = [];
 let selectedSalvoLocations = [];
+let previousHitsOnOwner = [];
+let previousHitsOnOpponent = [];
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
@@ -57,8 +61,10 @@ async function updateGameView() {
     fetchedGameView = await fetchGameViewObject(gamePlayerId);
     showGameInfo(fetchedGameView['gamePlayers']);
     placeSalvoesOnGrids(fetchedGameView);
+    showGameHistory();
 }
 
+//Using websocket is more efficient than using interval. It can be implemented in the future.
 setInterval(updateGameView, 2000);
 
 function createGrids() {
@@ -224,7 +230,7 @@ function handleShipGridItemClick(event) {
     const clickedItemGridCode = clickedItemId.slice(4);
     const selectedShip = getSelectedShip();
     const selectedDirection = getSelectedDirection();
-    if(fetchedShipsOfGamePlayer.length === 5){
+    if (fetchedShipsOfGamePlayer.length === 5) {
         return;
     }
     if (!selectedShip || !selectedDirection) {
@@ -479,6 +485,55 @@ function fireSalvo() {
     fireSalvoButton.disabled = true;
     selectedSalvoLocations = [];
     lastTurnNumber += 1;
+}
+
+function showGameHistory() {
+    showOwnerGameHistory();
+    showOpponentGameHistory();
+}
+
+function showOwnerGameHistory() {
+    const hitsOnOwner = game_history[1];
+    if (hitsOnOwner.length === previousHitsOnOwner.length) {
+        return;
+    }
+    updateHistoryTable(hitsOnOwner, gameHistoryOwnerTableBody);
+    previousHitsOnOwner = hitsOnOwner;
+}
+
+function showOpponentGameHistory() {
+    const hitsOnOpponent = game_history[2];
+    if(hitsOnOpponent.length === previousHitsOnOpponent.length){
+        return;
+    }
+    // TODO filter the updated hits data here and send it to updateHistoryTable function with only the new data.
+    updateHistoryTable(hitsOnOpponent, gameHistoryOpponentTableBody);
+    previousHitsOnOpponent = hitsOnOpponent;
+}
+
+function updateHistoryTable(hits, table) {
+    hits.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
+    hits.forEach(turn => {
+        const turnNumber = Object.keys(turn)[0];
+        const hitInfoOfTheTurn = Object.values(turn)[0];
+        const numberOfShipsLeft = hitInfoOfTheTurn['ship_number_left'];
+        const shipsHitArray = hitInfoOfTheTurn['ships_hit'];
+        Object.entries(shipsHitArray).forEach(([shipType, numberOfHits]) => {
+            addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, table);
+        });
+    });
+}
+
+function addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, table) {
+    const newRow = table.insertRow(0);
+    const turnCell = newRow.insertCell(0);
+    const shipHitCell = newRow.insertCell(1);
+    const numberOfHitsCell = newRow.insertCell(2);
+    const shipsLeftCell = newRow.insertCell(3);
+    turnCell.textContent = turnNumber;
+    shipHitCell.textContent = shipType;
+    numberOfHitsCell.innerHTML = '&#x1F4A5;'.repeat(numberOfHits);
+    shipsLeftCell.textContent = numberOfShipsLeft;
 }
 
 

@@ -24,7 +24,7 @@ export const game_history =
                     "ships_hit": {
                         "submarine": 3
                     },
-                    "ship_number_left": 5
+                    "ship_number_left": 4
                 }
             }
         ],
@@ -32,7 +32,7 @@ export const game_history =
             {
                 1: {
                     "ships_hit": {
-                        "destroyer": 1
+                        "destroyer": 5
                     },
                     "ship_number_left": 5
                 }
