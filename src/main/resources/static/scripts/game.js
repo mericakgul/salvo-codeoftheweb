@@ -142,7 +142,7 @@ function showGameInfo(gamePlayers) {
 
     const gameInfoTextField = document.querySelector('#game-info span');
     const gameInfoText = document.createTextNode(`${ownerUsername} (you) vs ${opponentUsername}`);
-    gameInfoTextField.innerHTML = '';
+    gameInfoTextField.textContent = '';
     gameInfoTextField.appendChild(gameInfoText);
 }
 
@@ -163,7 +163,7 @@ function placeOwnerSalvoes(ownerSalvoes) {
         ownerSalvo['salvoLocations'].forEach(location => {
             const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
             gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
-            gridCellInSalvoGrid.innerHTML = ownerSalvo['turnNumber'];
+            gridCellInSalvoGrid.textContent = ownerSalvo['turnNumber'];
         });
     });
 }
@@ -172,7 +172,7 @@ function placeOpponentSalvoes(opponentSalvoes) {
     opponentSalvoes.forEach(opponentSalvo => {
         opponentSalvo['salvoLocations'].forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
-            gridCellInOwnerShipGrid.innerHTML = opponentSalvo['turnNumber'];
+            gridCellInOwnerShipGrid.textContent = opponentSalvo['turnNumber'];
             if (allLocationsOfPreviouslySavedOwnerShips.includes(location.toLowerCase())) {
                 gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
             } else {
@@ -488,11 +488,11 @@ function fireSalvo() {
 }
 
 function showGameHistory() {
-    showOwnerGameHistory();
-    showOpponentGameHistory();
+    showHitHistoryOnOwner();
+    showHitHistoryOnOpponent();
 }
 
-function showOwnerGameHistory() {
+function showHitHistoryOnOwner() {
     const hitsOnOwner = game_history[1];
     const newTurns = hitsOnOwner
         .filter(turn => Object.keys(turn)[0] > highestTurnNumberOwner);
@@ -502,7 +502,7 @@ function showOwnerGameHistory() {
     }
 }
 
-function showOpponentGameHistory() {
+function showHitHistoryOnOpponent() {
     const hitsOnOpponent = game_history[2];
     const newTurns = hitsOnOpponent
         .filter(turn => Object.keys(turn)[0] > highestTurnNumberOpponent);
@@ -512,20 +512,23 @@ function showOpponentGameHistory() {
     }
 }
 
-function updateHistoryTable(turns, historyTable) {
-    turns.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
-    turns.forEach(turn => {
+function updateHistoryTable(newTurns, historyTable) {
+    newTurns.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
+    newTurns.forEach(turn => {
         const turnNumber = Object.keys(turn)[0];
         const hitInfoOfTheTurn = Object.values(turn)[0];
         const numberOfShipsLeft = hitInfoOfTheTurn['ship_number_left'];
         const shipsHit = hitInfoOfTheTurn['ships_hit'];
-        Object.entries(shipsHit).forEach(([shipType, numberOfHits]) => {
-            addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, historyTable);
+        Object.entries(shipsHit).forEach(([shipType, hitLocations]) => {
+            addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable);
+            if(historyTable === gameHistoryOpponentTableBody){
+                turnHitCellsOfOpponentPurple(turnNumber, hitLocations);
+            }
         });
     });
 }
 
-function addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, historyTable) {
+function addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable) {
     const newRow = historyTable.insertRow(0);
     const turnCell = newRow.insertCell(0);
     const shipHitCell = newRow.insertCell(1);
@@ -533,8 +536,16 @@ function addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLef
     const shipsLeftCell = newRow.insertCell(3);
     turnCell.textContent = turnNumber;
     shipHitCell.textContent = shipType;
-    numberOfHitsCell.innerHTML = '&#x1F4A5;'.repeat(numberOfHits);
+    numberOfHitsCell.innerHTML = '&#x1F4A5;'.repeat(hitLocations.length);
     shipsLeftCell.textContent = numberOfShipsLeft;
+}
+
+function turnHitCellsOfOpponentPurple(turnNumber, hitLocations) {
+    hitLocations.forEach(location => {
+        const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
+        gridCellInSalvoGrid.setAttribute('style', 'background-color: purple ; color: white');
+        gridCellInSalvoGrid.textContent = turnNumber;
+    })
 }
 
 

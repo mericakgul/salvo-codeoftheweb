@@ -13,7 +13,7 @@ export const game_history =
             {
                 3: {
                     "ships_hit": {
-                        "carrier": 5
+                        "carrier": ["a1", "a2", "a3", "a4", "a5"]
                     },
                     "ship_number_left": 3
                 }
@@ -21,7 +21,7 @@ export const game_history =
             {
                 2: {
                     "ships_hit": {
-                        "submarine": 3
+                        "submarine": ["f1", "f2", "f3"]
                     },
                     "ship_number_left": 4
                 }
@@ -29,8 +29,8 @@ export const game_history =
             {
                 1: {
                     "ships_hit": {
-                        "destroyer": 2,
-                        "submarine": 1
+                        "destroyer": ["g7", "h7"],
+                        "submarine": ["j3"]
                     },
                     "ship_number_left": 5
                 }
@@ -41,7 +41,7 @@ export const game_history =
             {
                 1: {
                     "ships_hit": {
-                        "destroyer": 5
+                        "destroyer": ["c1", "c2", "c3", "c4", "c5"]
                     },
                     "ship_number_left": 5
                 }
@@ -49,12 +49,8 @@ export const game_history =
             {
                 2: {
                     "ships_hit": {
-                        "destroyer": 2,
-                        "vdsfdf": 2,
-                        "fyjkghjmh": 2,
-                        "dsfgdfg": 2,
-                        "dfgdfg": 2,
-                        "sfghgh": 2,
+                        "destroyer": ["d4", "e4"],
+                        "Patrol Boat": ["i10", "j10"]
                     },
                     "ship_number_left": 5
                 }
