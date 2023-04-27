@@ -15,8 +15,9 @@ public class SalvoValidation {
 
     public static void checkIfPlayerCanSubmitSalvo(GamePlayer gamePlayer, SalvoDto salvoDto) {
         if (gamePlayer.getGame().getGamePlayers().size() < 2) {
-            throw new IllegalStateException("Wait for opponent player to submit a salvo.");
+            throw new IllegalStateException("Wait for opponent player to be able to submit a salvo.");
         }
+        // TODO Also add the validation if the opponent's salvoes are being waited.
         if (gamePlayer.getShips().size() < 5) {
             throw new IllegalStateException("First save all your ships, then submit your salvo.");
         }
@@ -39,7 +40,6 @@ public class SalvoValidation {
 
     public static boolean isTurnNumberCorrect(GamePlayer gamePlayer, SalvoDto salvoDto){
         Integer turnNumberRequested = salvoDto.getTurnNumber();
-        System.out.println("turnNumberRequested" + turnNumberRequested);
         List<Integer> alreadyPlayedTurns = gamePlayer.getSalvoes()
                 .stream()
                 .map(Salvo::getTurnNumber)

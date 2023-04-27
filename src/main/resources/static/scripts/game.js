@@ -55,11 +55,13 @@ if (loggedInPlayerUsername) {
 }
 
 createGrids();
+showGameInfo(fetchedGameView['gamePlayers']);
 placeShipDataOnGrids();
+placeSalvoesOnGrids(fetchedGameView);
+showGameHistory();
 
 async function updateGameView() {
     fetchedGameView = await fetchGameViewObject(gamePlayerId);
-    showGameInfo(fetchedGameView['gamePlayers']);
     placeSalvoesOnGrids(fetchedGameView);
     showGameHistory();
 }
@@ -169,6 +171,7 @@ function placeOwnerSalvoes(ownerSalvoes) {
 }
 
 function placeOpponentSalvoes(opponentSalvoes) {
+    // TODO Owner'in gemilerindeki hasarlarin historysini buradan olusturabiliriz. Backend'de de sadece opponenttaki hasarli locasyonlarin json'inini olusturup game_view'a ekleyebiliriz.
     opponentSalvoes.forEach(opponentSalvo => {
         opponentSalvo['salvoLocations'].forEach(location => {
             const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
