@@ -30,8 +30,8 @@ let rowLetterShip = 'a'; // The beginning letter of the row.
 let rowLetterSalvo = 'a';
 let shipObjectListPlacedByUser = [];
 let selectedSalvoLocations = [];
-let previousHitsOnOwner = [];
-let previousHitsOnOpponent = [];
+let highestTurnNumberOwner = 0;
+let highestTurnNumberOpponent = 0;
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
@@ -494,38 +494,39 @@ function showGameHistory() {
 
 function showOwnerGameHistory() {
     const hitsOnOwner = game_history[1];
-    if (hitsOnOwner.length === previousHitsOnOwner.length) {
-        return;
+    const newTurns = hitsOnOwner
+        .filter(turn => Object.keys(turn)[0] > highestTurnNumberOwner);
+    if (newTurns.length > 0) {
+        updateHistoryTable(newTurns, gameHistoryOwnerTableBody);
+        highestTurnNumberOwner = Math.max(...newTurns.map(turn => Object.keys(turn)[0]));
     }
-    updateHistoryTable(hitsOnOwner, gameHistoryOwnerTableBody);
-    previousHitsOnOwner = hitsOnOwner;
 }
 
 function showOpponentGameHistory() {
     const hitsOnOpponent = game_history[2];
-    if(hitsOnOpponent.length === previousHitsOnOpponent.length){
-        return;
+    const newTurns = hitsOnOpponent
+        .filter(turn => Object.keys(turn)[0] > highestTurnNumberOpponent);
+    if (newTurns.length > 0) {
+        updateHistoryTable(newTurns, gameHistoryOpponentTableBody);
+        highestTurnNumberOpponent = Math.max(...newTurns.map(turn => Object.keys(turn)[0]));
     }
-    // TODO filter the updated hits data here and send it to updateHistoryTable function with only the new data.
-    updateHistoryTable(hitsOnOpponent, gameHistoryOpponentTableBody);
-    previousHitsOnOpponent = hitsOnOpponent;
 }
 
-function updateHistoryTable(hits, table) {
-    hits.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
-    hits.forEach(turn => {
+function updateHistoryTable(turns, historyTable) {
+    turns.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
+    turns.forEach(turn => {
         const turnNumber = Object.keys(turn)[0];
         const hitInfoOfTheTurn = Object.values(turn)[0];
         const numberOfShipsLeft = hitInfoOfTheTurn['ship_number_left'];
-        const shipsHitArray = hitInfoOfTheTurn['ships_hit'];
-        Object.entries(shipsHitArray).forEach(([shipType, numberOfHits]) => {
-            addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, table);
+        const shipsHit = hitInfoOfTheTurn['ships_hit'];
+        Object.entries(shipsHit).forEach(([shipType, numberOfHits]) => {
+            addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, historyTable);
         });
     });
 }
 
-function addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, table) {
-    const newRow = table.insertRow(0);
+function addHistoryTableRow(turnNumber, shipType, numberOfHits, numberOfShipsLeft, historyTable) {
+    const newRow = historyTable.insertRow(0);
     const turnCell = newRow.insertCell(0);
     const shipHitCell = newRow.insertCell(1);
     const numberOfHitsCell = newRow.insertCell(2);
