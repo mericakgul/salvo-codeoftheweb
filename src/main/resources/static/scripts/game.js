@@ -32,6 +32,8 @@ let shipObjectListPlacedByUser = [];
 let selectedSalvoLocations = [];
 let highestTurnNumberOwner = 0;
 let highestTurnNumberOpponent = 0;
+let highestTurnNumberOfOwnerSalvoes = 0;
+let highestTurnNumberOfOpponentSalvoes = 0;
 
 const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
@@ -161,28 +163,39 @@ function placeSalvoesOnGrids(game) {
 }
 
 function placeOwnerSalvoes(ownerSalvoes) {
-    ownerSalvoes.forEach(ownerSalvo => {
-        ownerSalvo['salvoLocations'].forEach(location => {
-            const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
-            gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
-            gridCellInSalvoGrid.textContent = ownerSalvo['turnNumber'];
+    const newOwnerSalvoes = ownerSalvoes
+        .filter(ownerSalvo => ownerSalvo['turnNumber'] > highestTurnNumberOfOwnerSalvoes);
+
+    if(newOwnerSalvoes.length > 0) {
+        newOwnerSalvoes.forEach(newOwnerSalvo => {
+            newOwnerSalvo['salvoLocations'].forEach(location => {
+                const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
+                gridCellInSalvoGrid.setAttribute('style', 'background-color: darkred ; color: white');
+                gridCellInSalvoGrid.textContent = newOwnerSalvo['turnNumber'];
+            });
         });
-    });
+        highestTurnNumberOfOwnerSalvoes = Math.max(...newOwnerSalvoes.map(newOwnerSalvo => newOwnerSalvo['turnNumber']));
+    }
 }
 
 function placeOpponentSalvoes(opponentSalvoes) {
-    // TODO Owner'in gemilerindeki hasarlarin historysini buradan olusturabiliriz. Backend'de de sadece opponenttaki hasarli locasyonlarin json'inini olusturup game_view'a ekleyebiliriz.
-    opponentSalvoes.forEach(opponentSalvo => {
-        opponentSalvo['salvoLocations'].forEach(location => {
-            const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
-            gridCellInOwnerShipGrid.textContent = opponentSalvo['turnNumber'];
-            if (allLocationsOfPreviouslySavedOwnerShips.includes(location.toLowerCase())) {
-                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
-            } else {
-                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
-            }
+    const newOpponentSalvoes = opponentSalvoes
+        .filter(opponentSalvo => opponentSalvo['turnNumber'] > highestTurnNumberOfOpponentSalvoes);
+
+    if(newOpponentSalvoes.length > 0){
+        newOpponentSalvoes.forEach(newOpponentSalvo => {
+            newOpponentSalvo['salvoLocations'].forEach(location => {
+                const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
+                gridCellInOwnerShipGrid.textContent = newOpponentSalvo['turnNumber'];
+                if (allLocationsOfPreviouslySavedOwnerShips.includes(location.toLowerCase())) {
+                    gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
+                } else {
+                    gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
+                }
+            });
         });
-    });
+        highestTurnNumberOfOpponentSalvoes = Math.max(...newOpponentSalvoes.map(newOpponentSalvo => newOpponentSalvo['turnNumber']));
+    }
 }
 
 function createShipsForms(fetchedShipsOfGamePlayer) {
@@ -473,13 +486,6 @@ function deselectTheSalvoGrid(event, clickedItemGridCode) {
     }
 }
 
-function createSalvoObject() {
-    return {
-        "turnNumber": lastTurnNumber + 1,
-        "salvoLocations": selectedSalvoLocations
-    };
-}
-
 fireSalvoButton.addEventListener('click', fireSalvo);
 
 function fireSalvo() {
@@ -488,6 +494,13 @@ function fireSalvo() {
     fireSalvoButton.disabled = true;
     selectedSalvoLocations = [];
     lastTurnNumber += 1;
+}
+
+function createSalvoObject() {
+    return {
+        "turnNumber": lastTurnNumber + 1,
+        "salvoLocations": selectedSalvoLocations
+    };
 }
 
 function showGameHistory() {
