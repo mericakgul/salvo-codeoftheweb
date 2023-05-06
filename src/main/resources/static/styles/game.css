@@ -23,6 +23,7 @@ body {
 }
 
 .color-info span {
+    padding-left: 5px;
     background-color: azure;
 }
 
