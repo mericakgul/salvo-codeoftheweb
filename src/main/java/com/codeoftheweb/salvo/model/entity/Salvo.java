@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "salvoes")
@@ -29,7 +29,7 @@ public class Salvo {
 
     @JsonIgnore
     @OneToMany(mappedBy = "salvo")
-    private List<SalvoLocation> salvoLocations = new ArrayList<>();
+    private Set<SalvoLocation> salvoLocations = new HashSet<>();
 
     public Salvo(GamePlayer gamePlayer, Integer turnNumber){
         this.gamePlayer = gamePlayer;

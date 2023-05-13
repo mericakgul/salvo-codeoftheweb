@@ -52,6 +52,9 @@ public class SalvoService {
             mapOfGameView.put("gamePlayerId", gamePlayerId);
             mapOfGameView.put("ships", this.createShipListOfPlayer(gamePlayer.getShips()));
             mapOfGameView.put("salvoes", this.createSalvoesOfGameForEachPlayer(gamePlayer));
+            if (game.getGamePlayers().size() == 2) {
+                mapOfGameView.put("gameHistory", this.createGameHistory(gamePlayer));
+            }
             return new TreeMap<>(mapOfGameView);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed to see this games details.");
@@ -270,8 +273,7 @@ public class SalvoService {
         return ships.stream()
                 .map(ship -> {
                     String shipType = ship.getShipType();
-                    List<String> shipLocations = ship.getShipLocations()
-                            .stream()
+                    List<String> shipLocations = ship.getShipLocations().stream()
                             .map(ShipLocation::getGridCell)
                             .toList();
                     return new ShipDto(shipType, shipLocations);
@@ -297,5 +299,99 @@ public class SalvoService {
                             .toList();
                     return new SalvoDto(turnNumber, salvoLocations);
                 }).toList();
+    }
+
+    private Map<Long, Object> createGameHistory(GamePlayer ownerGamePlayer) {
+        Long ownerPlayerId = ownerGamePlayer.getPlayer().getId();
+        GamePlayer opponentGamePlayer = this.getOpponentGamePlayer(ownerGamePlayer);
+        Long opponentPlayerId = opponentGamePlayer.getPlayer().getId();
+        Map<Long, Object> hitsOnPlayers = new HashMap<>();
+        hitsOnPlayers.put(ownerPlayerId, this.createHitsOnPlayer(ownerGamePlayer, opponentGamePlayer));
+        hitsOnPlayers.put(opponentPlayerId, this.createHitsOnPlayer(opponentGamePlayer, ownerGamePlayer));
+        return hitsOnPlayers;
+    }
+
+    private GamePlayer getOpponentGamePlayer(GamePlayer ownerGamePlayer) {
+        Set<GamePlayer> gamePlayersOfGame = ownerGamePlayer.getGame().getGamePlayers();
+        Optional<GamePlayer> opponentGamePlayer = gamePlayersOfGame.stream()
+                .filter(gamePlayerOfGame -> !Objects.equals(gamePlayerOfGame.getPlayer().getId(), ownerGamePlayer.getPlayer().getId()))
+                .findFirst();
+        return opponentGamePlayer.orElse(null);
+    }
+
+    private List<Map<Integer, Object>> createHitsOnPlayer(GamePlayer firstGamePlayer, GamePlayer secondGamePlayer) {
+        List<Map<Integer, Object>> historyOfHitsOnPlayer = new ArrayList<>();
+        Set<Salvo> secondPlayerSalvoesOnFirstPlayer = secondGamePlayer.getSalvoes();
+        Set<Salvo> sortedSecondPlayerSalvoesOnFirstPlayer = secondPlayerSalvoesOnFirstPlayer.stream()
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingInt(Salvo::getTurnNumber))));
+
+        Map<String, Integer> remainingLocationsSizeOfShips = this.getRemainingLocationsSizeOfShips(firstGamePlayer.getShips());
+        List<String> sunkShipsList = new ArrayList<>();
+
+        sortedSecondPlayerSalvoesOnFirstPlayer.forEach(salvoOnFirstPlayer -> {
+            Map<Integer, Object> mapOfEachTurn = new HashMap<>();
+            mapOfEachTurn.put(salvoOnFirstPlayer.getTurnNumber(), this.createHitInfoOnFirstPlayerForEachTurn(firstGamePlayer.getShips(), salvoOnFirstPlayer, remainingLocationsSizeOfShips, sunkShipsList));
+            historyOfHitsOnPlayer.add(mapOfEachTurn);
+        });
+        return historyOfHitsOnPlayer;
+    }
+
+    private Map<String, Integer> getRemainingLocationsSizeOfShips(Set<Ship> firstPlayerShips) {
+        Map<String, Integer> remainingLocationsSizesOfShips = new HashMap<>();
+        firstPlayerShips.forEach(firstPlayerShip ->
+                remainingLocationsSizesOfShips.put(firstPlayerShip.getShipType(), firstPlayerShip.getShipLocations().size()));
+        return remainingLocationsSizesOfShips;
+    }
+
+    private Object createHitInfoOnFirstPlayerForEachTurn(Set<Ship> shipsOfFirstPlayer, Salvo salvoOnFirstPlayer, Map<String, Integer> remainingLocationsSizeOfShips, List<String> sunkShipList) {
+        Map<String, Object> hitInfoOnFirstPlayer = new HashMap<>();
+        hitInfoOnFirstPlayer.put("ships_hit", this.createHitShipsAndLocations(shipsOfFirstPlayer, salvoOnFirstPlayer, remainingLocationsSizeOfShips));
+        hitInfoOnFirstPlayer.put("ship_number_left", this.getNumberOfRemainingShips(remainingLocationsSizeOfShips));
+        hitInfoOnFirstPlayer.put("ships_sunk", this.getShipsSunk(remainingLocationsSizeOfShips, sunkShipList));
+        return hitInfoOnFirstPlayer;
+    }
+
+    private Object createHitShipsAndLocations(Set<Ship> shipsOfFirstPlayer, Salvo salvoOnFirstPlayer, Map<String, Integer> remainingLocationsSizeOfShips) {
+        Map<String, List<String>> hitShipsAndLocations = new HashMap<>();
+        List<String> salvoLocations = salvoOnFirstPlayer.getSalvoLocations()
+                .stream()
+                .map(SalvoLocation::getGridCell)
+                .map(String::toLowerCase)
+                .toList();
+
+        shipsOfFirstPlayer.forEach(ship -> {
+            List<String> shipLocations = ship.getShipLocations().stream()
+                    .map(ShipLocation::getGridCell)
+                    .map(String::toLowerCase)
+                    .toList();
+            List<String> hitLocations = new ArrayList<>(salvoLocations);
+            hitLocations.retainAll(shipLocations);
+            if (hitLocations.size() > 0) {
+                hitShipsAndLocations.put(ship.getShipType(), hitLocations);
+                Integer currentLocationSizeOfShip = remainingLocationsSizeOfShips.get(ship.getShipType());
+                remainingLocationsSizeOfShips.put(ship.getShipType(), currentLocationSizeOfShip - hitLocations.size());
+            }
+            remainingLocationsSizeOfShips.forEach((key, value) -> System.out.println("Key: " + key + ", Value: " + value));
+
+        });
+        return hitShipsAndLocations;
+    }
+
+    private Long getNumberOfRemainingShips(Map<String, Integer> remainingLocationsSizeOfShips) {
+        return remainingLocationsSizeOfShips.values().stream()
+                .filter(value -> value != 0)
+                .count();
+    }
+
+    private List<String> getShipsSunk(Map<String, Integer> remainingLocationsSizeOfShips, List<String> sunkShipsList) {
+        List<String> allShipsSunk = remainingLocationsSizeOfShips.entrySet().stream()
+                .filter(entry -> entry.getValue() == 0)
+                .map(Map.Entry::getKey)
+                .toList();
+        List<String> shipsSunkInThisTurn = allShipsSunk.stream()
+                .filter(shipSunk -> !sunkShipsList.contains(shipSunk))
+                .toList();
+        sunkShipsList.addAll(shipsSunkInThisTurn);
+        return shipsSunkInThisTurn;
     }
 }

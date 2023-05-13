@@ -11,11 +11,12 @@ export const game_history =
     {
         1: [
             {
-                3: {
+                1: {
                     "ships_hit": {
                         "carrier": ["a1", "a2", "a3", "a4", "a5"]
                     },
-                    "ship_number_left": 3
+                    "ship_number_left": 3,
+                    "ships_sunk": ["carrier"]
                 }
             },
             {
@@ -27,7 +28,7 @@ export const game_history =
                 }
             },
             {
-                1: {
+                3: {
                     "ships_hit": {
                         "destroyer": ["g7", "h7"],
                         "submarine": ["j3"]
