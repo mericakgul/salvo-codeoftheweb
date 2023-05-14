@@ -151,7 +151,7 @@ public class SalvoService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
         }
         try {
-            SalvoValidation.checkIfPlayerCanSubmitSalvo(gamePlayer, salvoDto);
+            SalvoValidation.checkIfPlayerCanSubmitSalvo(gamePlayer, salvoDto, this.getOpponentGamePlayer(gamePlayer));
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }

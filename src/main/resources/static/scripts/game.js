@@ -444,7 +444,6 @@ function handleSalvoGridItemClick(event) {
         alert(error.message);
         return;
     }
-
     if (isSelected === 'false') {
         selectTheSalvoGrid(event, clickedItemGridCode);
     } else {
@@ -458,6 +457,11 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     }
     if (fetchedShipsOfGamePlayer.length < 5) {
         throw new Error("First place all of your ships, then select salvo");
+    }
+    const opponentPlayerId = gamePlayerOpponent['player']['id'];
+    const ownerPlayerId = gamePlayerOwner['player']['id'];
+    if(fetchedGameView['salvoes'][opponentPlayerId].length < fetchedGameView['salvoes'][ownerPlayerId].length){
+        throw new Error("It is not your turn, wait for your opponent to play.");
     }
     if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
         throw new Error("You fired this point before, pick another point.");
@@ -485,12 +489,16 @@ function deselectTheSalvoGrid(event, clickedItemGridCode) {
 
 fireSalvoButton.addEventListener('click', fireSalvo);
 
-function fireSalvo() {
-    const requestBody = createSalvoObject();
-    sendSalvoes(requestBody, gamePlayerId);
-    fireSalvoButton.disabled = true;
-    selectedSalvoLocations = [];
-    lastTurnNumber += 1;
+async function fireSalvo() {
+    try {
+        const requestBody = createSalvoObject();
+        await sendSalvoes(requestBody, gamePlayerId);
+        fireSalvoButton.disabled = true;
+        selectedSalvoLocations = [];
+        lastTurnNumber += 1;
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 function createSalvoObject() {

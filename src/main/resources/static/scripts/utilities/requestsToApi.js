@@ -12,21 +12,21 @@ const fetchJson = url =>
         }
     });
 
-export async function getGamesList () {
+export async function getGamesList() {
     const gamesObject = await fetchJson('/api/games');
     return gamesObject['games'];
 }
 
-export async function getLoggedInPlayerUsername () {
+export async function getLoggedInPlayerUsername() {
     const gamesObject = await fetchJson('/api/games');
     return gamesObject['player']['username'];
 }
 
-export async function fetchGameViewObject (gamePlayerId) {
+export async function fetchGameViewObject(gamePlayerId) {
     return await fetchJson(`/api/game_view/${gamePlayerId}`);
 }
 
-export function joinGameRequest(gameId){
+export function joinGameRequest(gameId) {
     return fetch(`/api/game/${gameId}/players`, {
         method: 'POST'
     });
@@ -47,7 +47,7 @@ export function createNewGameRequest() {
     }).catch(error => alert(error.message));
 }
 
-export async function getShips(gamePlayerId){
+export async function getShips(gamePlayerId) {
     const shipsWrapperObject = await fetchJson(`/api/games/players/${gamePlayerId}/ships`);
     return shipsWrapperObject['ships'];
 }
@@ -61,7 +61,7 @@ export function sendShips(requestBody, gamePlayerId) {
             'Content-Type': 'application/json'
         })
     }).then((response) => {
-        if(response.ok && response.status === 201){
+        if (response.ok && response.status === 201) {
             alert('Ships have been saved');
             history.go(0);
         } else {
@@ -72,24 +72,22 @@ export function sendShips(requestBody, gamePlayerId) {
     }).catch(error => alert(error.message));
 }
 
-export async function getSalvoes(gamePlayerId){
+export async function getSalvoes(gamePlayerId) {
     return await fetchJson(`/api/games/players/${gamePlayerId}/salvoes`);
 }
 
-export function sendSalvoes(requestBody, gamePlayerId){
-    fetch(`/api/games/players/${gamePlayerId}/salvoes`, {
+export async function sendSalvoes(requestBody, gamePlayerId) {
+    const response = await fetch(`/api/games/players/${gamePlayerId}/salvoes`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: new Headers({
             'Content-Type': 'application/json'
         })
-    }).then((response) => {
-        if(response.ok && response.status === 201){
-            alert('Salvoes have been fired');
-        } else {
-            return response.json().then(error => {
-                throw new Error(error.message);
-            });
-        }
-    }).catch(error => alert(error.message));
+    });
+    if (response.ok && response.status === 201) {
+        alert('Salvoes have been fired');
+    } else {
+        const error = await response.json();
+        throw new Error(error.message);
+    }
 }

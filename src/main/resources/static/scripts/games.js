@@ -49,6 +49,10 @@ async function updateGamesList() {
 setInterval(updateGamesList, 5000);
 
 function briefGameInfo(games) {
+    // Only downside of this function (together with createGamesListTable) is that we do not update the games table
+    // in case a new player joined to an existing game unless the page is refreshed. This is because when a game is created
+    // and there is no second player, the table row is already added. We need to add some code to be able to update the table row cell
+    // in case the second player is joined.
     const newGames = games
         .filter(game => game['gameId'] > highestGameIdAdded);
     const previouslySavedGamesNumber = games.length - newGames.length;
