@@ -371,8 +371,6 @@ public class SalvoService {
                 Integer currentLocationSizeOfShip = remainingLocationsSizeOfShips.get(ship.getShipType());
                 remainingLocationsSizeOfShips.put(ship.getShipType(), currentLocationSizeOfShip - hitLocations.size());
             }
-            remainingLocationsSizeOfShips.forEach((key, value) -> System.out.println("Key: " + key + ", Value: " + value));
-
         });
         return hitShipsAndLocations;
     }

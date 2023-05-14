@@ -12,12 +12,18 @@ const fetchJson = url =>
         }
     });
 
-export const fetchedGamesObject = await fetchJson('/api/games'); //Top level await. No need to be in async function.
+export async function getGamesList () {
+    const gamesObject = await fetchJson('/api/games');
+    return gamesObject['games'];
+}
 
-export const loggedInPlayerUsername = fetchedGamesObject['player']['username'];
+export async function getLoggedInPlayerUsername () {
+    const gamesObject = await fetchJson('/api/games');
+    return gamesObject['player']['username'];
+}
 
-export function fetchGameViewObject (gamePlayerId) {
-    return fetchJson(`/api/game_view/${gamePlayerId}`);
+export async function fetchGameViewObject (gamePlayerId) {
+    return await fetchJson(`/api/game_view/${gamePlayerId}`);
 }
 
 export function joinGameRequest(gameId){

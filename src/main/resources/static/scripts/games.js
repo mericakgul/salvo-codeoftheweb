@@ -2,9 +2,9 @@ import {showPlayerUsername} from "./utilities/helpers.js";
 import {login, signup, logout} from "./utilities/authorization.js";
 import {
     createNewGameRequest,
-    fetchedGamesObject,
+    getGamesList,
     joinGameRequest,
-    loggedInPlayerUsername
+    getLoggedInPlayerUsername
 } from "./utilities/requestsToApi.js";
 
 const leaderboard = document.querySelector('#leaderboard');
@@ -17,7 +17,10 @@ const createGameBtn = document.querySelector('#create-game');
 const loginForm = document.querySelector('#login-form');
 const warningToLogin = document.querySelector('#warning-to-login');
 const infoAboutGames = document.querySelector('#info-about-games');
-const fetchedGamesList = fetchedGamesObject['games'];
+let fetchedGamesList = await getGamesList(); //top level await
+const loggedInPlayerUsername = await getLoggedInPlayerUsername();
+let highestGameIdAdded = 0;
+let previouslySavedPlayerList = [];
 
 loginBtn.addEventListener('click', evt => login(evt));
 signupBtn.addEventListener('click', evt => signup(evt)); // Normally we do not need evt parameter for signup since we are sending the json file to our endpoint but we are also logging in after signing up automatically. This is why we use evt parameter.
@@ -34,42 +37,63 @@ if (loggedInPlayerUsername) {
     createGameBtn.removeAttribute('disabled');
 }
 
-const briefGameInfo = (games) => {
-    return games.reduce((briefGameInfoList, game, index) => {
-        const date = new Date(game['created']);
-        const formattedDate = date.toLocaleString();
-        const briefGameInfo = {
-            'no': index + 1,
-            'created-time': formattedDate,
-            'first-player': game['gamePlayers'][0]['player']['username'],
-            'second-player': game['gamePlayers'][1]?.['player']?.['username'] || '', // If there is a game, there must be created time and first player who is the creator but second player might not exist.
-            'game-id': game['gameId']
-        }
-        briefGameInfoList.push(briefGameInfo);
-        return briefGameInfoList;
-    }, []);
-}
-
 briefGameInfo(fetchedGamesList).forEach(createGamesListTable);
+scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 
-
-const scoresOfPlayers = (games) => {
-    const playerList = createPlayerListFromJson(games);
-    return playerList.reduce((scoresOfPlayers, player, index) => {
-        const playerResult = {
-            'no': index + 1,
-            'name': player,
-            'total': getTotalScoreOfPlayer(player, games),
-            'won': getTotalWinCountOfPlayer(player, games),
-            'lost': getTotalLossCountOfPlayer(player, games),
-            'tied': getTotalTieCountOfPlayer(player, games)
-        }
-        scoresOfPlayers.push(playerResult);
-        return scoresOfPlayers;
-    }, []).sort((firstPlayer, secondPlayer) => secondPlayer['total'] - firstPlayer['total']);
+async function updateGamesList() {
+    fetchedGamesList = await getGamesList();
+    briefGameInfo(fetchedGamesList).forEach(createGamesListTable);
+    scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
 }
 
-scoresOfPlayers(fetchedGamesList).forEach(createLeaderboardTable);
+setInterval(updateGamesList, 5000);
+
+function briefGameInfo(games) {
+    const newGames = games
+        .filter(game => game['gameId'] > highestGameIdAdded);
+    const previouslySavedGamesNumber = games.length - newGames.length;
+    let newGamesInfoList = [];
+    if (newGames.length > 0) {
+        newGames.reduce((briefGameInfoList, game, index) => {
+            const date = new Date(game['created']);
+            const formattedDate = date.toLocaleString();
+            const briefGameInfo = {
+                'no': previouslySavedGamesNumber + index + 1,
+                'created-time': formattedDate,
+                'first-player': game['gamePlayers'][0]['player']['username'],
+                'second-player': game['gamePlayers'][1]?.['player']?.['username'] || '', // If there is a game, there must be created time and first player who is the creator but second player might not exist.
+                'game-id': game['gameId']
+            }
+            briefGameInfoList.push(briefGameInfo);
+            return briefGameInfoList;
+        }, newGamesInfoList);
+        highestGameIdAdded = Math.max(...newGames.map(newGame => newGame['gameId']));
+    }
+    return newGamesInfoList;
+}
+
+function scoresOfPlayers(games) {
+    const uniquePlayerNamesFromGamesJson = createPlayerListFromGamesJson(games);
+    const newPlayerList = uniquePlayerNamesFromGamesJson.filter(player => !previouslySavedPlayerList.includes(player));
+    let newPlayersScoreboardList = [];
+
+    if (newPlayerList.length > 0) {
+        newPlayerList.reduce((scoresOfPlayers, player, index) => {
+            const playerResult = {
+                'no': previouslySavedPlayerList.length + index + 1,
+                'name': player,
+                'total': getTotalScoreOfPlayer(player, games),
+                'won': getTotalWinCountOfPlayer(player, games),
+                'lost': getTotalLossCountOfPlayer(player, games),
+                'tied': getTotalTieCountOfPlayer(player, games)
+            }
+            scoresOfPlayers.push(playerResult);
+            return scoresOfPlayers;
+        }, newPlayersScoreboardList).sort((firstPlayer, secondPlayer) => secondPlayer['total'] - firstPlayer['total']);
+        previouslySavedPlayerList.push(...newPlayerList);
+    }
+    return newPlayersScoreboardList;
+}
 
 function createGamesListTable(briefGameInfo) {
     createTable(briefGameInfo, gamesList);
@@ -139,7 +163,7 @@ function viewTheGame(gameId) {
 async function joinTheGame(gameId) {
     try {
         const response = await joinGameRequest(gameId);
-        if(response.status === 201) {
+        if (response.status === 201) {
             const responseJSON = await response.json();
             alert('You have joined the game!');
             window.location.href = `/web/game.html?gp=${responseJSON['gpid']}`;
@@ -151,7 +175,7 @@ async function joinTheGame(gameId) {
     }
 }
 
-function createPlayerListFromJson(games) {
+function createPlayerListFromGamesJson(games) {
     return games.reduce((playerList, {gamePlayers}) => {
         gamePlayers.forEach(({player}) => {
             if (!playerList.includes(player['username'])) {

@@ -3,12 +3,12 @@ import {
     fetchGameViewObject,
     getSalvoes,
     getShips,
-    loggedInPlayerUsername, sendSalvoes,
+    getLoggedInPlayerUsername, sendSalvoes,
     sendShips
 } from "./utilities/requestsToApi.js";
 
 import {logout} from "./utilities/authorization.js";
-import {allShipTypes, game_history} from "./utilities/constants.js"
+import {allShipTypes} from "./utilities/constants.js"
 
 const gridSize = 10;
 const lastLetterInMap = String.fromCharCode(97 + gridSize - 1); // Because charcode return array is also zero indexed, we need to subtract 1.
@@ -40,6 +40,9 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 });
 const gamePlayerId = params['gp'];
 let fetchedGameView = await fetchGameViewObject(gamePlayerId);
+const loggedInPlayerUsername = await getLoggedInPlayerUsername();
+const gamePlayerOwner = fetchedGameView['gamePlayers'].find(({id}) => id.toString() === gamePlayerId);
+let gamePlayerOpponent = fetchedGameView['gamePlayers'].find(({id}) => id.toString() !== gamePlayerId);
 const fetchedShipsOfGamePlayer = await getShips(gamePlayerId);
 const allLocationsOfPreviouslySavedOwnerShips = combineLocationLists(fetchedShipsOfGamePlayer, 'shipLocations');
 const fetchedSalvoesOfGamePlayer = await getSalvoes(gamePlayerId);
@@ -57,15 +60,17 @@ if (loggedInPlayerUsername) {
 }
 
 createGrids();
-showGameInfo(fetchedGameView['gamePlayers']);
+showGameInfo();
 placeShipDataOnGrids();
 placeSalvoesOnGrids(fetchedGameView);
-showGameHistory();
+showGameHistory(fetchedGameView);
 
 async function updateGameView() {
     fetchedGameView = await fetchGameViewObject(gamePlayerId);
+    gamePlayerOpponent = fetchedGameView['gamePlayers'].find(({id}) => id.toString() !== gamePlayerId);
+    showGameInfo();
     placeSalvoesOnGrids(fetchedGameView);
-    showGameHistory();
+    showGameHistory(fetchedGameView);
 }
 
 //Using websocket is more efficient than using interval. It can be implemented in the future.
@@ -138,10 +143,8 @@ function placeAlreadySavedShipsOnGrid(ships) {
     });
 }
 
-function showGameInfo(gamePlayers) {
-    const gamePlayerOwner = gamePlayers.find(({id}) => id.toString() === gamePlayerId);
+function showGameInfo() {
     const ownerUsername = gamePlayerOwner['player']['username'];
-    const gamePlayerOpponent = gamePlayers.find(({id}) => id.toString() !== gamePlayerId);
     const opponentUsername = gamePlayerOpponent === undefined ? '"waiting_for_opponent"' : gamePlayerOpponent['player']['username'];
 
     const gameInfoTextField = document.querySelector('#game-info span');
@@ -151,11 +154,9 @@ function showGameInfo(gamePlayers) {
 }
 
 function placeSalvoesOnGrids(game) {
-    const gamePlayerOwner = game['gamePlayers'].find(({id}) => id.toString() === gamePlayerId);
     const ownerPlayerId = gamePlayerOwner['player']['id'];
     placeOwnerSalvoes(game['salvoes'][ownerPlayerId]);
 
-    const gamePlayerOpponent = game['gamePlayers'].find(({id}) => id.toString() !== gamePlayerId);
     if (gamePlayerOpponent !== undefined) {
         const opponentPlayerId = gamePlayerOpponent['player']['id'];
         placeOpponentSalvoes(game['salvoes'][opponentPlayerId]);
@@ -166,7 +167,7 @@ function placeOwnerSalvoes(ownerSalvoes) {
     const newOwnerSalvoes = ownerSalvoes
         .filter(ownerSalvo => ownerSalvo['turnNumber'] > highestTurnNumberOfOwnerSalvoes);
 
-    if(newOwnerSalvoes.length > 0) {
+    if (newOwnerSalvoes.length > 0) {
         newOwnerSalvoes.forEach(newOwnerSalvo => {
             newOwnerSalvo['salvoLocations'].forEach(location => {
                 const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
@@ -182,16 +183,12 @@ function placeOpponentSalvoes(opponentSalvoes) {
     const newOpponentSalvoes = opponentSalvoes
         .filter(opponentSalvo => opponentSalvo['turnNumber'] > highestTurnNumberOfOpponentSalvoes);
 
-    if(newOpponentSalvoes.length > 0){
+    if (newOpponentSalvoes.length > 0) {
         newOpponentSalvoes.forEach(newOpponentSalvo => {
             newOpponentSalvo['salvoLocations'].forEach(location => {
                 const gridCellInOwnerShipGrid = document.querySelector(`#SHIP${location.toLowerCase()}`);
                 gridCellInOwnerShipGrid.textContent = newOpponentSalvo['turnNumber'];
-                if (allLocationsOfPreviouslySavedOwnerShips.includes(location.toLowerCase())) {
-                    gridCellInOwnerShipGrid.setAttribute('style', 'background-color: purple ; color: white');
-                } else {
-                    gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
-                }
+                gridCellInOwnerShipGrid.setAttribute('style', 'background-color: darkred ; color: white');
             });
         });
         highestTurnNumberOfOpponentSalvoes = Math.max(...newOpponentSalvoes.map(newOpponentSalvo => newOpponentSalvo['turnNumber']));
@@ -503,65 +500,83 @@ function createSalvoObject() {
     };
 }
 
-function showGameHistory() {
-    showHitHistoryOnOwner();
-    showHitHistoryOnOpponent();
+function showGameHistory(fetchedGameView) {
+    showHitHistoryOnOwner(fetchedGameView);
+    showHitHistoryOnOpponent(fetchedGameView);
 }
 
-function showHitHistoryOnOwner() {
-    const hitsOnOwner = game_history[1];
-    const newTurns = hitsOnOwner
-        .filter(turn => Object.keys(turn)[0] > highestTurnNumberOwner);
-    if (newTurns.length > 0) {
-        updateHistoryTable(newTurns, gameHistoryOwnerTableBody);
-        highestTurnNumberOwner = Math.max(...newTurns.map(turn => Object.keys(turn)[0]));
+function showHitHistoryOnOwner(game) {
+    const ownerPlayerId = gamePlayerOwner['player']['id'];
+    if (game.hasOwnProperty('gameHistory')) {
+        const hitsOnOwner = game['gameHistory'][ownerPlayerId];
+        const newTurnsOfHitsOnOwner = hitsOnOwner
+            .filter(turn => Object.keys(turn)[0] > highestTurnNumberOwner);
+        if (newTurnsOfHitsOnOwner.length > 0) {
+            updateHistoryTable(newTurnsOfHitsOnOwner, gameHistoryOwnerTableBody);
+            highestTurnNumberOwner = Math.max(...newTurnsOfHitsOnOwner.map(turn => Object.keys(turn)[0]));
+        }
     }
 }
 
-function showHitHistoryOnOpponent() {
-    const hitsOnOpponent = game_history[2];
-    const newTurns = hitsOnOpponent
-        .filter(turn => Object.keys(turn)[0] > highestTurnNumberOpponent);
-    if (newTurns.length > 0) {
-        updateHistoryTable(newTurns, gameHistoryOpponentTableBody);
-        highestTurnNumberOpponent = Math.max(...newTurns.map(turn => Object.keys(turn)[0]));
+function showHitHistoryOnOpponent(game) {
+    if (game.hasOwnProperty('gameHistory') && gamePlayerOpponent) {
+        const opponentPlayerId = gamePlayerOpponent['player']['id'];
+        const hitsOnOpponent = game['gameHistory'][opponentPlayerId];
+        const newTurnsOfHitsOnOpponent = hitsOnOpponent
+            .filter(turn => Object.keys(turn)[0] > highestTurnNumberOpponent);
+        if (newTurnsOfHitsOnOpponent.length > 0) {
+            updateHistoryTable(newTurnsOfHitsOnOpponent, gameHistoryOpponentTableBody);
+            highestTurnNumberOpponent = Math.max(...newTurnsOfHitsOnOpponent.map(turn => Object.keys(turn)[0]));
+        }
     }
 }
 
-function updateHistoryTable(newTurns, historyTable) {
-    newTurns.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
-    newTurns.forEach(turn => {
+function updateHistoryTable(newTurnsOfHitsOnAPlayer, historyTable) {
+    newTurnsOfHitsOnAPlayer.sort((firstTurn, secondTurn) => Object.keys(firstTurn)[0] - Object.keys(secondTurn)[0]);
+    newTurnsOfHitsOnAPlayer.forEach(turn => {
         const turnNumber = Object.keys(turn)[0];
         const hitInfoOfTheTurn = Object.values(turn)[0];
         const numberOfShipsLeft = hitInfoOfTheTurn['ship_number_left'];
         const shipsHit = hitInfoOfTheTurn['ships_hit'];
-        Object.entries(shipsHit).forEach(([shipType, hitLocations]) => {
-            addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable);
-            if(historyTable === gameHistoryOpponentTableBody){
-                turnHitCellsOfOpponentPurple(turnNumber, hitLocations);
-            }
-        });
+        const shipsSunk = hitInfoOfTheTurn['ships_sunk'];
+        if (Object.keys(shipsHit).length === 0) {
+            addHistoryTableRow(turnNumber, '-', [], numberOfShipsLeft, historyTable, []);
+        } else {
+            Object.entries(shipsHit).forEach(([shipType, hitLocations]) => {
+                addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable, shipsSunk);
+                turnHitCellsPurple(turnNumber, hitLocations, historyTable);
+            });
+        }
     });
 }
 
-function addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable) {
+function addHistoryTableRow(turnNumber, shipType, hitLocations, numberOfShipsLeft, historyTable, shipsSunk) {
     const newRow = historyTable.insertRow(0);
     const turnCell = newRow.insertCell(0);
     const shipHitCell = newRow.insertCell(1);
     const numberOfHitsCell = newRow.insertCell(2);
     const shipsLeftCell = newRow.insertCell(3);
     turnCell.textContent = turnNumber;
-    shipHitCell.textContent = shipType;
-    numberOfHitsCell.innerHTML = '&#x1F4A5;'.repeat(hitLocations.length);
+    shipHitCell.textContent = shipsSunk.includes(shipType) ? `${shipType} (sunk)` : shipType;
+    if (hitLocations.length === 0) {
+        numberOfHitsCell.innerHTML = '-';
+    } else {
+        numberOfHitsCell.innerHTML = '&#x1F4A5;'.repeat(hitLocations.length);
+    }
     shipsLeftCell.textContent = numberOfShipsLeft;
 }
 
-function turnHitCellsOfOpponentPurple(turnNumber, hitLocations) {
+function turnHitCellsPurple(turnNumber, hitLocations, historyTable) {
+    let gridCellToTurnPurple;
     hitLocations.forEach(location => {
-        const gridCellInSalvoGrid = document.querySelector(`#SALVO${location.toLowerCase()}`);
-        gridCellInSalvoGrid.setAttribute('style', 'background-color: purple ; color: white');
-        gridCellInSalvoGrid.textContent = turnNumber;
-    })
+        if (historyTable === gameHistoryOpponentTableBody) {
+            gridCellToTurnPurple = document.querySelector(`#SALVO${location.toLowerCase()}`);
+        } else {
+            gridCellToTurnPurple = document.querySelector(`#SHIP${location.toLowerCase()}`);
+        }
+        gridCellToTurnPurple.setAttribute('style', 'background-color: purple ; color: white');
+        gridCellToTurnPurple.textContent = turnNumber;
+    });
 }
 
 
