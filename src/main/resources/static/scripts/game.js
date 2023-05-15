@@ -210,7 +210,7 @@ function createShipsForms(fetchedShipsOfGamePlayer) {
 
         if (shipsAlreadySentInGame.includes(ship.name.toLowerCase())) {
             input.disabled = true;
-            label.setAttribute('style', 'text-decoration: line-through red');
+            label.textContent += ' (saved)'
         }
 
         container.appendChild(input);
@@ -458,9 +458,7 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if (fetchedShipsOfGamePlayer.length < 5) {
         throw new Error("First place all of your ships, then select salvo");
     }
-    const opponentPlayerId = gamePlayerOpponent['player']['id'];
-    const ownerPlayerId = gamePlayerOwner['player']['id'];
-    if(fetchedGameView['salvoes'][opponentPlayerId].length < fetchedGameView['salvoes'][ownerPlayerId].length){
+    if(!isTurnOfOwnerPlayer()){
         throw new Error("It is not your turn, wait for your opponent to play.");
     }
     if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
@@ -469,6 +467,17 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if (selectedSalvoLocations.length === 5 && isSelected === 'false') {
         throw new Error("You can only select a maximum of 5 cells.");
     }
+}
+
+function isTurnOfOwnerPlayer() {
+    const ownerPlayerId = gamePlayerOwner['player']['id'];
+    const opponentPlayerId = gamePlayerOpponent['player']['id'];
+    const ownerSalvoesLength = fetchedGameView['salvoes'][ownerPlayerId].length;
+    const opponentSalvoesLength = fetchedGameView['salvoes'][opponentPlayerId].length;
+
+    return gamePlayerOwner['id'] < gamePlayerOpponent['id']  // This means the owner is the creator of the game. And the creator has the right to play first
+        ? ownerSalvoesLength <= opponentSalvoesLength
+        : ownerSalvoesLength < opponentSalvoesLength;
 }
 
 function selectTheSalvoGrid(event, clickedItemGridCode) {
