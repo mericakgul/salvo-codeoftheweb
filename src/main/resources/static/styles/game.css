@@ -6,6 +6,11 @@ body {
     background-size: cover;
 }
 
+#game-status {
+    color: greenyellow;
+    text-align: center;
+}
+
 .grids-container {
     display: flex ;
     justify-content: space-evenly;

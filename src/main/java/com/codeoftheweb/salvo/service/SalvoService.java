@@ -145,22 +145,22 @@ public class SalvoService {
     }
 
     public void saveSalvo(Long gamePlayerId, SalvoDto salvoDto, Authentication authentication) {
-        GamePlayer gamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
+        GamePlayer ownerGamePlayer = this.objectExistence.checkIfGamePlayerExistAndReturn(gamePlayerId);
         boolean isPlayerAuthorizedToPlaceSalvo = authentication != null && this.isPlayerAuthenticatedForTheGame(gamePlayerId, authentication);
         if (!isPlayerAuthorizedToPlaceSalvo) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to place ships.");
         }
         try {
-            SalvoValidation.checkIfPlayerCanSubmitSalvo(gamePlayer, salvoDto, this.getOpponentGamePlayer(gamePlayer));
+            SalvoValidation.checkIfPlayerCanSubmitSalvo(ownerGamePlayer, salvoDto, this.getOpponentGamePlayer(ownerGamePlayer));
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
         try {
-            SalvoValidation.checkIfSalvoLocationsValid(salvoDto, gamePlayer);
+            SalvoValidation.checkIfSalvoLocationsValid(salvoDto, ownerGamePlayer);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        Salvo savedSalvo = this.saveAndReturnSalvo(gamePlayer, salvoDto);
+        Salvo savedSalvo = this.saveAndReturnSalvo(ownerGamePlayer, salvoDto);
         salvoDto.getSalvoLocations()
                 .forEach(gridCell -> this.saveSalvoLocation(savedSalvo, gridCell));
     }
@@ -305,10 +305,10 @@ public class SalvoService {
         Long ownerPlayerId = ownerGamePlayer.getPlayer().getId();
         GamePlayer opponentGamePlayer = this.getOpponentGamePlayer(ownerGamePlayer);
         Long opponentPlayerId = opponentGamePlayer.getPlayer().getId();
-        Map<Long, Object> hitsOnPlayers = new HashMap<>();
-        hitsOnPlayers.put(ownerPlayerId, this.createHitsOnPlayer(ownerGamePlayer, opponentGamePlayer));
-        hitsOnPlayers.put(opponentPlayerId, this.createHitsOnPlayer(opponentGamePlayer, ownerGamePlayer));
-        return hitsOnPlayers;
+        Map<Long, Object> gameHistory = new HashMap<>();
+        gameHistory.put(ownerPlayerId, this.createHitsOnPlayer(ownerGamePlayer, opponentGamePlayer));
+        gameHistory.put(opponentPlayerId, this.createHitsOnPlayer(opponentGamePlayer, ownerGamePlayer));
+        return gameHistory;
     }
 
     private GamePlayer getOpponentGamePlayer(GamePlayer ownerGamePlayer) {
@@ -337,10 +337,10 @@ public class SalvoService {
     }
 
     private Map<String, Integer> getRemainingLocationsSizeOfShips(Set<Ship> firstPlayerShips) {
-        Map<String, Integer> remainingLocationsSizesOfShips = new HashMap<>();
+        Map<String, Integer> remainingLocationsSizeOfShips = new HashMap<>();
         firstPlayerShips.forEach(firstPlayerShip ->
-                remainingLocationsSizesOfShips.put(firstPlayerShip.getShipType(), firstPlayerShip.getShipLocations().size()));
-        return remainingLocationsSizesOfShips;
+                remainingLocationsSizeOfShips.put(firstPlayerShip.getShipType(), firstPlayerShip.getShipLocations().size()));
+        return remainingLocationsSizeOfShips;
     }
 
     private Object createHitInfoOnFirstPlayerForEachTurn(Set<Ship> shipsOfFirstPlayer, Salvo salvoOnFirstPlayer, Map<String, Integer> remainingLocationsSizeOfShips, List<String> sunkShipList) {
