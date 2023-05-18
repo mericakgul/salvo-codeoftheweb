@@ -159,7 +159,7 @@ public class SalvoService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
             }
             try {
-                SalvoValidation.checkIfSalvoLocationsValid(salvoDto, ownerGamePlayer);
+                SalvoValidation.checkIfSalvoLocationsValid(salvoDto, ownerGamePlayer, gameHistory);
             } catch (IllegalArgumentException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
@@ -338,7 +338,7 @@ public class SalvoService {
             return "GameOver: You lost!";
         } else if (opponentSunkShipsList.size() == 5 && isTurnNumbersEqual) {
             return "GameOver: You win!";
-        } else if (!SalvoValidation.isTurnOfOwnerPlayer(ownerGamePlayer, opponentGamePlayer)) {
+        } else if (SalvoValidation.isItOwnerPlayerTurn(ownerGamePlayer, opponentGamePlayer)) {
             return "Wait for opponent's turn";
         } else return "Enter Salvo";
     }
@@ -364,7 +364,7 @@ public class SalvoService {
         return remainingLocationsSizeOfShips;
     }
 
-    private Object createHitInfoOfPlayerGotHitForEachTurn(Set<Ship> shipsOfPlayerGotHits, Salvo salvoOnPlayerGotHits, Map<String, Integer> remainingLocationsSizeOfShips, List<String> sunkShipList) {
+    private Map<String, Object> createHitInfoOfPlayerGotHitForEachTurn(Set<Ship> shipsOfPlayerGotHits, Salvo salvoOnPlayerGotHits, Map<String, Integer> remainingLocationsSizeOfShips, List<String> sunkShipList) {
         Map<String, Object> hitInfoOfPlayerGotHit = new HashMap<>();
         hitInfoOfPlayerGotHit.put("ships_hit", this.createHitShipsAndLocations(shipsOfPlayerGotHits, salvoOnPlayerGotHits, remainingLocationsSizeOfShips));
         hitInfoOfPlayerGotHit.put("ship_number_left", this.getNumberOfRemainingShips(remainingLocationsSizeOfShips));

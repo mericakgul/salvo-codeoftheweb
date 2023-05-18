@@ -464,7 +464,7 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if(fetchedGameView['gameHistory']['gameStatus'].includes('GameOver')){
         throw new Error("The game is over, you cannot fire.")
     }
-    if(!isTurnOfOwnerPlayer()){
+    if(!isItOwnerPlayerTurn()){
         throw new Error("It is not your turn, wait for your opponent to play.");
     }
     if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
@@ -475,7 +475,7 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     }
 }
 
-function isTurnOfOwnerPlayer() {
+function isItOwnerPlayerTurn() {
     const ownerPlayerId = gamePlayerOwner['player']['id'];
     const opponentPlayerId = gamePlayerOpponent['player']['id'];
     const ownerSalvoesLength = fetchedGameView['salvoes'][ownerPlayerId].length;
@@ -491,7 +491,9 @@ function getMaxSelectableSalvoLocationNumber() {
     const salvoTurnsOnOwner = fetchedGameView['gameHistory'][ownerPlayerId];
     const latestTurnSalvoInfo = salvoTurnsOnOwner.reduce((previousTurn, currentTurn) => {
         const currentTurnKey = Object.keys(currentTurn)[0];
-        return currentTurnKey > Object.keys(previousTurn)[0] ? currentTurn : previousTurn;
+        return currentTurnKey > Object.keys(previousTurn)[0]
+            ? currentTurn
+            : previousTurn;
     }, salvoTurnsOnOwner[0]);
     return Object.values(latestTurnSalvoInfo)[0]['ship_number_left'];
 }
