@@ -5,20 +5,17 @@ import com.codeoftheweb.salvo.model.entity.GamePlayer;
 import com.codeoftheweb.salvo.model.entity.Salvo;
 import com.codeoftheweb.salvo.model.entity.SalvoLocation;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SalvoValidation {
 
-    public static void checkIfPlayerCanSubmitSalvo(GamePlayer ownerGamePlayer, SalvoDto salvoDto, GamePlayer opponentGamePlayer) {
-        if (ownerGamePlayer.getGame().getGamePlayers().size() < 2) {
-            throw new IllegalStateException("Wait for opponent player to be able to submit a salvo.");
-        }
+    public static void checkIfPlayerCanSubmitSalvo(GamePlayer ownerGamePlayer, SalvoDto salvoDto, GamePlayer opponentGamePlayer, String gameStatus) {
         if (ownerGamePlayer.getShips().size() < 5) {
             throw new IllegalStateException("First save all your ships, then submit your salvo.");
+        }
+        if(gameStatus.contains("GameOver")){
+            throw new IllegalStateException("Game is over, you cannot submit another salvo.");
         }
         if (opponentGamePlayer.getShips().size() < 5){
             throw new IllegalStateException("Wait for your opponent to place their ships."); // This validation is done only on backend side since client cannot reach the ships of the opponent

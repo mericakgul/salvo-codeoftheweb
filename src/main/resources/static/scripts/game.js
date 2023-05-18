@@ -12,6 +12,7 @@ import {allShipTypes} from "./utilities/constants.js"
 
 const gridSize = 10;
 const lastLetterInMap = String.fromCharCode(97 + gridSize - 1); // Because charcode return array is also zero indexed, we need to subtract 1.
+const gameStatusArea = document.querySelector('#game-status');
 const shipsGridContainer = document.querySelector('#ships-grid-container');
 const salvoesGridContainer = document.querySelector('#salvoes-grid-container');
 const loggedInPlayerUsernameArea = document.querySelector('#logged-in-player');
@@ -63,6 +64,7 @@ createGrids();
 showGameInfo();
 placeShipDataOnGrids();
 placeSalvoesOnGrids(fetchedGameView);
+updateGameStatus(fetchedGameView);
 showGameHistory(fetchedGameView);
 
 async function updateGameView() {
@@ -70,6 +72,7 @@ async function updateGameView() {
     gamePlayerOpponent = fetchedGameView['gamePlayers'].find(({id}) => id.toString() !== gamePlayerId);
     showGameInfo();
     placeSalvoesOnGrids(fetchedGameView);
+    updateGameStatus(fetchedGameView);
     showGameHistory(fetchedGameView);
 }
 
@@ -145,7 +148,7 @@ function placeAlreadySavedShipsOnGrid(ships) {
 
 function showGameInfo() {
     const ownerUsername = gamePlayerOwner['player']['username'];
-    const opponentUsername = gamePlayerOpponent === undefined ? '"waiting_for_opponent"' : gamePlayerOpponent['player']['username'];
+    const opponentUsername = gamePlayerOpponent === undefined ? '-' : gamePlayerOpponent['player']['username'];
 
     const gameInfoTextField = document.querySelector('#game-info span');
     const gameInfoText = document.createTextNode(`${ownerUsername} (you) vs ${opponentUsername}`);
@@ -458,6 +461,9 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if (fetchedShipsOfGamePlayer.length < 5) {
         throw new Error("First place all of your ships, then select salvo");
     }
+    if(fetchedGameView['gameHistory']['gameStatus'].includes('GameOver')){
+        throw new Error("The game is over, you cannot fire.")
+    }
     if(!isTurnOfOwnerPlayer()){
         throw new Error("It is not your turn, wait for your opponent to play.");
     }
@@ -515,6 +521,12 @@ function createSalvoObject() {
         "turnNumber": lastTurnNumber + 1,
         "salvoLocations": selectedSalvoLocations
     };
+}
+
+function updateGameStatus(fetchedGameView){
+    const gameStatus = fetchedGameView['gameHistory']?.['gameStatus'] || 'Wait for your opponent';
+    gameStatusArea.textContent = 'Game Status: ' + gameStatus;
+
 }
 
 function showGameHistory(fetchedGameView) {
