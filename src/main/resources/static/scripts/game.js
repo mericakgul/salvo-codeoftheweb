@@ -459,7 +459,7 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
         throw new Error("Wait for your opponent.");
     }
     if (fetchedShipsOfGamePlayer.length < 5) {
-        throw new Error("First place all of your ships, then select salvo");
+        throw new Error("First save all of your ships, then select salvo");
     }
     if(fetchedGameView['gameHistory']['gameStatus'].includes('GameOver')){
         throw new Error("The game is over, you cannot fire.")
@@ -470,8 +470,8 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
         throw new Error("You fired this point before, pick another point.");
     }
-    if (selectedSalvoLocations.length === 5 && isSelected === 'false') {
-        throw new Error("You can only select a maximum of 5 cells.");
+    if (selectedSalvoLocations.length === getMaxSelectableSalvoLocationNumber() && isSelected === 'false') {
+        throw new Error(`You can only select a maximum of ${getMaxSelectableSalvoLocationNumber()} cells since you have ${getMaxSelectableSalvoLocationNumber()} ship(s) left.`);
     }
 }
 
@@ -484,6 +484,16 @@ function isTurnOfOwnerPlayer() {
     return gamePlayerOwner['id'] < gamePlayerOpponent['id']  // This means the owner is the creator of the game. And the creator has the right to play first
         ? ownerSalvoesLength <= opponentSalvoesLength
         : ownerSalvoesLength < opponentSalvoesLength;
+}
+
+function getMaxSelectableSalvoLocationNumber() {
+    const ownerPlayerId = gamePlayerOwner['player']['id'];
+    const salvoTurnsOnOwner = fetchedGameView['gameHistory'][ownerPlayerId];
+    const latestTurnSalvoInfo = salvoTurnsOnOwner.reduce((previousTurn, currentTurn) => {
+        const currentTurnKey = Object.keys(currentTurn)[0];
+        return currentTurnKey > Object.keys(previousTurn)[0] ? currentTurn : previousTurn;
+    }, salvoTurnsOnOwner[0]);
+    return Object.values(latestTurnSalvoInfo)[0]['ship_number_left'];
 }
 
 function selectTheSalvoGrid(event, clickedItemGridCode) {
