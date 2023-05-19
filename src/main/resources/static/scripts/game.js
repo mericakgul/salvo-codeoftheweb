@@ -489,13 +489,19 @@ function isItOwnerPlayerTurn() {
 function getMaxSelectableSalvoLocationNumber() {
     const ownerPlayerId = gamePlayerOwner['player']['id'];
     const salvoTurnsOnOwner = fetchedGameView['gameHistory'][ownerPlayerId];
-    const latestTurnSalvoInfo = salvoTurnsOnOwner.reduce((previousTurn, currentTurn) => {
-        const currentTurnKey = Object.keys(currentTurn)[0];
-        return currentTurnKey > Object.keys(previousTurn)[0]
-            ? currentTurn
-            : previousTurn;
-    }, salvoTurnsOnOwner[0]);
-    return Object.values(latestTurnSalvoInfo)[0]['ship_number_left'];
+    if(salvoTurnsOnOwner.length > 0){
+        const latestTurnSalvoInfo = salvoTurnsOnOwner.reduce((previousTurn, currentTurn) => {
+            const currentTurnKey = Object.keys(currentTurn)[0];
+            return currentTurnKey > Object.keys(previousTurn)[0]
+                ? currentTurn
+                : previousTurn;
+        }, salvoTurnsOnOwner[0]);
+        const shipNumberLeft = Object.values(latestTurnSalvoInfo)[0]['ship_number_left'];
+        return (shipNumberLeft === 0) ? 1 : shipNumberLeft;
+    } else {
+        return fetchedGameView['ships'].length;
+    }
+
 }
 
 function selectTheSalvoGrid(event, clickedItemGridCode) {

@@ -42,7 +42,7 @@ public class SalvoValidation {
     }
 
     public static boolean isItOwnerPlayerTurn(GamePlayer ownerGamePlayer, GamePlayer opponentGamePlayer) {
-        return ownerGamePlayer.getId() < opponentGamePlayer.getId()
+        return ownerGamePlayer.getId() < opponentGamePlayer.getId()  // This means the owner is the creator of the game. And the creator has the right to play first
                 ? ownerGamePlayer.getSalvoes().size() > opponentGamePlayer.getSalvoes().size()
                 : ownerGamePlayer.getSalvoes().size() >= opponentGamePlayer.getSalvoes().size();
     }
@@ -64,15 +64,20 @@ public class SalvoValidation {
     public static Long getMaxSelectableSalvoLocationNumber(GamePlayer ownerGamePlayer, Map<Object, Object> gameHistory){
         Long ownerPlayerId = ownerGamePlayer.getPlayer().getId();
         List<Map<Integer, Object>> salvoTurnsOnOwner = (List<Map<Integer, Object>>) gameHistory.get(ownerPlayerId);
-        Map<Integer, Object> latestTurnSalvoInfo = salvoTurnsOnOwner.stream()
-                .reduce(salvoTurnsOnOwner.get(0), (previousTurn, currentTurn) -> {
-                    Integer currentTurnKey = currentTurn.keySet().iterator().next();
-                    return currentTurnKey > previousTurn.keySet().iterator().next()
-                            ? currentTurn
-                            : previousTurn;
-                });
-        Map<String, Object> latestSalvoInfo = (Map<String, Object>) latestTurnSalvoInfo.values().iterator().next();
-        return (Long) latestSalvoInfo.get("ship_number_left");
+        if(salvoTurnsOnOwner.size() > 0){
+            Map<Integer, Object> latestTurnSalvoInfo = salvoTurnsOnOwner.stream()
+                    .reduce(salvoTurnsOnOwner.get(0), (previousTurn, currentTurn) -> {
+                        Integer currentTurnKey = currentTurn.keySet().iterator().next();
+                        return currentTurnKey > previousTurn.keySet().iterator().next()
+                                ? currentTurn
+                                : previousTurn;
+                    });
+            Map<String, Object> latestSalvoInfo = (Map<String, Object>) latestTurnSalvoInfo.values().iterator().next();
+            Long shipNumberLeft = (Long) latestSalvoInfo.get("ship_number_left");
+            return (shipNumberLeft == 0) ? 1L : shipNumberLeft;
+        } else {
+            return (long) ownerGamePlayer.getShips().size();
+        }
     }
 
     public static boolean hasSalvoDuplicatedLocation(SalvoDto salvoDto, GamePlayer gamePlayer) {

@@ -28,6 +28,7 @@ public class SalvoService {
     private final ShipLocationRepository shipLocationRepository;
     private final SalvoRepository salvoRepository;
     private final SalvoLocationRepository salvoLocationRepository;
+    private final ScoreRepository scoreRepository;
     private final ObjectExistence objectExistence;
     private final PasswordEncoder passwordEncoder;
 
@@ -330,13 +331,20 @@ public class SalvoService {
 
     private String getGameStatus(GamePlayer ownerGamePlayer, GamePlayer opponentGamePlayer, List<String> ownerSunkShipsList, List<String> opponentSunkShipsList){
         boolean isTurnNumbersEqual = ownerGamePlayer.getSalvoes().size() == opponentGamePlayer.getSalvoes().size();
+        Game game = ownerGamePlayer.getGame();
+        Player player = ownerGamePlayer.getPlayer();
         if(ownerGamePlayer.getShips().size() < 5){
             return "Place Ships";
         } else if (opponentGamePlayer.getShips().size() < 5) {
             return "Wait for opponent to place ships.";
+        } else if (ownerSunkShipsList.size() == 5 && opponentSunkShipsList.size() == 5 && isTurnNumbersEqual) {
+            scoreRepository.save(new Score(game, player, 0.5, new Date()));
+            return "GameOver: It is tie!";
         } else if (ownerSunkShipsList.size() == 5 && isTurnNumbersEqual) {
+            scoreRepository.save(new Score(game, player, 0.0, new Date()));
             return "GameOver: You lost!";
         } else if (opponentSunkShipsList.size() == 5 && isTurnNumbersEqual) {
+            scoreRepository.save(new Score(game, player, 1.0, new Date()));
             return "GameOver: You win!";
         } else if (SalvoValidation.isItOwnerPlayerTurn(ownerGamePlayer, opponentGamePlayer)) {
             return "Wait for opponent's turn";
