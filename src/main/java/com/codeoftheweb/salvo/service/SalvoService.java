@@ -160,7 +160,7 @@ public class SalvoService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
             }
             try {
-                SalvoValidation.checkIfSalvoLocationsValid(salvoDto, ownerGamePlayer, gameHistory);
+                SalvoValidation.checkIfSalvoLocationsValid(salvoDto, ownerGamePlayer, this.getOpponentGamePlayer(ownerGamePlayer), gameHistory);
             } catch (IllegalArgumentException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }

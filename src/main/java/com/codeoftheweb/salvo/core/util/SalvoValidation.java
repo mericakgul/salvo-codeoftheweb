@@ -28,8 +28,8 @@ public class SalvoValidation {
         }
     }
 
-    public static void checkIfSalvoLocationsValid(SalvoDto salvoDto, GamePlayer ownerGamePlayer, Map<Object, Object> gameHistory) {
-        Long maxSelectableSalvoLocationNumber = getMaxSelectableSalvoLocationNumber(ownerGamePlayer, gameHistory);
+    public static void checkIfSalvoLocationsValid(SalvoDto salvoDto, GamePlayer ownerGamePlayer, GamePlayer opponentGamePlayer, Map<Object, Object> gameHistory) {
+        Long maxSelectableSalvoLocationNumber = getMaxSelectableSalvoLocationNumber(ownerGamePlayer, opponentGamePlayer, gameHistory);
         if (salvoDto.getSalvoLocations().size() > maxSelectableSalvoLocationNumber) {
             throw new IllegalArgumentException(String.format("You can only fire a maximum of %d locations", maxSelectableSalvoLocationNumber));
         }
@@ -61,23 +61,37 @@ public class SalvoValidation {
     }
 
     @SuppressWarnings("unchecked") // gameHistory.get(ownerPlayerId) for sure returns List<Map<Integer, Object>> type
-    public static Long getMaxSelectableSalvoLocationNumber(GamePlayer ownerGamePlayer, Map<Object, Object> gameHistory){
+    public static Long getMaxSelectableSalvoLocationNumber(GamePlayer ownerGamePlayer, GamePlayer opponentGamePlayer, Map<Object, Object> gameHistory) {
         Long ownerPlayerId = ownerGamePlayer.getPlayer().getId();
-        List<Map<Integer, Object>> salvoTurnsOnOwner = (List<Map<Integer, Object>>) gameHistory.get(ownerPlayerId);
-        if(salvoTurnsOnOwner.size() > 0){
-            Map<Integer, Object> latestTurnSalvoInfo = salvoTurnsOnOwner.stream()
-                    .reduce(salvoTurnsOnOwner.get(0), (previousTurn, currentTurn) -> {
-                        Integer currentTurnKey = currentTurn.keySet().iterator().next();
-                        return currentTurnKey > previousTurn.keySet().iterator().next()
+        boolean isOwnerCreator = ownerGamePlayer.getId() < opponentGamePlayer.getId();
+        List<Map<Integer, Object>> salvoObjectsOnOwner = (List<Map<Integer, Object>>) gameHistory.getOrDefault(ownerPlayerId, new ArrayList<>());
+
+        return salvoObjectsOnOwner.isEmpty()
+                ? (long) ownerGamePlayer.getShips().size()
+                : isOwnerCreator
+                    ? (Long) ((Map<String, Object>) getLatestTurnSalvoObject(salvoObjectsOnOwner).values().iterator().next()).get("ship_number_left")
+                    : getMaxSelectableSalvoLocationNumberForJoinerOwner(getLatestTurnSalvoObject(salvoObjectsOnOwner), salvoObjectsOnOwner, ownerGamePlayer);
+    }
+
+    public static Map<Integer, Object> getLatestTurnSalvoObject(List<Map<Integer, Object>> salvoTurnsOnOwner) {
+        return salvoTurnsOnOwner.stream()
+                .reduce(salvoTurnsOnOwner.get(0), (previousTurn, currentTurn) ->
+                        currentTurn.keySet().iterator().next() > previousTurn.keySet().iterator().next()
                                 ? currentTurn
-                                : previousTurn;
-                    });
-            Map<String, Object> latestSalvoInfo = (Map<String, Object>) latestTurnSalvoInfo.values().iterator().next();
-            Long shipNumberLeft = (Long) latestSalvoInfo.get("ship_number_left");
-            return (shipNumberLeft == 0) ? 1L : shipNumberLeft;
-        } else {
-            return (long) ownerGamePlayer.getShips().size();
-        }
+                                : previousTurn
+                );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Long getMaxSelectableSalvoLocationNumberForJoinerOwner(Map<Integer, Object> lastSalvoObjectOnOwner, List<Map<Integer, Object>> salvoObjectsOnOwner, GamePlayer ownerGamePlayer) {
+        Integer secondToLastTurnNumberOfJoinerOwner = lastSalvoObjectOnOwner.keySet().iterator().next() - 1; // This is done because the creatorOwner has the right to play first and if the creator player sinks some ships of the opponent in the first play of a turn, then the opponent's turn number (on opponent side it is joinerOwner) will be automatically decreased.
+
+        return salvoObjectsOnOwner.stream()
+                .filter(salvoObjectOnJoinerOwner -> salvoObjectOnJoinerOwner.containsKey(secondToLastTurnNumberOfJoinerOwner))
+                .map(secondToLastSalvoObjectOnJoinerOwner -> (Map<String, Object>) secondToLastSalvoObjectOnJoinerOwner.get(secondToLastTurnNumberOfJoinerOwner))
+                .findFirst()
+                .map(secondToLastSalvoInfoOfJoinerOwner -> (Long) secondToLastSalvoInfoOfJoinerOwner.get("ship_number_left"))
+                .orElse((long) ownerGamePlayer.getShips().size());
     }
 
     public static boolean hasSalvoDuplicatedLocation(SalvoDto salvoDto, GamePlayer gamePlayer) {
