@@ -461,17 +461,17 @@ function checkIfPlayerCanFire(clickedItemGridCode, isSelected) {
     if (fetchedShipsOfGamePlayer.length < 5) {
         throw new Error("First save all of your ships, then select salvo");
     }
-    if(fetchedGameView['gameHistory']['gameStatus'].includes('GameOver')){
+    if (fetchedGameView['gameHistory']['gameStatus'].includes('GameOver')) {
         throw new Error("The game is over, you cannot fire.")
     }
-    if(!isItOwnerPlayerTurn()){
+    if (!isItOwnerPlayerTurn()) {
         throw new Error("It is not your turn, wait for your opponent to play.");
     }
     if (previouslyFiredSalvoLocations.includes(clickedItemGridCode)) {
         throw new Error("You fired this point before, pick another point.");
     }
     if (selectedSalvoLocations.length === getMaxSelectableSalvoLocationNumber() && isSelected === 'false') {
-        throw new Error(`You can only select a maximum of ${getMaxSelectableSalvoLocationNumber()} cells since you have ${getMaxSelectableSalvoLocationNumber()} ship(s) left.`);
+        throw new Error(`You can only select a maximum of ${getMaxSelectableSalvoLocationNumber()} cells`);
     }
 }
 
@@ -488,20 +488,33 @@ function isItOwnerPlayerTurn() {
 
 function getMaxSelectableSalvoLocationNumber() {
     const ownerPlayerId = gamePlayerOwner['player']['id'];
-    const salvoTurnsOnOwner = fetchedGameView['gameHistory'][ownerPlayerId];
-    if(salvoTurnsOnOwner.length > 0){
-        const latestTurnSalvoInfo = salvoTurnsOnOwner.reduce((previousTurn, currentTurn) => {
-            const currentTurnKey = Object.keys(currentTurn)[0];
-            return currentTurnKey > Object.keys(previousTurn)[0]
-                ? currentTurn
-                : previousTurn;
-        }, salvoTurnsOnOwner[0]);
-        const shipNumberLeft = Object.values(latestTurnSalvoInfo)[0]['ship_number_left'];
-        return (shipNumberLeft === 0) ? 1 : shipNumberLeft;
-    } else {
-        return fetchedGameView['ships'].length;
-    }
+    const isOwnerCreator = gamePlayerOwner['id'] < gamePlayerOpponent['id'];
+    const salvoObjectsOnOwner = fetchedGameView['gameHistory'][ownerPlayerId];
 
+    return salvoObjectsOnOwner.length === 0
+        ? fetchedGameView['ships'].length
+        : isOwnerCreator
+            ? Object.values(getLatestTurnSalvoObject(salvoObjectsOnOwner))[0]['ship_number_left']
+            : getMaxSelectableSalvoLocationNumberForJoinerOwner(salvoObjectsOnOwner);
+}
+
+function getLatestTurnSalvoObject(salvoObjectsOnOwner) {
+    return salvoObjectsOnOwner.reduce((previousTurn, currentTurn) => {
+        const currentTurnKey = Object.keys(currentTurn)[0];
+        return currentTurnKey > Object.keys(previousTurn)[0]
+            ? currentTurn
+            : previousTurn;
+    }, salvoObjectsOnOwner[0]);
+}
+
+function getMaxSelectableSalvoLocationNumberForJoinerOwner(salvoObjectsOnOwner) {
+    const secondToLastTurnNumberOfJoinerOwner = Object.keys(getLatestTurnSalvoObject(salvoObjectsOnOwner))[0] - 1;
+    const secondToLastSalvoObjectOnJoinerOwner = salvoObjectsOnOwner.find(salvoObject => Number(Object.keys(salvoObject)[0]) === secondToLastTurnNumberOfJoinerOwner);
+    if(secondToLastSalvoObjectOnJoinerOwner){
+        return Object.values(secondToLastSalvoObjectOnJoinerOwner)[0]['ship_number_left'];
+    } else {
+        return fetchedShipsOfGamePlayer.length;
+    }
 }
 
 function selectTheSalvoGrid(event, clickedItemGridCode) {
@@ -541,7 +554,7 @@ function createSalvoObject() {
     };
 }
 
-function updateGameStatus(fetchedGameView){
+function updateGameStatus(fetchedGameView) {
     const gameStatus = fetchedGameView['gameHistory']?.['gameStatus'] || 'Wait for your opponent';
     gameStatusArea.textContent = 'Game Status: ' + gameStatus;
 
