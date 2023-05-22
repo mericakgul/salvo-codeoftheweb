@@ -1,0 +1,417 @@
+{
+	"info": {
+		"_postman_id": "080edd13-4965-41a5-8d9d-b7d98e506752",
+		"name": "Salvo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5503005"
+	},
+	"item": [
+		{
+			"name": "/api/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "t.almeida@ctu.gov",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "mole",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/players sign up",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"j.bauer@ctu.gov\",\n    \"password\": \"123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/players",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"players"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/rest/player find all players directly from RESTRepo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/players/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"players",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "rest/players sign up directly from RESTRepo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"uuu\",\n    \"password\": \"123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/players",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"players"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "rest/players update directly from RESTRepo",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"eee\",\n    \"password\": \"1234\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/players/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"players",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "rest/players delete directly from RESTRepo",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/rest/players/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"players",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/games",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/game_view/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/game_view/9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"game_view",
+						"9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games create new game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/games",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/game/{gameId}/players join game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/game/7/players",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"game",
+						"7",
+						"players"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games/players/{gamePlayerId}/ships get Ships",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/games/players/12/ships",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games",
+						"players",
+						"12",
+						"ships"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games/players/{gamePlayerId}/ships place Ships",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ships\": [\n    {\n      \"shipType\": \"Battleship\",\n      \"shipLocations\": [\"A1\", \"A2\", \"A3\", \"A4\"]\n    },\n    {\n      \"shipType\": \"Carrier\",\n      \"shipLocations\": [\"B1\", \"B2\", \"B3\", \"B4\", \"b5\"]\n    },\n    {\n      \"shipType\": \"Destroyer\",\n      \"shipLocations\": [\"A6\", \"b6\", \"c6\"]\n    },\n    {\n      \"shipType\": \"Submarine\",\n      \"shipLocations\": [\"f3\", \"F4\", \"F5\"]\n    },\n    {\n      \"shipType\": \"patrol boat\",\n      \"shipLocations\": [\"F6\", \"f7\"]\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/games/players/12/ships",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games",
+						"players",
+						"12",
+						"ships"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games/players/{gamePlayerId}/salvoes get Salvoes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/games/players/12/salvoes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games",
+						"players",
+						"12",
+						"salvoes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/games/players/{gamePlayerId}/salvoes place Salvoes",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"turnNumber\": 1,\n        \"salvoLocations\": [\n            \"a5\",\n            \"b4\"\n        ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/games/players/12/salvoes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"games",
+						"players",
+						"12",
+						"salvoes"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
