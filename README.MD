@@ -35,6 +35,9 @@ The application will be accessible at `localhost:8080`.
 
 Go to `http://localhost:8080/web/games.html` to play the game.
 
+### Postman collection
+There is a Postman collection under the Resources folder to be able to test API end point. You can use it to test the API.
+
 ### Usage / Rules of the Game
 
 1. This game can be played by only two players.
