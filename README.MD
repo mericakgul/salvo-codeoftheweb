@@ -59,11 +59,9 @@ Go to `http://localhost:8080/web/games.html` to play the game.
 20. The winner gets 1 point, the loser gets 0 point. If it is tie, both players get 0.5 point. The points are added to the scoreboard on page `/web/games.html`.
 
 ### Help
-Any recommendation is welcome. Please contact me if you have any idea or improvement or suggestion.
+Any recommendation is welcome. Please contact me if you have any idea, improvement or suggestion.
 
 ### Authors
-
-Contributors names and contact info
 
 Meriç Akgül
 
