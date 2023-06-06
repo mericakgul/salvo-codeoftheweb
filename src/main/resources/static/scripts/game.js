@@ -555,7 +555,7 @@ function createSalvoObject() {
 }
 
 function updateGameStatus(fetchedGameView) {
-    const gameStatus = fetchedGameView['gameHistory']?.['gameStatus'] || 'Wait for your opponent';
+    const gameStatus = fetchedGameView['gameHistory']?.['gameStatus'] || 'Wait for your opponent. You can place and save your ships.';
     gameStatusArea.textContent = 'Game Status: ' + gameStatus;
 
 }
