@@ -35,8 +35,6 @@ The application will be accessible at `localhost:8080`.
 
 Go to `http://localhost:8080/web/games.html` to play the game.
 
-### Postman collection
-There is a Postman collection under the Resources folder to be able to test API end point. You can use it to test the API.
 
 ### Usage / Rules of the Game
 
@@ -60,6 +58,9 @@ There is a Postman collection under the Resources folder to be able to test API 
 18. The game can end with three possible results: Win, Lose and Tie. And the game can end if all the players played same amount of turns.
 19. If you sink all of your opponent's ship, and you still have floating ship at the end of a turn, then you win. If other way around, then you lose. If both players' ships are sunk at the end of a turn, then it is tie.
 20. The winner gets 1 point, the loser gets 0 point. If it is tie, both players get 0.5 point. The points are added to the scoreboard on page `/web/games.html`.
+
+### Postman collection
+There is a Postman collection under the Resources folder to be able to test API end point. You can use it to test the API.
 
 ### Help
 Any recommendation is welcome. Please contact me if you have any idea, improvement or suggestion.
