@@ -1,7 +1,7 @@
 # Salvo Game Web Application
 This is a full-stack web application for the Salvo game, developed using 
-JavaScript on the frontend and Java with Spring Boot on the backend. 
-The application uses an H2 database.
+JavaScript on the frontend and Spring Boot framework is used for the Java-based RESTful web server. 
+The application uses H2 database.
 
 ## Prerequisites
 Here's a list of tools you need to install in order to run this application:
