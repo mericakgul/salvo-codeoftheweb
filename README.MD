@@ -19,21 +19,26 @@ git clone https://github.com/mericakgul/salvo-codeoftheweb.git
 ```
 
 2. Open the project
-Open the cloned project in the IDE that you installed.
+
+* Open the cloned project in the IDE that you installed.
 
 
 3. Start the application
-Run the following command in the directory of the project in the terminal. 
+
+* Run the following command in the directory of where build.gradle is in the terminal. 
 ```
 ./gradlew bootRun
 ```
-Or you can use the IntelliJ bootRun configuration on right top corner. 
 
-Or you can open the Gradle tab on the right side of IntelliJ, click on 'Execute Gradle Task' button and click on 'gradle bootrun' option. 
+or
+* You can use the IntelliJ gradle bootRun configuration on right top corner. 
 
-The application will be accessible at `localhost:8080`.
+or
+* You can open the Gradle tab on the right side of IntelliJ, click on 'Execute Gradle Task' button and click on 'gradle bootrun' option. 
 
-Go to `http://localhost:8080/web/games.html` to play the game.
+
+
+The application will be accessible at `localhost:8080`. Go to `http://localhost:8080/web/games.html` to play the game.
 
 
 ### Usage / Rules of the Game
@@ -60,7 +65,7 @@ Go to `http://localhost:8080/web/games.html` to play the game.
 20. The winner gets 1 point, the loser gets 0 point. If it is tie, both players get 0.5 point. The points are added to the scoreboard on page `/web/games.html`.
 
 ### Postman collection
-There is a Postman collection under the Resources folder to be able to test API end point. You can use it to test the API.
+There is a Postman collection under the Resources folder to be able to test API end points. You can use it to test the API.
 
 ### Help
 Any recommendation is welcome. Please contact me if you have any idea, improvement or suggestion.
