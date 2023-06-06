@@ -27,7 +27,7 @@ Run the following command in the directory of the project in the terminal.
 ```
 ./gradlew bootRun
 ```
-Or you can use the IntelliJ bootrun configuration on right top corner. 
+Or you can use the IntelliJ bootRun configuration on right top corner. 
 
 Or you can open the Gradle tab on the right side of IntelliJ, click on 'Execute Gradle Task' button and click on 'gradle bootrun' option. 
 
